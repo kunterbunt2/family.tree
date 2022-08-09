@@ -22,11 +22,11 @@ public class TreeMaster {
 		return personList.addMale(firstName, lastName, born, died, father, mother);
 	}
 
-	private void draw() {
+	private void draw(String familyName) {
 		Font			nameFont		= new Font("Arial", Font.PLAIN, Person.PERSON_HEIGHT / 3);
 		BufferedImage	aImage			= new BufferedImage(50, 50, BufferedImage.TYPE_INT_ARGB);
 
-		String			imageFilenName	= "family.tree.png";
+		String			imageFilenName	= familyName + "-family-tree.png";
 		Graphics2D		graphics		= aImage.createGraphics();
 		graphics.setFont(nameFont);
 		Person.personWidth = personList.calculateMaxNameWidth(graphics) + Person.PERSON_MARGINE * 4;
@@ -112,9 +112,9 @@ public class TreeMaster {
 		return change;
 	}
 
-	public void start() throws Exception {
+	public void generate(String familyName) throws Exception {
 		testAlbumList();
-		draw();
+		draw(familyName);
 	}
 
 	private void testAlbumList() throws Exception {

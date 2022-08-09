@@ -47,7 +47,7 @@ public class BushnaqFamily {
 				}
 			}
 		}
-		treeMaster.start();
+		treeMaster.generate("bushnaq");
 	}
 
 }
