@@ -1,7 +1,7 @@
 # This workflow will build a Java project with Maven
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
-name: Linux Client
+name: Generate Bushnaq Family Genealogy
 
 on:
    workflow_dispatch: null
@@ -20,7 +20,7 @@ jobs:
             distribution: adopt
       -  name: Build with Maven
          run: |
-            mvn install --batch-mode --update-snapshots package
+            mvn test --batch-mode --update-snapshots package
       -  name: Upload test result
          uses: actions/upload-artifact@v2
          with:

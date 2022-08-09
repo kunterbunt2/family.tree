@@ -3,13 +3,13 @@ package de.bushnaq.abdalla.songmaster;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import de.bushnaq.abdalla.family.tree.Female;
 import de.bushnaq.abdalla.family.tree.Male;
 import de.bushnaq.abdalla.family.tree.TreeMaster;
 
-public class BushnaqFamily {
+public class BushnaqFamilyTest {
 	TreeMaster treeMaster = new TreeMaster();
 
 	private Female addFemale(String firstName, String lastName, Calendar born, Calendar died, Male father, Female mother) {
