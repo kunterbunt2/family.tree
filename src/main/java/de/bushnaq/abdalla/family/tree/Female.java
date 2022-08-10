@@ -1,11 +1,12 @@
 package de.bushnaq.abdalla.family.tree;
 
-import java.util.Calendar;
+import java.awt.Color;
+import java.util.Date;
 
 public class Female extends Person {
 
-	public Female(PersonList personList, String firstName, String lastName, Calendar born, Calendar died, Male father, Female mother) {
-		super(personList, firstName, lastName, born, died, father, mother);
+	public Female(PersonList personList, int id, String firstName, String lastName, Date born, Date died, Male father, Female mother) {
+		super(personList, id, firstName, lastName, born, died, father, mother, new Color(0xff, 0x62, 0xb0, 64));
 	}
 
 	@Override
