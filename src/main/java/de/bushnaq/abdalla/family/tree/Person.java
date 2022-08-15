@@ -1,20 +1,22 @@
 package de.bushnaq.abdalla.family.tree;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.font.FontRenderContext;
+import java.awt.font.LineMetrics;
+import java.awt.geom.Rectangle2D;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 public abstract class Person {
-	public static final int		PERSON_HEIGHT		= 50;
-	public static final int		PERSON_MARGINE		= 2;
 	public static final int		PERSON_BORDER		= 1;
-	public static final int		PERSON_X_SPACE		= 50;
-	public static final int		PERSON_Y_SPACE		= 25;
-//	public static int			personWidth			= 400;
+	public static final float	PERSON_HEIGHT		= 50;
+	public static final int		PERSON_MARGINE		= 5;
+	public static final int		PERSON_X_SPACE		= 25;
+	public static final int		PERSON_Y_SPACE		= 13;
+	private Color				backgroundColor;
+	private Color				borderColoe			= new Color(0, 0, 0, 64);
 	public Date					born				= null;
 	public Date					died				= null;
 	public Male					father;
@@ -25,10 +27,10 @@ public abstract class Person {
 	public PersonList			personList;
 	public boolean				positionSet			= false;
 	private SimpleDateFormat	simpleDateFormat	= new SimpleDateFormat("yyyy-MM-dd");
+	private Color				textColoe			= new Color(0, 0, 0);
+	public float				width;
 	public int					x					= 0;
 	public int					y					= 0;
-	public int					width;
-	private Color				backgroundColor;
 
 	public Person(PersonList personList, int id, String firstName, String lastName, Date born, Date died, Male father, Female mother, Color backgroundColor) {
 		this.personList = personList;
@@ -42,25 +44,52 @@ public abstract class Person {
 		this.backgroundColor = backgroundColor;
 	}
 
+	public void calculateWidth(Graphics2D graphics) {
+		width = 0;
+		width = Math.max(width, graphics.getFontMetrics().stringWidth(getFirstName()));
+		width = Math.max(width, graphics.getFontMetrics().stringWidth(getLastName()));
+		width = Math.max(width, graphics.getFontMetrics().stringWidth(getLivedString()));
+		width += Person.PERSON_MARGINE * 2 + Person.PERSON_BORDER;
+	}
+
 	public void draw(Graphics2D graphics) {
 		int	mapX1	= x;
-		int	mapX2	= x + width;
+		int	mapX2	= (int) (x + width);
 		int	mapY1	= y;
-		int	mapY2	= y + PERSON_HEIGHT;
+		int	mapY2	= (int) (y + PERSON_HEIGHT);
 		graphics.setColor(backgroundColor);
 		graphics.fillRect(mapX1, mapY1, mapX2 - mapX1, mapY2 - mapY1);
-		graphics.setColor(Color.black);
+		graphics.setColor(borderColoe);
 		graphics.drawRect(mapX1, mapY1, mapX2 - mapX1 - 1, mapY2 - mapY1 - 1);
-		int h = graphics.getFontMetrics().getHeight();
+		graphics.setColor(textColoe);
+		FontRenderContext	frc		= graphics.getFontRenderContext();
+		Font				font	= graphics.getFont();
 		{
-			String	string	= getName();
-			int		w		= graphics.getFontMetrics().stringWidth(string);
-			graphics.drawString(string, x + width / 2 - w / 2, y + PERSON_HEIGHT / 2 + h / 2 - h / 2);
+			String		string			= getFirstName();
+			LineMetrics	metrics			= font.getLineMetrics(string, frc);
+			float		descent			= metrics.getDescent();
+			Rectangle2D	stringBounds	= font.getStringBounds(string, frc);
+			float		w				= (float) stringBounds.getWidth();
+			float		h				= (float) stringBounds.getHeight();
+			graphics.drawString(string, x + width / 2 - w / 2, y + PERSON_HEIGHT / 2 + metrics.getHeight() / 2 - descent - h);
 		}
 		{
-			String	string	= getLivedString();
-			int		w		= graphics.getFontMetrics().stringWidth(string);
-			graphics.drawString(string, x + width / 2 - w / 2, y + PERSON_HEIGHT / 2 + h / 2 + h / 2);
+			String		string			= getLastName();
+			LineMetrics	metrics			= font.getLineMetrics(string, frc);
+			float		descent			= metrics.getDescent();
+			Rectangle2D	stringBounds	= font.getStringBounds(string, frc);
+			float		w				= (float) stringBounds.getWidth();
+			float		h				= (float) stringBounds.getHeight();
+			graphics.drawString(string, x + width / 2 - w / 2, y + PERSON_HEIGHT / 2 + metrics.getHeight() / 2 - descent);
+		}
+		{
+			String		string			= getLivedString();
+			LineMetrics	metrics			= font.getLineMetrics(string, frc);
+			float		descent			= metrics.getDescent();
+			Rectangle2D	stringBounds	= font.getStringBounds(string, frc);
+			float		w				= (float) stringBounds.getWidth();
+			float		h				= (float) stringBounds.getHeight();
+			graphics.drawString(string, x + width / 2 - w / 2, y + PERSON_HEIGHT / 2 + metrics.getHeight() / 2 - descent + h);
 		}
 	}
 
@@ -70,10 +99,30 @@ public abstract class Person {
 		return "?";
 	}
 
+	public PersonList getChildrenList(Person spouse) {
+		PersonList childrenList = new PersonList();
+		for (Person child : personList) {
+			if (child.father != null && child.mother != null) {
+				if ((child.father.equals(this) && child.mother.equals(spouse)) || (child.father.equals(spouse) && child.mother.equals(this))) {
+					childrenList.add(child);
+				}
+			}
+		}
+		return childrenList;
+	}
+
 	private String getDiedString() {
 		if (died != null)
 			return "\u271D" + simpleDateFormat.format(died);
 		return "?";
+	}
+
+	public String getFirstName() {
+		return String.format("%s", firstName);
+	}
+
+	public String getLastName() {
+		return String.format("%s", lastName);
 	}
 
 	private String getLivedString() {
@@ -81,18 +130,20 @@ public abstract class Person {
 	}
 
 	public String getName() {
-		return String.format("%s%s %s", getSexCharacter(), firstName, lastName);
+		return String.format("%s %s", firstName, lastName);
 	}
 
 	public abstract String getSexCharacter();
 
-	public List<Female> getWifeList() {
-		List<Female> wifeList = new ArrayList<>();
+	public PersonList getSpouseList() {
+		PersonList spouseList = new PersonList();
 		for (Person p : personList) {
 			if (p.father != null && p.father.equals(this))
-				wifeList.add(p.mother);
+				spouseList.add(p.mother);
+			if (p.father != null && p.mother.equals(this))
+				spouseList.add(p.father);
 		}
-		return wifeList;
+		return spouseList;
 	}
 
 	public boolean hasChildren() {
@@ -108,11 +159,12 @@ public abstract class Person {
 	public abstract boolean isMale();
 
 	public void print() {
-		System.out.println(String.format("%d %s %s %d %d", id, getName(), getLivedString(), x, y));
+		System.out.println(toString());
 	}
 
-	public void calculateWidth(Graphics2D graphics) {
-		width = Math.max(graphics.getFontMetrics().stringWidth(getName()), graphics.getFontMetrics().stringWidth(getLivedString())) /* + Person.PERSON_MARGINE * 2 */ + Person.PERSON_BORDER;
+	@Override
+	public String toString() {
+		return String.format("%d %s %s %d %d", id, getName(), getLivedString(), x, y);
 	}
 
 }

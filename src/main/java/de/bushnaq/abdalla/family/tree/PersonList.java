@@ -9,6 +9,12 @@ public class PersonList extends TreeSet<Person> {
 		super(new PersonComperator());
 	}
 
+	public void calculateWidths(Graphics2D graphics) {
+		for (Person p : this) {
+			p.calculateWidth(graphics);
+		}
+	}
+
 	public int getHeight() {
 		int	minY	= Integer.MAX_VALUE;
 		int	maxY	= Integer.MIN_VALUE;
@@ -16,15 +22,15 @@ public class PersonList extends TreeSet<Person> {
 			minY = Math.min(minY, p.y);
 			maxY = Math.max(maxY, p.y);
 		}
-		return maxY + Person.PERSON_HEIGHT;
+		return (int) (maxY + Person.PERSON_HEIGHT);
 	}
 
 	public int getWidth() {
 		int	minX	= Integer.MAX_VALUE;
 		int	maxX	= Integer.MIN_VALUE;
 		for (Person p : this) {
-			minX = Math.min(minX, p.x - p.width / 2);
-			maxX = Math.max(maxX, p.x + p.width / 2);
+			minX = Math.min(minX, (p.x));
+			maxX = Math.max(maxX, (int) (p.x + p.width));
 		}
 		return maxX;
 	}
@@ -32,12 +38,6 @@ public class PersonList extends TreeSet<Person> {
 	public void printPersonList() {
 		for (Person p : this) {
 			p.print();
-		}
-	}
-
-	public void calculateWidths(Graphics2D graphics) {
-		for (Person p : this) {
-			p.calculateWidth(graphics);
 		}
 	}
 

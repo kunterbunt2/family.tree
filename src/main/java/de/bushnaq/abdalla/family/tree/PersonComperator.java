@@ -10,7 +10,7 @@ public class PersonComperator implements Comparator<Person> {
 		if (compare != 0) {
 			return compare;
 		}
-		return o1.firstName.compareToIgnoreCase(o2.firstName);
+		return o1.id - o2.id;
 	}
 
 }
