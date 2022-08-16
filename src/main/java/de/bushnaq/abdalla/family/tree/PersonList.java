@@ -1,5 +1,6 @@
 package de.bushnaq.abdalla.family.tree;
 
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.util.TreeSet;
 
@@ -9,9 +10,9 @@ public class PersonList extends TreeSet<Person> {
 		super(new PersonComperator());
 	}
 
-	public void calculateWidths(Graphics2D graphics) {
+	public void calculateWidths(Graphics2D graphics, Font nameFont, Font livedFont) {
 		for (Person p : this) {
-			p.calculateWidth(graphics);
+			p.calculateWidth(graphics, nameFont, livedFont);
 		}
 	}
 

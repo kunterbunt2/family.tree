@@ -14,7 +14,6 @@ public class BushnaqFamilyTest {
 		treeMaster.readExcel("bushnaq-family.xlsx");
 		BufferedImage	image	= treeMaster.generate("bushnaq");
 		MyCanvas		c		= new MyCanvas(image);
-
 		while (c.f.isVisible())
 			try {
 				Thread.sleep(100);

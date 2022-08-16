@@ -42,16 +42,16 @@ public class TreeMaster {
 	private static final int	SEX_COLUMN			= 1;
 	int							iteration			= 0;
 	final Logger				logger				= LoggerFactory.getLogger(this.getClass());
-	Font						nameFont			= new Font("Arial", Font.PLAIN, (int) ((Person.PERSON_HEIGHT - Person.PERSON_BORDER + 2 - Person.PERSON_MARGINE * 2) / 3));
 	PersonList					personList			= new PersonList();
-
 	Map<Integer, Person>		rowIndexToPerson	= new HashMap<>();
+	Font						nameFont			= new Font("Arial", Font.PLAIN, (int) ((Person.PERSON_HEIGHT - Person.PERSON_BORDER + 2 - Person.PERSON_MARGINE * 2) / 3));
+	Font						livedFont			= new Font("Arial", Font.PLAIN, (int) ((Person.PERSON_HEIGHT - Person.PERSON_BORDER + 2 - Person.PERSON_MARGINE * 2) / 4));
 
 	private void calculateWidths() {
 		BufferedImage	image		= new BufferedImage(50, 50, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D		graphics	= image.createGraphics();
 		graphics.setFont(nameFont);
-		personList.calculateWidths(graphics);
+		personList.calculateWidths(graphics, nameFont, livedFont);
 	}
 
 	private BufferedImage draw(String familyName) {
@@ -70,7 +70,7 @@ public class TreeMaster {
 		graphics.setColor(Color.white);
 		graphics.fillRect(0, 0, imageWidth, imageHeight);
 		for (Person p : personList) {
-			p.draw(graphics);
+			p.draw(graphics, nameFont, livedFont);
 		}
 		try {
 			File outputfile = new File(imageFilenName);
@@ -166,14 +166,30 @@ public class TreeMaster {
 		int			width		= (int) (person.x + person.width + Person.PERSON_X_SPACE);
 		PersonList	spouseList	= person.getSpouseList();
 		for (Person spouse : spouseList) {
+			if (person.isLastChild()) {
+				spouse.setSpouseOfLastChild(true);
+			}
+
 			spouse.x = width;
 			spouse.y = person.y;
-//			width = spouse.x + spouse.width + Person.PERSON_X_SPACE;
+			spouse.setSpouse(true);
 			// children
-			for (Person child : person.getChildrenList(spouse)) {
+			boolean		firstChild		= true;
+//			Person		lastChild		= null;
+			PersonList	childrenList	= person.getChildrenList(spouse);
+			for (Person child : childrenList) {
+				child.setIsChild(true);
+				if (firstChild) {
+					child.setFirstChild(true);
+					firstChild = false;
+				}
+				if (child.equals(childrenList.last())) {
+					child.setLastChild(true);
+				}
 				child.x = width;
 				child.y = (int) (spouse.y + Person.PERSON_HEIGHT + Person.PERSON_Y_SPACE);
 				width = position(child);
+//				lastChild = child;
 			}
 		}
 		return width;
