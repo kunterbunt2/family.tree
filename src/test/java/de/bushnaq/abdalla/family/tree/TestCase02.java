@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import de.bushnaq.abdalla.family.tree.util.Base;
 
-public class TestCase02 extends Base{
+public class TestCase02 extends Base {
 
 	@Test
 	public void generateFraomExcel() throws Exception {

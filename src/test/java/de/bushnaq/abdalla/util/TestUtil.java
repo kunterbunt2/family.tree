@@ -7,7 +7,7 @@ public class TestUtil {
 //		return isEclipse;
 //	}
 	public static boolean isRunningInEclipse() {
-	    boolean isEclipse = System.getProperty("java.class.path").toLowerCase().contains("eclipse");
-	    return isEclipse;
-	}	
+		boolean isEclipse = System.getProperty("java.class.path").toLowerCase().contains("eclipse");
+		return isEclipse;
+	}
 }
