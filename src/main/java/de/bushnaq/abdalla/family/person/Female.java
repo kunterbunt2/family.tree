@@ -1,4 +1,4 @@
-package de.bushnaq.abdalla.family.tree;
+package de.bushnaq.abdalla.family.person;
 
 import java.awt.Color;
 import java.util.Date;

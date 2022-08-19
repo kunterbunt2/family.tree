@@ -1,4 +1,4 @@
-package de.bushnaq.abdalla.songmaster;
+package de.bushnaq.abdalla.family.tree.util;
 
 import java.awt.Canvas;
 import java.awt.Dimension;

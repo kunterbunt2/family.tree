@@ -1,4 +1,4 @@
-package de.bushnaq.abdalla.family.tree;
+package de.bushnaq.abdalla.family.person;
 
 import java.awt.Font;
 import java.awt.Graphics2D;

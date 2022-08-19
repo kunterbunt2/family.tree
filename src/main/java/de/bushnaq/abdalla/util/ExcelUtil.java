@@ -1,4 +1,4 @@
-package de.bushnaq.abdalla.family.tree;
+package de.bushnaq.abdalla.util;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;

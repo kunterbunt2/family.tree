@@ -1,4 +1,4 @@
-package de.bushnaq.abdalla.family.tree;
+package de.bushnaq.abdalla.family;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +19,7 @@ public class Application implements CommandLineRunner {
 
 	/**
 	 * APPLICATION Called 1st when started as APPLICATION Not called when running junit test
-	 * 
+	 *
 	 */
 	public static void main(String[] args) {
 		SpringApplicationBuilder		springApplicationBuilder	= new SpringApplicationBuilder(Application.class);

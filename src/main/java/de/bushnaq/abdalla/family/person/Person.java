@@ -1,4 +1,4 @@
-package de.bushnaq.abdalla.family.tree;
+package de.bushnaq.abdalla.family.person;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -18,36 +18,26 @@ public abstract class Person {
 	private Color				backgroundColor;
 	private Color				borderColoe			= new Color(0, 0, 0, 64);
 	public Date					born				= null;
+	private boolean				child				= false;								// child of a member of the family
 	public Date					died				= null;
 	public Male					father;
+	private boolean				firstChild			= false;								// first child born of a sexual relation
 	public String				firstName;
 	public int					id;
+	public int					idWidth				= 0;
+	private boolean				lastChild			= false;								// last child born of a sexual relation
 	public String				lastName;
 	public Female				mother;
+	public int					nextPersonX;
 	public PersonList			personList;
 	public boolean				positionSet			= false;
 	private SimpleDateFormat	simpleDateFormat	= new SimpleDateFormat("yyyy-MM-dd");
+	private boolean				spouse				= false;								// spouse of member of family
+	private boolean				spouseOfLastChild	= false;								// spouse of the last child of this branch of the family, used by algorithm to decide where to draw the line for children
 	private Color				textColoe			= new Color(0, 0, 0);
 	public float				width;
 	public int					x					= 0;
 	public int					y					= 0;
-	private boolean				firstChild			= false;								// first child born of a sexual relation
-	private boolean				lastChild			= false;								// last child born of a sexual relation
-	private boolean				child				= false;								// child of a member of the family
-	private boolean				spouse				= false;								// spouse of member of family
-	private boolean				spouseOfLastChild	= false;								// spouse of the last child of this branch of the family, used by algorithm to decide where to draw the line for children
-
-	public void setSpouseOfLastChild(boolean spouseOfLastChild) {
-		this.spouseOfLastChild = spouseOfLastChild;
-	}
-
-	public boolean isSpouseOfLastChild() {
-		return spouseOfLastChild;
-	}
-
-	public boolean isSpouse() {
-		return spouse;
-	}
 
 	public Person(PersonList personList, int id, String firstName, String lastName, Date born, Date died, Male father, Female mother, Color backgroundColor) {
 		this.personList = personList;
@@ -61,7 +51,17 @@ public abstract class Person {
 		this.backgroundColor = backgroundColor;
 	}
 
+	public boolean bornBefore(Person person) {
+		if (born != null && person.born != null) {
+			return born.before(person.born);
+		}
+		return id < person.id;
+	}
+
 	public void calculateWidth(Graphics2D graphics, Font nameFont, Font livedFont) {
+		graphics.setFont(livedFont);
+		idWidth = graphics.getFontMetrics().stringWidth("" + id);
+
 		width = 0;
 		graphics.setFont(nameFont);
 		width = Math.max(width, graphics.getFontMetrics().stringWidth(getFirstName()));
@@ -69,14 +69,10 @@ public abstract class Person {
 		graphics.setFont(livedFont);
 		width = Math.max(width, graphics.getFontMetrics().stringWidth(getBornString()));
 		width = Math.max(width, graphics.getFontMetrics().stringWidth(getDiedString()));
-		width += Person.PERSON_MARGINE * 2 + Person.PERSON_BORDER;
+		width += Person.PERSON_MARGINE * 2 + Person.PERSON_BORDER * 2 + idWidth;
 	}
 
-	public void draw(Graphics2D graphics, Font nameFont, Font livedFont) {
-		int	mapX1	= x;
-		int	mapX2	= (int) (x + width);
-		int	mapY1	= y;
-		int	mapY2	= (int) (y + PERSON_HEIGHT);
+	private void drawBox(Graphics2D graphics, Font nameFont, Font livedFont, int mapX1, int mapX2, int mapY1, int mapY2) {
 		graphics.setColor(backgroundColor);
 		graphics.fillRect(mapX1, mapY1, mapX2 - mapX1, mapY2 - mapY1);
 		graphics.setColor(borderColoe);
@@ -86,6 +82,7 @@ public abstract class Person {
 			graphics.setFont(nameFont);
 			FontRenderContext	frc		= graphics.getFontRenderContext();
 			Font				font	= graphics.getFont();
+			// first name
 			{
 				String		string			= getFirstName();
 				LineMetrics	metrics			= font.getLineMetrics(string, frc);
@@ -93,8 +90,9 @@ public abstract class Person {
 				Rectangle2D	stringBounds	= font.getStringBounds(string, frc);
 				float		w				= (float) stringBounds.getWidth();
 				float		h				= (float) stringBounds.getHeight();
-				graphics.drawString(string, x + width / 2 - w / 2, y + PERSON_HEIGHT / 2 + metrics.getHeight() / 2 - descent - h);
+				graphics.drawString(string, x + idWidth + (width - idWidth) / 2 - w / 2, y + PERSON_HEIGHT / 2 + metrics.getHeight() / 2 - descent - h);
 			}
+			// last name
 			{
 				String		string			= getLastName();
 				LineMetrics	metrics			= font.getLineMetrics(string, frc);
@@ -102,13 +100,29 @@ public abstract class Person {
 				Rectangle2D	stringBounds	= font.getStringBounds(string, frc);
 				float		w				= (float) stringBounds.getWidth();
 				float		h				= (float) stringBounds.getHeight();
-				graphics.drawString(string, x + width / 2 - w / 2, y + PERSON_HEIGHT / 2 + metrics.getHeight() / 2 - descent);
+				graphics.drawString(string, x + idWidth + (width - idWidth) / 2 - w / 2, y + PERSON_HEIGHT / 2 + metrics.getHeight() / 2 - descent);
+			}
+		}
+		{
+			// ID
+			graphics.setFont(livedFont);
+			FontRenderContext	frc		= graphics.getFontRenderContext();
+			Font				font	= graphics.getFont();
+			{
+				String		string			= "" + id;
+				LineMetrics	metrics			= font.getLineMetrics(string, frc);
+				float		descent			= metrics.getDescent();
+				Rectangle2D	stringBounds	= font.getStringBounds(string, frc);
+				float		w				= (float) stringBounds.getWidth();
+				float		h				= (float) stringBounds.getHeight();
+				graphics.drawString(string, x + 2, y + metrics.getHeight());
 			}
 		}
 		{
 			graphics.setFont(livedFont);
 			FontRenderContext	frc		= graphics.getFontRenderContext();
 			Font				font	= graphics.getFont();
+			// born
 			{
 				String		string			= getBornString();
 				LineMetrics	metrics			= font.getLineMetrics(string, frc);
@@ -116,7 +130,7 @@ public abstract class Person {
 				Rectangle2D	stringBounds	= font.getStringBounds(string, frc);
 				float		w				= (float) stringBounds.getWidth();
 				float		h				= (float) stringBounds.getHeight();
-				graphics.drawString(string, x + width / 2 - w / 2, y + PERSON_HEIGHT / 2 + metrics.getHeight() / 2 - descent + h);
+				graphics.drawString(string, x + idWidth + (width - idWidth) / 2 - w / 2, y + PERSON_HEIGHT / 2 + metrics.getHeight() / 2 - descent + h);
 			}
 //			{
 //				String		string			= "-";
@@ -127,6 +141,7 @@ public abstract class Person {
 //				float		h				= (float) stringBounds.getHeight();
 //				graphics.drawString(string, x + width / 2 - w / 2, y + PERSON_HEIGHT / 2 + metrics.getHeight() / 2 - descent + h);
 //			}
+			// died
 			{
 				String		string			= getDiedString();
 				LineMetrics	metrics			= font.getLineMetrics(string, frc);
@@ -134,10 +149,9 @@ public abstract class Person {
 				Rectangle2D	stringBounds	= font.getStringBounds(string, frc);
 				float		w				= (float) stringBounds.getWidth();
 				float		h				= (float) stringBounds.getHeight();
-				graphics.drawString(string, x + width / 2 - w / 2, y + PERSON_HEIGHT / 2 + metrics.getHeight() / 2 - descent + h + h);
+				graphics.drawString(string, x + idWidth + (width - idWidth) / 2 - w / 2, y + PERSON_HEIGHT / 2 + metrics.getHeight() / 2 - descent + h + h);
 			}
 		}
-		drawConnectors(graphics, mapX1, mapX2, mapY1, mapY2);
 	}
 
 	private void drawConnectors(Graphics2D graphics, int mapX1, int mapX2, int mapY1, int mapY2) {
@@ -174,40 +188,39 @@ public abstract class Person {
 		// all the children in between
 		if (!isFirstChild() && (!isLastChild() || hasChildren()) && !isSpouseOfLastChild()) {
 			graphics.setColor(Color.black);
+//			graphics.fillRect(mapX1 - PERSON_X_SPACE / 2, mapY1 - PERSON_Y_SPACE / 2,nextPersonX -(mapX1 - PERSON_X_SPACE / 2), 1);
 			graphics.fillRect(mapX1 - PERSON_X_SPACE / 2, mapY1 - PERSON_Y_SPACE / 2, mapX2 - mapX1 + PERSON_X_SPACE, 1);
 		}
 		if (isSpouseOfLastChild()) {
 			graphics.setColor(Color.black);
 			graphics.fillRect(mapX1 - PERSON_X_SPACE / 2, mapY1 - PERSON_Y_SPACE / 2, (mapX2 - mapX1) / 2 + PERSON_X_SPACE / 2, 1);
 		}
+
 		// vertical connector
-		if (!isFirstChild()) {
+		if (!isFirstChild() && !isSpouse()) {
 			graphics.fillRect(mapX1 + (mapX2 - mapX1) / 2, mapY1 - PERSON_Y_SPACE / 2, 1, PERSON_Y_SPACE / 2);
 		}
 
-		// sexual relation
+		// sexual relation connector
 		if (hasChildren() && isChild()) {
 			graphics.setColor(Color.black);
 			graphics.fillRect(mapX2, mapY1 + (mapY2 - mapY1) / 2, PERSON_X_SPACE, 1);
 		}
 	}
 
-	public boolean isLastChild() {
-		return lastChild;
-	}
-
-	public boolean isChild() {
-		return child;
-	}
-
-	public boolean isFirstChild() {
-		return firstChild;
+	public void drawHorizontal(Graphics2D graphics, Font nameFont, Font livedFont) {
+		int	mapX1	= x;
+		int	mapX2	= (int) (x + width);
+		int	mapY1	= y;
+		int	mapY2	= (int) (y + PERSON_HEIGHT);
+		drawBox(graphics, nameFont, livedFont, mapX1, mapX2, mapY1, mapY2);
+		drawConnectors(graphics, mapX1, mapX2, mapY1, mapY2);
 	}
 
 	public String getBornString() {
 		if (born != null)
 			return "\u002A" + simpleDateFormat.format(born);
-		return "?";
+		return "";
 	}
 
 	public PersonList getChildrenList(Person spouse) {
@@ -268,33 +281,57 @@ public abstract class Person {
 		return false;
 	}
 
+	public boolean isChild() {
+		return child;
+	}
+
 	public abstract boolean isFemale();
+
+	public boolean isFirstChild() {
+		return firstChild;
+	}
+
+	public boolean isLastChild() {
+		return lastChild;
+	}
 
 	public abstract boolean isMale();
 
-	public void print() {
-		System.out.println(toString());
+	public boolean isSpouse() {
+		return spouse;
 	}
 
-	@Override
-	public String toString() {
-		return String.format("%d %s %s %d %d", id, getName(), getLivedString(), x, y);
+	public boolean isSpouseOfLastChild() {
+		return spouseOfLastChild;
+	}
+
+	public void print() {
+		System.out.println(toString());
 	}
 
 	public void setFirstChild(boolean firstChild) {
 		this.firstChild = firstChild;
 	}
 
-	public void setLastChild(boolean lastChild) {
-		this.lastChild = lastChild;
-	}
-
 	public void setIsChild(boolean child) {
 		this.child = child;
 	}
 
+	public void setLastChild(boolean lastChild) {
+		this.lastChild = lastChild;
+	}
+
 	public void setSpouse(boolean spouse) {
 		this.spouse = spouse;
+	}
+
+	public void setSpouseOfLastChild(boolean spouseOfLastChild) {
+		this.spouseOfLastChild = spouseOfLastChild;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("%d %s %s %d %d", id, getName(), getLivedString(), x, y);
 	}
 
 }
