@@ -8,7 +8,7 @@ public class BushnaqFamilyTest extends Base {
 
 	@Test
 	public void generateFraomExcel() throws Exception {
-		generate("bushnaq-family");
+		generate("bushnaq");
 	}
 
 }
