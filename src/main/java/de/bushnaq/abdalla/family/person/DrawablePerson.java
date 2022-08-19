@@ -1,12 +1,16 @@
 package de.bushnaq.abdalla.family.person;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.Stroke;
 import java.awt.font.FontRenderContext;
 import java.awt.font.LineMetrics;
 import java.awt.geom.Rectangle2D;
 import java.util.Date;
+
+import de.bushnaq.abdalla.family.Context;
 
 public abstract class DrawablePerson extends Person {
 	private Color	backgroundColor;
@@ -96,7 +100,7 @@ public abstract class DrawablePerson extends Person {
 		}
 	}
 
-	private void drawConnectors(Graphics2D graphics, int mapX1, int mapX2, int mapY1, int mapY2) {
+	private void drawConnectors(Context context, Graphics2D graphics, int mapX1, int mapX2, int mapY1, int mapY2) {
 		// only child and no children
 		if (isFirstChild() && isLastChild() && !hasChildren()) {
 			Person spouse = mother;
@@ -107,7 +111,7 @@ public abstract class DrawablePerson extends Person {
 			// vertical connector
 			graphics.fillRect(px + (pw) / 2, mapY1 - PERSON_Y_SPACE, 1, PERSON_Y_SPACE);
 		} else {
-			// first child
+			// first child horizontal connector starts at the vertical one
 			if (isFirstChild()) {
 				Person spouse = mother;
 				if (father.x > mother.x)
@@ -117,24 +121,26 @@ public abstract class DrawablePerson extends Person {
 //				int	uw	= mapX2 - mapX1;
 				graphics.setColor(Color.black);
 				// horizontal connector
-				graphics.fillRect(px + (pw) / 2, mapY1 - PERSON_Y_SPACE / 2, (mapX2 - mapX1) / 2 + 1 + PERSON_X_SPACE / 2, 1);
+				graphics.fillRect(px + pw / 2, mapY1 - PERSON_Y_SPACE / 2, nextPersonX - (px + pw / 2), 1);
+//				graphics.fillRect(px + (pw) / 2, mapY1 - PERSON_Y_SPACE / 2, (mapX2 - mapX1) / 2 + 1 + PERSON_X_SPACE / 2, 1);
 				// vertical connector
 				graphics.fillRect(px + (pw) / 2, mapY1 - PERSON_Y_SPACE, 1, PERSON_Y_SPACE);
 			}
-			// last child
-			else if (isLastChild() && !hasChildren()) {
+			// last child horizontal connector without spouse ends at the vertical
+			else if (isLastChild() && (!hasChildren() || !context.includeSpouse)) {
 				graphics.setColor(Color.black);
 				graphics.fillRect(mapX1 - PERSON_X_SPACE / 2, mapY1 - PERSON_Y_SPACE / 2, (mapX2 - mapX1) / 2 + PERSON_X_SPACE / 2, 1);
 			}
 		}
 		// all the children in between
-		if (!isFirstChild() && (!isLastChild() || hasChildren()) && !isSpouseOfLastChild()) {
+		if (!isFirstChild() && (!isLastChild() || (hasChildren() && context.includeSpouse)) && !isSpouseOfLastChild()) {
 			graphics.setColor(Color.black);
-//			graphics.fillRect(mapX1 - PERSON_X_SPACE / 2, mapY1 - PERSON_Y_SPACE / 2,nextPersonX -(mapX1 - PERSON_X_SPACE / 2), 1);
-			graphics.fillRect(mapX1 - PERSON_X_SPACE / 2, mapY1 - PERSON_Y_SPACE / 2, mapX2 - mapX1 + PERSON_X_SPACE, 1);
+			graphics.fillRect(mapX1 - PERSON_X_SPACE / 2, mapY1 - PERSON_Y_SPACE / 2, nextPersonX - (mapX1 - PERSON_X_SPACE / 2), 1);
+//			graphics.fillRect(mapX1 - PERSON_X_SPACE / 2, mapY1 - PERSON_Y_SPACE / 2, mapX2 - mapX1 + PERSON_X_SPACE, 1);
 		}
 		if (isSpouseOfLastChild()) {
 			graphics.setColor(Color.black);
+//			graphics.fillRect(mapX1 - PERSON_X_SPACE / 2, mapY1 - PERSON_Y_SPACE / 2, nextPersonX -(mapX1 - PERSON_X_SPACE / 2), 1);
 			graphics.fillRect(mapX1 - PERSON_X_SPACE / 2, mapY1 - PERSON_Y_SPACE / 2, (mapX2 - mapX1) / 2 + PERSON_X_SPACE / 2, 1);
 		}
 
@@ -144,20 +150,27 @@ public abstract class DrawablePerson extends Person {
 		}
 
 		// sexual relation connector
-		if (hasChildren() && isChild()) {
+		if (hasChildren() && isChild() && context.includeSpouse) {
+			Stroke stroke = graphics.getStroke();
+			graphics.setStroke(new BasicStroke(STANDARD_LINE_STROKE_WIDTH, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 3 }, 0));
 			graphics.setColor(Color.black);
-			graphics.fillRect(mapX2, mapY1 + (mapY2 - mapY1) / 2, PERSON_X_SPACE, 1);
+			graphics.drawLine(mapX2, mapY1 + (mapY2 - mapY1) / 2, mapX2 + PERSON_X_SPACE, mapY1 + (mapY2 - mapY1) / 2);
+			graphics.setStroke(stroke);
 		}
 	}
 
+	protected static final float STANDARD_LINE_STROKE_WIDTH = 3.1f;
+
 	@Override
-	public void drawHorizontal(Graphics2D graphics, Font nameFont, Font livedFont) {
-		int	mapX1	= x;
-		int	mapX2	= (int) (x + width);
-		int	mapY1	= y;
-		int	mapY2	= (int) (y + PERSON_HEIGHT);
-		drawBox(graphics, nameFont, livedFont, mapX1, mapX2, mapY1, mapY2);
-		drawConnectors(graphics, mapX1, mapX2, mapY1, mapY2);
+	public void drawHorizontal(Context context, Graphics2D graphics, Font nameFont, Font livedFont) {
+		if (attribute.show) {
+			int	mapX1	= x;
+			int	mapX2	= (int) (x + width);
+			int	mapY1	= y;
+			int	mapY2	= (int) (y + PERSON_HEIGHT);
+			drawBox(graphics, nameFont, livedFont, mapX1, mapX2, mapY1, mapY2);
+			drawConnectors(context, graphics, mapX1, mapX2, mapY1, mapY2);
+		}
 	}
 
 	@Override

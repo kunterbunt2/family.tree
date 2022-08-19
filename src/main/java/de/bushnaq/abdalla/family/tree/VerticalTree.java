@@ -1,12 +1,13 @@
 package de.bushnaq.abdalla.family.tree;
 
+import de.bushnaq.abdalla.family.Context;
 import de.bushnaq.abdalla.family.person.Person;
 import de.bushnaq.abdalla.family.person.PersonList;
 
 public class VerticalTree extends Tree {
 
 	@Override
-	int position(Person person) {
+	int position(Context context, Person person) {
 		logger.info(String.format("positioning %s", person.toString()));
 		int			width		= (int) (person.x + person.width + Person.PERSON_X_SPACE);
 		PersonList	spouseList	= person.getSpouseList();
@@ -34,7 +35,7 @@ public class VerticalTree extends Tree {
 				}
 				child.x = width;
 				child.y = (int) (spouse.y + Person.PERSON_HEIGHT + Person.PERSON_Y_SPACE);
-				width = position(child);
+				width = position(context, child);
 //				lastChild = child;
 			}
 			spouse.nextPersonX = width;

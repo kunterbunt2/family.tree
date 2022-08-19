@@ -2,6 +2,7 @@ package de.bushnaq.abdalla.family.tree.util;
 
 import java.awt.image.BufferedImage;
 
+import de.bushnaq.abdalla.family.Context;
 import de.bushnaq.abdalla.family.tree.HorizontalTree;
 import de.bushnaq.abdalla.family.tree.Tree;
 import de.bushnaq.abdalla.util.TestUtil;
@@ -9,9 +10,9 @@ import de.bushnaq.abdalla.util.TestUtil;
 public class Base {
 	Tree treeMaster = new HorizontalTree();
 
-	public void generate(String fileName) throws Exception {
+	public void generate(Context context, String fileName, String outputName) throws Exception {
 		treeMaster.readExcel(fileName + ".xlsx");
-		BufferedImage image = treeMaster.generate(fileName);
+		BufferedImage image = treeMaster.generate(context, outputName);
 		if (TestUtil.isRunningInEclipse())
 			showImage(image);
 	}

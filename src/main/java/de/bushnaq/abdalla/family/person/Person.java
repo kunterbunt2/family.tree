@@ -5,6 +5,8 @@ import java.awt.Graphics2D;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import de.bushnaq.abdalla.family.Context;
+
 public abstract class Person extends BasicFamilyMember {
 	public static final int		PERSON_BORDER	= 1;
 	public static final float	PERSON_HEIGHT	= 50;
@@ -45,7 +47,7 @@ public abstract class Person extends BasicFamilyMember {
 		width += Person.PERSON_MARGINE * 2 + Person.PERSON_BORDER * 2 + idWidth;
 	}
 
-	public abstract void drawHorizontal(Graphics2D graphics, Font nameFont, Font livedFont);
+	public abstract void drawHorizontal(Context context, Graphics2D graphics, Font nameFont, Font livedFont);
 
 	public String getBornString() {
 		if (born != null) {
@@ -53,6 +55,21 @@ public abstract class Person extends BasicFamilyMember {
 			return "\u002A" + simpleDateFormat.format(born);
 		}
 		return "";
+	}
+
+	public PersonList getChildrenList() {
+		PersonList	childrenList	= new PersonList();
+		PersonList	spouseList		= getSpouseList();
+		for (Person spouse : spouseList) {
+			for (Person child : personList) {
+				if (child.father != null && child.mother != null) {
+					if ((child.father.equals(this) && child.mother.equals(spouse)) || (child.father.equals(spouse) && child.mother.equals(this))) {
+						childrenList.add(child);
+					}
+				}
+			}
+		}
+		return childrenList;
 	}
 
 	public PersonList getChildrenList(Person spouse) {
@@ -80,7 +97,10 @@ public abstract class Person extends BasicFamilyMember {
 	}
 
 	public String getLastName() {
-		return String.format("%s", lastName);
+		if (lastName != null)
+			return String.format("%s", lastName);
+		else
+			return "";
 	}
 
 	protected String getLivedString() {

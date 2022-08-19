@@ -31,6 +31,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.bushnaq.abdalla.family.Context;
 import de.bushnaq.abdalla.family.person.Female;
 import de.bushnaq.abdalla.family.person.Male;
 import de.bushnaq.abdalla.family.person.Person;
@@ -60,10 +61,10 @@ public abstract class Tree {
 		personList.calculateWidths(graphics, nameFont, livedFont);
 	}
 
-	private BufferedImage draw(String familyName) {
+	private BufferedImage draw(Context context, String familyName) {
 		String imageFilenName = familyName + "-family-tree.png";
 		calculateWidths();
-		position();
+		position(context);
 		int				imageWidth	= personList.getWidth();
 		int				imageHeight	= personList.getHeight();
 		BufferedImage	aImage		= new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_ARGB);
@@ -76,7 +77,7 @@ public abstract class Tree {
 		graphics.setColor(Color.white);
 		graphics.fillRect(0, 0, imageWidth, imageHeight);
 		for (Person p : personList) {
-			p.drawHorizontal(graphics, nameFont, livedFont);
+			p.drawHorizontal(context, graphics, nameFont, livedFont);
 		}
 		try {
 			File outputfile = new File(imageFilenName);
@@ -101,9 +102,9 @@ public abstract class Tree {
 		return firstFather;
 	}
 
-	public BufferedImage generate(String familyName) throws Exception {
+	public BufferedImage generate(Context context, String familyName) throws Exception {
 		testAlbumList();
-		return draw(familyName);
+		return draw(context, familyName);
 	}
 
 	private Date getDate(Cell cell) throws Exception {
@@ -135,27 +136,33 @@ public abstract class Tree {
 	}
 
 	Integer getReference(Workbook workbook, Cell cell) throws Exception {
-		if (cell != null && !cell.getCellFormula().isEmpty()) {
-			final EvaluationWorkbook	evalWorkbook	= XSSFEvaluationWorkbook.create((XSSFWorkbook) workbook);
-			final EvaluationSheet		evalSheet		= evalWorkbook.getSheet(0);
-			final EvaluationCell		evelCell		= evalSheet.getCell(cell.getRowIndex(), cell.getColumnIndex());
-			final Ptg[]					formulaTokens	= evalWorkbook.getFormulaTokens(evelCell);
-			String						cellFormula		= cell.getCellFormula();
-			if (formulaTokens.length == 1 && formulaTokens[0] instanceof RefPtg) {
-				// this is a reference to a cell on the same sheet
-				// String cellFormula = cell.getCellFormula();
-				CellReference	cellReference				= new CellReference(cellFormula);
-				CellType		cachedFormulaResultTypeEnum	= cell.getCachedFormulaResultType();
-				switch (cachedFormulaResultTypeEnum) {
-				case STRING: {
-					return cellReference.getRow();
+		if (cell != null) {
+			if (cell.getCellType() == CellType.FORMULA) {
+				if (!cell.getCellFormula().isEmpty()) {
+					final EvaluationWorkbook	evalWorkbook	= XSSFEvaluationWorkbook.create((XSSFWorkbook) workbook);
+					final EvaluationSheet		evalSheet		= evalWorkbook.getSheet(0);
+					final EvaluationCell		evelCell		= evalSheet.getCell(cell.getRowIndex(), cell.getColumnIndex());
+					final Ptg[]					formulaTokens	= evalWorkbook.getFormulaTokens(evelCell);
+					String						cellFormula		= cell.getCellFormula();
+					if (formulaTokens.length == 1 && formulaTokens[0] instanceof RefPtg) {
+						// this is a reference to a cell on the same sheet
+						// String cellFormula = cell.getCellFormula();
+						CellReference	cellReference				= new CellReference(cellFormula);
+						CellType		cachedFormulaResultTypeEnum	= cell.getCachedFormulaResultType();
+						switch (cachedFormulaResultTypeEnum) {
+						case STRING: {
+							return cellReference.getRow();
+						}
+						case NUMERIC: {
+							return cellReference.getRow();
+						}
+						default:
+							throw new Exception(String.format("Unexpected cell type %s", cachedFormulaResultTypeEnum.name()));
+						}
+					}
 				}
-				case NUMERIC: {
-					return cellReference.getRow();
-				}
-				default:
-					throw new Exception(String.format("Unexpected cell type %s", cachedFormulaResultTypeEnum.name()));
-				}
+			} else {
+				throw new Exception(String.format("Expected a reference at cell %s", ExcelUtil.cellReference(cell)));
 			}
 		}
 		return null;
@@ -173,7 +180,7 @@ public abstract class Tree {
 		return null;
 	}
 
-	private void position() {
+	private void position(Context context) {
 		Male firstFather = findFirstFather();
 		firstFather.x = 0;
 		firstFather.y = 0;
@@ -181,45 +188,10 @@ public abstract class Tree {
 //		for (Person p : personList) {
 //			int width = position(p);
 //		}
-		position(firstFather);
+		position(context, firstFather);
 	}
 
-	abstract int position(Person person);
-//	private int position(Person person) {
-//		logger.info(String.format("positioning %s", person.toString()));
-//		int			width		= (int) (person.x + person.width + Person.PERSON_X_SPACE);
-//		PersonList	spouseList	= person.getSpouseList();
-//		for (Person spouse : spouseList) {
-//			if (person.isLastChild()) {
-//				spouse.setSpouseOfLastChild(true);
-//			}
-//
-//			spouse.x = width;
-//			spouse.y = person.y;
-//			spouse.setSpouse(true);
-//			person.nextPersonX = width;
-//			// children
-//			boolean		firstChild		= true;
-////			Person		lastChild		= null;
-//			PersonList	childrenList	= person.getChildrenList(spouse);
-//			for (Person child : childrenList) {
-//				child.setIsChild(true);
-//				if (firstChild) {
-//					child.setFirstChild(true);
-//					firstChild = false;
-//				}
-//				if (child.equals(childrenList.last())) {
-//					child.setLastChild(true);
-//				}
-//				child.x = width;
-//				child.y = (int) (spouse.y + Person.PERSON_HEIGHT + Person.PERSON_Y_SPACE);
-//				width = position(child);
-////				lastChild = child;
-//			}
-//			spouse.nextPersonX = width;
-//		}
-//		return width;
-//	}
+	abstract int position(Context context, Person person);
 
 	private void read(Workbook workbook) throws Exception {
 		Sheet			sheet		= workbook.getSheetAt(0);
