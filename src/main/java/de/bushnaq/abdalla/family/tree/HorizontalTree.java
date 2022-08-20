@@ -9,17 +9,26 @@ public class HorizontalTree extends Tree {
 	@Override
 	int position(Context context, Person person) {
 		person.attribute.show = true;
+		person.attribute.member = true;
 		logger.info(String.format("positioning %s", person.toString()));
 		if (context.includeSpouse) {
-			int			pX			= (int) (person.x + person.width + Person.PERSON_X_SPACE);
+			int pX;
+			if (person.getSpouseList().size() == 1)
+				pX = (int) (person.x);
+			else
+				pX = (int) (person.x + person.width + Person.PERSON_X_SPACE);
 			person.nextPersonX = pX;
 			PersonList	spouseList	= person.getSpouseList();
+			int			childIndex	= 0;
 			for (Person spouse : spouseList) {
 				if (person.isLastChild()) {
 					spouse.setSpouseOfLastChild(true);
 				}
 
-				spouse.x = pX;
+				if (person.getSpouseList().size() == 1)
+					spouse.x = (int) (pX + person.width + Person.PERSON_X_SPACE);
+				else
+					spouse.x = pX;
 				spouse.y = person.y;
 				spouse.setSpouse(true);
 				person.nextPersonX = pX;
@@ -27,6 +36,7 @@ public class HorizontalTree extends Tree {
 				boolean		firstChild		= true;
 				PersonList	childrenList	= person.getChildrenList(spouse);
 				for (Person child : childrenList) {
+					child.childIndex = childIndex++;
 					spouse.attribute.show = true;
 					child.setIsChild(true);
 					if (firstChild) {
@@ -40,7 +50,13 @@ public class HorizontalTree extends Tree {
 					child.y = (int) (spouse.y + Person.PERSON_HEIGHT + Person.PERSON_Y_SPACE);
 					pX = position(context, child);
 				}
-				spouse.nextPersonX = pX;
+				if (person.getSpouseList().size() == 1) {
+					pX = Math.max(pX, (int) (spouse.x + spouse.width + Person.PERSON_X_SPACE));
+					person.nextPersonX = pX;
+					spouse.nextPersonX = pX;
+				} else {
+					spouse.nextPersonX = pX;
+				}
 			}
 			return pX;
 		} else {
@@ -52,7 +68,9 @@ public class HorizontalTree extends Tree {
 			else
 				pX = (int) (person.x + person.width + Person.PERSON_X_SPACE);
 			person.nextPersonX = pX;
+			int childIndex = 0;
 			for (Person child : childrenList) {
+				child.childIndex = childIndex++;
 				child.setIsChild(true);
 				if (firstChild) {
 					child.setFirstChild(true);
@@ -65,6 +83,7 @@ public class HorizontalTree extends Tree {
 				child.y = (int) (person.y + Person.PERSON_HEIGHT + Person.PERSON_Y_SPACE);
 				pX = position(context, child);
 			}
+			pX = Math.max(pX, (int) (person.x + person.width + Person.PERSON_X_SPACE));
 			person.nextPersonX = pX;
 			return (int) (pX);
 		}

@@ -20,6 +20,7 @@ public abstract class Person extends BasicFamilyMember {
 	public float				width;
 	public int					x				= 0;
 	public int					y				= 0;
+	public int					childIndex;
 
 	public Person(PersonList personList, int id, String firstName, String lastName, Date born, Date died, Male father, Female mother) {
 		super(id, firstName, lastName, born, died, father, mother);

@@ -101,48 +101,74 @@ public abstract class DrawablePerson extends Person {
 	}
 
 	private void drawConnectors(Context context, Graphics2D graphics, int mapX1, int mapX2, int mapY1, int mapY2) {
-		// only child and no children
+		int dy = 0;// childIndex;
+		// only child with no children
 		if (isFirstChild() && isLastChild() && !hasChildren()) {
-			Person spouse = mother;
-			if (father.x > mother.x)
-				spouse = father;
-			int	px	= spouse.x;
-			int	pw	= (int) spouse.width;
+			Person	spouseParent	= mother;
+			Person	rootParent		= father;
+			if (mother.isMember()) {
+				spouseParent = father;
+				rootParent = mother;
+			}
+			int	px	= spouseParent.x;
+			int	pw	= (int) spouseParent.width;
+			if (rootParent.getSpouseList().size() == 1) {
+				px = rootParent.x;
+				pw = (int) rootParent.width;
+			} else {
+				px = spouseParent.x;
+				pw = (int) spouseParent.width;
+			}
 			// vertical connector
 			graphics.fillRect(px + (pw) / 2, mapY1 - PERSON_Y_SPACE, 1, PERSON_Y_SPACE);
 		} else {
 			// first child horizontal connector starts at the vertical one
 			if (isFirstChild()) {
-				Person spouse = mother;
-				if (father.x > mother.x)
-					spouse = father;
-				int	px	= spouse.x;
-				int	pw	= (int) spouse.width;
-//				int	uw	= mapX2 - mapX1;
+				Person	spouseParent	= mother;
+				Person	rootParent		= father;
+				if (mother.isMember()) {
+					spouseParent = father;
+					rootParent = mother;
+				}
+				int	px	= spouseParent.x;
+				int	pw	= (int) spouseParent.width;
+				if (rootParent.getSpouseList().size() == 1) {
+					px = rootParent.x;
+					pw = (int) rootParent.width;
+				} else {
+					px = spouseParent.x;
+					pw = (int) spouseParent.width;
+				}
 				graphics.setColor(Color.black);
 				// horizontal connector
-				graphics.fillRect(px + pw / 2, mapY1 - PERSON_Y_SPACE / 2, nextPersonX - (px + pw / 2), 1);
-//				graphics.fillRect(px + (pw) / 2, mapY1 - PERSON_Y_SPACE / 2, (mapX2 - mapX1) / 2 + 1 + PERSON_X_SPACE / 2, 1);
+				graphics.fillRect(px + pw / 2, mapY1 - PERSON_Y_SPACE / 2 + dy, nextPersonX - (px + pw / 2), 1);
 				// vertical connector
 				graphics.fillRect(px + (pw) / 2, mapY1 - PERSON_Y_SPACE, 1, PERSON_Y_SPACE);
 			}
 			// last child horizontal connector without spouse ends at the vertical
-			else if (isLastChild() && (!hasChildren() || !context.includeSpouse)) {
+			else if (isLastChild()) {
 				graphics.setColor(Color.black);
-				graphics.fillRect(mapX1 - PERSON_X_SPACE / 2, mapY1 - PERSON_Y_SPACE / 2, (mapX2 - mapX1) / 2 + PERSON_X_SPACE / 2, 1);
+				graphics.fillRect(mapX1, mapY1 - PERSON_Y_SPACE / 2, (mapX2 - mapX1) / 2, 1);
 			}
 		}
 		// all the children in between
-		if (!isFirstChild() && (!isLastChild() || (hasChildren() && context.includeSpouse)) && !isSpouseOfLastChild()) {
+		if (!isFirstChild() && !isLastChild() && isMember()) {
 			graphics.setColor(Color.black);
-			graphics.fillRect(mapX1 - PERSON_X_SPACE / 2, mapY1 - PERSON_Y_SPACE / 2, nextPersonX - (mapX1 - PERSON_X_SPACE / 2), 1);
-//			graphics.fillRect(mapX1 - PERSON_X_SPACE / 2, mapY1 - PERSON_Y_SPACE / 2, mapX2 - mapX1 + PERSON_X_SPACE, 1);
+			if (getSpouseList().size() == 1) {
+//				graphics.setColor(Color.red);
+				Person spouse = getSpouseList().first();
+				graphics.fillRect(mapX1, mapY1 - PERSON_Y_SPACE / 2 + dy, nextPersonX - (mapX1) /*- (int)(spouse.width - Person.PERSON_X_SPACE)*/, 1);
+//				graphics.setColor(Color.black);
+			} else {
+//				graphics.setColor(Color.green);
+				graphics.fillRect(mapX1, mapY1 - PERSON_Y_SPACE / 2 + dy, nextPersonX - (mapX1), 1);
+//				graphics.setColor(Color.black);
+			}
 		}
-		if (isSpouseOfLastChild()) {
-			graphics.setColor(Color.black);
-//			graphics.fillRect(mapX1 - PERSON_X_SPACE / 2, mapY1 - PERSON_Y_SPACE / 2, nextPersonX -(mapX1 - PERSON_X_SPACE / 2), 1);
-			graphics.fillRect(mapX1 - PERSON_X_SPACE / 2, mapY1 - PERSON_Y_SPACE / 2, (mapX2 - mapX1) / 2 + PERSON_X_SPACE / 2, 1);
-		}
+//		if (isSpouseOfLastChild()) {
+//			graphics.setColor(Color.black);
+//			graphics.fillRect(mapX1 - PERSON_X_SPACE / 2, mapY1 - PERSON_Y_SPACE / 2, (mapX2 - mapX1) / 2 + PERSON_X_SPACE / 2, 1);
+//		}
 
 		// vertical connector
 		if (!isFirstChild() && !isSpouse()) {
@@ -150,13 +176,17 @@ public abstract class DrawablePerson extends Person {
 		}
 
 		// sexual relation connector
-		if (hasChildren() && isChild() && context.includeSpouse) {
+		if (hasChildren() && isMember() && context.includeSpouse) {
 			Stroke stroke = graphics.getStroke();
 			graphics.setStroke(new BasicStroke(STANDARD_LINE_STROKE_WIDTH, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 3 }, 0));
 			graphics.setColor(Color.black);
 			graphics.drawLine(mapX2, mapY1 + (mapY2 - mapY1) / 2, mapX2 + PERSON_X_SPACE, mapY1 + (mapY2 - mapY1) / 2);
 			graphics.setStroke(stroke);
 		}
+	}
+
+	public boolean isMember() {
+		return attribute.member;
 	}
 
 	protected static final float STANDARD_LINE_STROKE_WIDTH = 3.1f;
