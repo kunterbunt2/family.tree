@@ -8,16 +8,29 @@ import de.bushnaq.abdalla.family.tree.util.Base;
 public class BushnaqFamilyTest extends Base {
 
 	@Test
-	public void generate() throws Exception {
+	public void generateHorizontal() throws Exception {
 		Context context = new Context();
-		generate(context, "bushnaq", "bushnaq");
+		generateHorizontal(context, "bushnaq", "bushnaq-h");
 	}
 
 	@Test
-	public void generateWithoutSpouse() throws Exception {
+	public void generateHorizontalWithoutSpouse() throws Exception {
 		Context context = new Context();
 		context.includeSpouse = false;
-		generate(context, "bushnaq", "bushnaq-no-spouse");
+		generateHorizontal(context, "bushnaq", "bushnaq-h-no-spouse");
+	}
+
+	@Test
+	public void generateVertical() throws Exception {
+		Context context = new Context();
+		generateVertical(context, "bushnaq", "bushnaq-v");
+	}
+
+	@Test
+	public void generateVerticalWithoutSpouse() throws Exception {
+		Context context = new Context();
+		context.includeSpouse = false;
+		generateVertical(context, "bushnaq", "bushnaq-v-no-spouse");
 	}
 
 }

@@ -16,26 +16,6 @@ public class PersonList extends TreeSet<Person> {
 		}
 	}
 
-	public int getHeight() {
-		int	minY	= Integer.MAX_VALUE;
-		int	maxY	= Integer.MIN_VALUE;
-		for (Person p : this) {
-			minY = Math.min(minY, p.y);
-			maxY = Math.max(maxY, p.y);
-		}
-		return (int) (maxY + Person.PERSON_HEIGHT);
-	}
-
-	public int getWidth() {
-		int	minX	= Integer.MAX_VALUE;
-		int	maxX	= Integer.MIN_VALUE;
-		for (Person p : this) {
-			minX = Math.min(minX, (p.x));
-			maxX = Math.max(maxX, (int) (p.x + p.width));
-		}
-		return maxX;
-	}
-
 	public void printPersonList() {
 		for (Person p : this) {
 			p.print();

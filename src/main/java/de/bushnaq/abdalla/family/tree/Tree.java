@@ -47,12 +47,33 @@ public abstract class Tree {
 	private static final int	LAST_NAME_COLUMN	= 3;
 	private static final int	MOTHER_COLUMN		= 7;
 	private static final int	SEX_COLUMN			= 1;
+	private Context				context;
 	int							iteration			= 0;
-	Font						livedFont			= new Font("Arial", Font.PLAIN, (int) ((Person.PERSON_HEIGHT - Person.PERSON_BORDER + 2 - Person.PERSON_MARGINE * 2) / 4));
+	Font						livedFont			= new Font("Arial", Font.PLAIN, (Person.PERSON_HEIGHT - Person.PERSON_BORDER + 2 - Person.PERSON_MARGINE * 2) / 4);
 	final Logger				logger				= LoggerFactory.getLogger(this.getClass());
-	Font						nameFont			= new Font("Arial", Font.PLAIN, (int) ((Person.PERSON_HEIGHT - Person.PERSON_BORDER + 2 - Person.PERSON_MARGINE * 2) / 3));
+	Font						nameFont			= new Font("Arial", Font.PLAIN, (Person.PERSON_HEIGHT - Person.PERSON_BORDER + 2 - Person.PERSON_MARGINE * 2) / 3);
 	PersonList					personList			= new PersonList();
 	Map<Integer, Person>		rowIndexToPerson	= new HashMap<>();
+
+	public Tree(Context context) {
+		this.context = context;
+	}
+
+	abstract int calclateImageWidth();
+
+	private void calculateGenrationMaxWidth() {
+		for (Person p : personList) {
+			Integer integerMaxWidth = context.generationToMaxWidthMap.get(p.generation);
+			if (integerMaxWidth == null) {
+				context.generationToMaxWidthMap.put(p.generation, p.width);
+			} else {
+				if (p.width > integerMaxWidth)
+					context.generationToMaxWidthMap.put(p.generation, p.width);
+			}
+		}
+	}
+
+	abstract int calculateImageHeight();
 
 	protected void calculateWidths() {
 		BufferedImage	image		= new BufferedImage(50, 50, BufferedImage.TYPE_INT_ARGB);
@@ -61,32 +82,7 @@ public abstract class Tree {
 		personList.calculateWidths(graphics, nameFont, livedFont);
 	}
 
-	private BufferedImage draw(Context context, String familyName) {
-		String imageFilenName = familyName + "-family-tree.png";
-		calculateWidths();
-		position(context);
-		int				imageWidth	= personList.getWidth();
-		int				imageHeight	= personList.getHeight();
-		BufferedImage	aImage		= new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_ARGB);
-		Graphics2D		graphics	= aImage.createGraphics();
-		graphics.setFont(nameFont);
-		personList.printPersonList();
-		graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-		graphics.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
-		graphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-		graphics.setColor(Color.white);
-		graphics.fillRect(0, 0, imageWidth, imageHeight);
-		for (Person p : personList) {
-			p.drawHorizontal(context, graphics, nameFont, livedFont);
-		}
-		try {
-			File outputfile = new File(imageFilenName);
-			ImageIO.write(aImage, "png", outputfile);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return aImage;
-	}
+	abstract void draw(Context context, Graphics2D graphics);
 
 	private Male findFirstFather() {
 		Male firstFather = null;
@@ -103,8 +99,27 @@ public abstract class Tree {
 	}
 
 	public BufferedImage generate(Context context, String familyName) throws Exception {
-		testAlbumList();
-		return draw(context, familyName);
+		String imageFilenName = familyName + "-family-tree.png";
+		initializePersonList(context);
+		int				imageWidth	= calclateImageWidth();
+		int				imageHeight	= calculateImageHeight();
+		BufferedImage	aImage		= new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D		graphics	= aImage.createGraphics();
+		graphics.setFont(nameFont);
+		personList.printPersonList();
+		graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		graphics.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+		graphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+		graphics.setColor(Color.white);
+		graphics.fillRect(0, 0, imageWidth, imageHeight);
+		draw(context, graphics);
+		try {
+			File outputfile = new File(imageFilenName);
+			ImageIO.write(aImage, "png", outputfile);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return aImage;
 	}
 
 	private Date getDate(Cell cell) throws Exception {
@@ -180,14 +195,53 @@ public abstract class Tree {
 		return null;
 	}
 
+	private void initAttribute(Person person) {
+		person.attribute.member = true;
+		PersonList	spouseList	= person.getSpouseList();
+		int			spouseIndex	= 0;
+		for (Person spouse : spouseList) {
+			spouse.spouseIndex = spouseIndex++;
+			if (person.isLastChild()) {
+				spouse.setSpouseOfLastChild(true);
+			}
+			spouse.setSpouse(true);
+			// children
+			int			childIndex		= 0;
+			boolean		firstChild		= true;
+			PersonList	childrenList	= person.getChildrenList(spouse);
+			for (Person child : childrenList) {
+				child.generation = person.generation + 1;
+				child.childIndex = childIndex++;
+				child.setIsChild(true);
+				if (firstChild) {
+					child.setFirstChild(true);
+					firstChild = false;
+				}
+				if (child.equals(childrenList.last())) {
+					child.setLastChild(true);
+				}
+				initAttribute(child);
+			}
+		}
+	}
+
+	private void initAttributes() {
+		Male firstFather = findFirstFather();
+		firstFather.generation = 0;
+		initAttribute(firstFather);
+	}
+
+	private void initializePersonList(Context context) {
+		initAttributes();
+		calculateWidths();
+		calculateGenrationMaxWidth();
+		position(context);
+	}
+
 	private void position(Context context) {
 		Male firstFather = findFirstFather();
 		firstFather.x = 0;
 		firstFather.y = 0;
-//		System.out.println(String.format("iteration %d", iteration++));
-//		for (Person p : personList) {
-//			int width = position(p);
-//		}
 		position(context, firstFather);
 	}
 
@@ -251,16 +305,6 @@ public abstract class Tree {
 			rowIndexToPerson.put(row.getRowNum(), new Female(personList, id, firstName, lastName, born, died, father, mother));
 		} else
 			throw new Exception(String.format("Unknown sex %s", sex));
-	}
-
-	private void testAlbumList() throws Exception {
-		{
-			System.out.println("/*-----------------------------------------------------------------");
-			System.out.println("* test if songs on HDD exist in the album list");
-			System.out.println("-----------------------------------------------------------------*/");
-
-			System.out.println("Success");
-		}
 	}
 
 }

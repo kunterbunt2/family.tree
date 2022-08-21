@@ -8,19 +8,24 @@ import java.util.Date;
 import de.bushnaq.abdalla.family.Context;
 
 public abstract class Person extends BasicFamilyMember {
-	public static final int		PERSON_BORDER	= 1;
-	public static final float	PERSON_HEIGHT	= 50;
-	public static final int		PERSON_MARGINE	= 4;
-	public static final int		PERSON_X_SPACE	= 24;
-	public static final int		PERSON_Y_SPACE	= 12;
-	public Attribute			attribute		= new Attribute();
-	public int					idWidth			= 0;
-	public int					nextPersonX;
-	public PersonList			personList;
-	public float				width;
-	public int					x				= 0;
-	public int					y				= 0;
-	public int					childIndex;
+	public static final int	PERSON_BORDER	= 1;
+	public static final int	PERSON_HEIGHT	= 50;
+	public static final int	PERSON_MARGINE	= 4;
+	public static final int	PERSON_WIDTH	= 100;
+	public static final int	PERSON_X_SPACE	= 24;
+	public static final int	PERSON_Y_SPACE	= 12;
+	public Attribute		attribute		= new Attribute();
+	public Integer			childIndex		= null;
+	public Integer			generation		= null;
+	public int				height			= Person.PERSON_HEIGHT;
+	public int				idWidth			= 0;
+	public Integer			nextPersonX		= -1;
+	public Integer			nextPersonY		= -1;
+	public PersonList		personList		= null;
+	public Integer			spouseIndex		= null;
+	public int				width			= 0;
+	public int				x				= 0;
+	public int				y				= 0;
 
 	public Person(PersonList personList, int id, String firstName, String lastName, Date born, Date died, Male father, Female mother) {
 		super(id, firstName, lastName, born, died, father, mother);
@@ -38,17 +43,20 @@ public abstract class Person extends BasicFamilyMember {
 		graphics.setFont(livedFont);
 		idWidth = graphics.getFontMetrics().stringWidth("" + id);
 
-		width = 0;
-		graphics.setFont(nameFont);
-		width = Math.max(width, graphics.getFontMetrics().stringWidth(getFirstName()));
-		width = Math.max(width, graphics.getFontMetrics().stringWidth(getLastName()));
-		graphics.setFont(livedFont);
-		width = Math.max(width, graphics.getFontMetrics().stringWidth(getBornString()));
-		width = Math.max(width, graphics.getFontMetrics().stringWidth(getDiedString()));
-		width += Person.PERSON_MARGINE * 2 + Person.PERSON_BORDER * 2 + idWidth;
+//		width = 0;
+//		graphics.setFont(nameFont);
+//		width = Math.max(width, graphics.getFontMetrics().stringWidth(getFirstName()));
+//		width = Math.max(width, graphics.getFontMetrics().stringWidth(getLastName()));
+//		graphics.setFont(livedFont);
+//		width = Math.max(width, graphics.getFontMetrics().stringWidth(getBornString()));
+//		width = Math.max(width, graphics.getFontMetrics().stringWidth(getDiedString()));
+//		width += Person.PERSON_MARGINE * 2 + Person.PERSON_BORDER * 2 + idWidth;
+		width = PERSON_WIDTH;
 	}
 
 	public abstract void drawHorizontal(Context context, Graphics2D graphics, Font nameFont, Font livedFont);
+
+	public abstract void drawVertical(Context context, Graphics2D graphics, Font nameFont, Font livedFont);
 
 	public String getBornString() {
 		if (born != null) {
