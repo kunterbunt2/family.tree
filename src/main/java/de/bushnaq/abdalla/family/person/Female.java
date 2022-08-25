@@ -9,6 +9,10 @@ public class Female extends DrawablePerson {
 		super(personList, id, firstName, lastName, born, died, father, mother, new Color(0xff, 0x62, 0xb0, 64));
 	}
 
+	public Female(PersonList personList, Integer id) {
+		super(personList, id, new Color(0xff, 0x62, 0xb0, 64));
+	}
+
 	@Override
 	public String getSexCharacter() {
 		return "\u2640 ";

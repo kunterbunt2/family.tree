@@ -32,6 +32,11 @@ public abstract class Person extends BasicFamilyMember {
 		this.personList = personList;
 	}
 
+	public Person(PersonList personList, Integer id) {
+		super(id);
+		this.personList = personList;
+	}
+
 	public boolean bornBefore(Person person) {
 		if (born != null && person.born != null) {
 			return born.before(person.born);
@@ -130,7 +135,7 @@ public abstract class Person extends BasicFamilyMember {
 		for (Person p : personList) {
 			if (p.father != null && p.father.equals(this))
 				spouseList.add(p.mother);
-			if (p.father != null && p.mother.equals(this))
+			if (p.mother != null && p.mother.equals(this))
 				spouseList.add(p.father);
 		}
 		return spouseList;

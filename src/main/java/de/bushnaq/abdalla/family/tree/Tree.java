@@ -36,17 +36,12 @@ import de.bushnaq.abdalla.family.person.Female;
 import de.bushnaq.abdalla.family.person.Male;
 import de.bushnaq.abdalla.family.person.Person;
 import de.bushnaq.abdalla.family.person.PersonList;
+import de.bushnaq.abdalla.util.ColumnHeaderList;
+import de.bushnaq.abdalla.util.ExcelErrorHandler;
 import de.bushnaq.abdalla.util.ExcelUtil;
 
 public abstract class Tree {
-	private static final int	BORN_COLUMN			= 4;
-	private static final int	DIED_COLUMN			= 5;
-	private static final int	FATHER_COLUMN		= 6;
-	private static final int	FIRST_NAME_COLUMN	= 2;
-	private static final int	ID_COLUMN			= 0;
-	private static final int	LAST_NAME_COLUMN	= 3;
-	private static final int	MOTHER_COLUMN		= 7;
-	private static final int	SEX_COLUMN			= 1;
+	private ColumnHeaderList	columnHeaderList	= new ColumnHeaderList();
 	private Context				context;
 	int							iteration			= 0;
 	Font						livedFont			= new Font("Arial", Font.PLAIN, (Person.PERSON_HEIGHT - Person.PERSON_BORDER + 2 - Person.PERSON_MARGINE * 2) / 4);
@@ -80,6 +75,40 @@ public abstract class Tree {
 		Graphics2D		graphics	= image.createGraphics();
 		graphics.setFont(nameFont);
 		personList.calculateWidths(graphics, nameFont, livedFont);
+	}
+
+	private void createPeronList(Workbook workbook) throws Exception {
+		Sheet			sheet		= workbook.getSheetAt(0);
+		Iterator<Row>	iterator	= sheet.iterator();
+		while (iterator.hasNext()) {
+			Row row = iterator.next();
+			if (row.getRowNum() != 0) {
+				if (row.getCell(0) != null) {
+					Integer	id	= row.getRowNum() + 1;
+					String	sex	= row.getCell(columnHeaderList.getExcelColumnIndex(ColumnHeaderList.SEX_COLUMN)).getStringCellValue();
+					if (sex.equalsIgnoreCase("Male")) {
+						rowIndexToPerson.put(row.getRowNum() + 1, new Male(personList, id));
+					} else if (sex.equalsIgnoreCase("female")) {
+						rowIndexToPerson.put(row.getRowNum() + 1, new Female(personList, id));
+					} else
+						throw new Exception(String.format("Unknown sex %s", sex));
+				}
+			}
+		}
+	}
+
+	private void detectExcelHeaderColumns(Workbook workbook) throws Exception {
+		ExcelErrorHandler grh = new ExcelErrorHandler();
+		{
+			Sheet			sheet			= workbook.getSheetAt(0);
+			Row				row				= sheet.getRow(0);
+			Iterator<Cell>	cellIterator	= row.iterator();
+			while (cellIterator.hasNext()) {
+				Cell currentCell = cellIterator.next();
+				columnHeaderList.register(grh, row, currentCell.getColumnIndex(), currentCell.getStringCellValue());
+			}
+			columnHeaderList.testForMissingColumns(grh, row);
+		}
 	}
 
 	abstract void draw(Context context, Graphics2D graphics);
@@ -139,14 +168,74 @@ public abstract class Tree {
 		return null;
 	}
 
+	private Female getFemaleRowByReference(Workbook workbook, Row row) throws Exception {
+		Cell	cell	= row.getCell(columnHeaderList.getExcelColumnIndex(ColumnHeaderList.MOTHER_COLUMN));
+		Person	p		= getPersonRowByReference(workbook, cell);
+		if (p == null || p.isFemale()) {
+			return (Female) p;
+		} else {
+			throw new Exception(String.format("Expected reference to female person at %s", ExcelUtil.cellReference(cell)));
+		}
+
+	}
+
+	private String getFirstName(Workbook workbook, Cell cell) throws Exception {
+		if (cell != null) {
+			switch (cell.getCellType()) {
+			case FORMULA:
+				// expect a reference to a person's name
+				Integer index = getReference(workbook, cell);
+				if (index == null)
+					return null;
+				Person p = rowIndexToPerson.get(index);
+				return p.firstName;
+			case STRING:
+				return cell.getStringCellValue();
+			default:
+				throw new Exception(String.format("Expected String cell value at %s", ExcelUtil.cellReference(cell)));
+			}
+		}
+		return null;
+	}
+
+	private String getLastName(Workbook workbook, Cell cell) throws Exception {
+		if (cell != null) {
+			switch (cell.getCellType()) {
+			case FORMULA:
+				// expect a reference to a person's name
+				Integer index = getReference(workbook, cell);
+				if (index == null)
+					return null;
+				Person p = rowIndexToPerson.get(index);
+				return p.lastName;
+			case STRING:
+				return cell.getStringCellValue();
+			default:
+				throw new Exception(String.format("Expected String cell value at %s", ExcelUtil.cellReference(cell)));
+			}
+		}
+		return null;
+	}
+
+	private Male getMaleRowByReference(Workbook workbook, Row row) throws Exception {
+		Cell	cell	= row.getCell(columnHeaderList.getExcelColumnIndex(ColumnHeaderList.FATHER_COLUMN));
+		Person	p		= getPersonRowByReference(workbook, cell);
+		if (p == null || p.isMale()) {
+			return (Male) p;
+		} else {
+			throw new Exception(String.format("Expected reference to male person at %s", ExcelUtil.cellReference(cell)));
+		}
+
+	}
+
 	Person getPersonRowByReference(Workbook workbook, Cell cell) throws Exception {
 		Integer index = getReference(workbook, cell);
 		if (index == null)
 			return null;
 		Person p = rowIndexToPerson.get(index);
-		if (p == null) {
-			p = getPersonRowByReference(workbook, cell);
-		}
+//		if (p == null) {
+//			p = getPersonRowByReference(workbook, cell);
+//		}
 		return p;
 	}
 
@@ -166,10 +255,10 @@ public abstract class Tree {
 						CellType		cachedFormulaResultTypeEnum	= cell.getCachedFormulaResultType();
 						switch (cachedFormulaResultTypeEnum) {
 						case STRING: {
-							return cellReference.getRow();
+							return cellReference.getRow() + 1;
 						}
 						case NUMERIC: {
-							return cellReference.getRow();
+							return cellReference.getRow() + 1;
 						}
 						default:
 							throw new Exception(String.format("Unexpected cell type %s", cachedFormulaResultTypeEnum.name()));
@@ -178,18 +267,6 @@ public abstract class Tree {
 				}
 			} else {
 				throw new Exception(String.format("Expected a reference at cell %s", ExcelUtil.cellReference(cell)));
-			}
-		}
-		return null;
-	}
-
-	private String getString(Cell cell) throws Exception {
-		if (cell != null) {
-			switch (cell.getCellType()) {
-			case STRING:
-				return cell.getStringCellValue();
-			default:
-				throw new Exception(String.format("Expected String cell value at %s", ExcelUtil.cellReference(cell)));
 			}
 		}
 		return null;
@@ -248,15 +325,15 @@ public abstract class Tree {
 	abstract int position(Context context, Person person);
 
 	private void read(Workbook workbook) throws Exception {
+
+		detectExcelHeaderColumns(workbook);
+		createPeronList(workbook);
+
 		Sheet			sheet		= workbook.getSheetAt(0);
 		Iterator<Row>	iterator	= sheet.iterator();
-
 		while (iterator.hasNext()) {
 			Row row = iterator.next();
 			if (row.getRowNum() != 0) {
-//				short lastCellNum = row.getLastCellNum();
-//				if (lastCellNum != COLUMN_NUMBER)
-//					throw new Exception(String.format("Wrong number of columns, expected %d, but is %d", COLUMN_NUMBER, lastCellNum));
 				if (row.getCell(0) != null) {
 					readRow(workbook, row);
 				}
@@ -283,28 +360,16 @@ public abstract class Tree {
 	}
 
 	private void readRow(Workbook workbook, Row row) throws Exception {
-		Integer id = (int) row.getCell(ID_COLUMN).getNumericCellValue();
-		if (row.getRowNum() + 1 != id)
-			throw new Exception(String.format("ID %d does not match row number %d", id, row.getRowNum() + 1));
-		String	sex			= row.getCell(SEX_COLUMN).getStringCellValue();
-		String	firstName	= row.getCell(FIRST_NAME_COLUMN).getStringCellValue();
-		if (firstName.isEmpty())
+		Person person = rowIndexToPerson.get(row.getRowNum() + 1);
+		person.firstName = getFirstName(workbook, row.getCell(columnHeaderList.getExcelColumnIndex(ColumnHeaderList.FIRST_NAME_COLUMN)));
+		if (person.firstName.isEmpty())
 			throw new Exception(String.format("firstName cannot be empty"));
-		String lastName = getString(row.getCell(LAST_NAME_COLUMN));
-		logger.warn(String.format("Person %s at row %d has no family name.", firstName, id));
-//		if (lastName.isEmpty())
-//			throw new Exception(String.format("lastName cannot be empty"));
-		Date	born	= getDate(row.getCell(BORN_COLUMN));
-		Date	died	= getDate(row.getCell(DIED_COLUMN));
-		Male	father	= (Male) getPersonRowByReference(workbook, row.getCell(FATHER_COLUMN));
-		Female	mother	= (Female) getPersonRowByReference(workbook, row.getCell(MOTHER_COLUMN));
-
-		if (sex.equalsIgnoreCase("Male")) {
-			rowIndexToPerson.put(row.getRowNum(), new Male(personList, id, firstName, lastName, born, died, father, mother));
-		} else if (sex.equalsIgnoreCase("female")) {
-			rowIndexToPerson.put(row.getRowNum(), new Female(personList, id, firstName, lastName, born, died, father, mother));
-		} else
-			throw new Exception(String.format("Unknown sex %s", sex));
+		person.lastName = getLastName(workbook, row.getCell(columnHeaderList.getExcelColumnIndex(ColumnHeaderList.LAST_NAME_COLUMN)));
+		logger.warn(String.format("Person %s at row %d has no family name.", person.firstName, person.id));
+		person.born = getDate(row.getCell(columnHeaderList.getExcelColumnIndex(ColumnHeaderList.BORN_COLUMN)));
+		person.died = getDate(row.getCell(columnHeaderList.getExcelColumnIndex(ColumnHeaderList.DIED_COLUMN)));
+		person.father = getMaleRowByReference(workbook, row);
+		person.mother = getFemaleRowByReference(workbook, row);
 	}
 
 }

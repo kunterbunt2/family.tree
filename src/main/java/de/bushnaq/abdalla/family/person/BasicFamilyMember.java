@@ -21,4 +21,8 @@ public class BasicFamilyMember {
 		this.mother = mother;
 	}
 
+	public BasicFamilyMember(Integer id) {
+		this.id = id;
+	}
+
 }

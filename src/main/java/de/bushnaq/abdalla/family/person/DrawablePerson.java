@@ -24,6 +24,11 @@ public abstract class DrawablePerson extends Person {
 		this.backgroundColor = backgroundColor;
 	}
 
+	public DrawablePerson(PersonList personList, Integer id, Color backgroundColor) {
+		super(personList, id);
+		this.backgroundColor = backgroundColor;
+	}
+
 	@Override
 	public void drawHorizontal(Context context, Graphics2D graphics, Font nameFont, Font livedFont) {
 		if (attribute.show) {
