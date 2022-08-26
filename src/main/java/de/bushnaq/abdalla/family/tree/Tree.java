@@ -127,9 +127,9 @@ public abstract class Tree {
 			} else {
 				spouse.spouseIndex = spouseIndex++;
 				spouse.setSpouse(true);
-				if (person.isLastChild()) {
-					spouse.setSpouseOfLastChild(true);
-				}
+			}
+			if (person.isLastChild()) {
+				spouse.setSpouseOfLastChild(true);
 			}
 			// children
 			int			childIndex		= 0;

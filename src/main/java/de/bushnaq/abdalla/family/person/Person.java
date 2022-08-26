@@ -63,6 +63,18 @@ public abstract class Person extends BasicFamilyMember {
 
 	public abstract void drawVertical(Context context, Graphics2D graphics, Font nameFont, Font livedFont);
 
+	@Override
+	public boolean equals(Object o) {
+		if (o == this)
+			return true;
+		if (!(o instanceof Person))
+			return false;
+		Person other = (Person) o;
+		if ((other.isClone() && !this.isClone()) || (!other.isClone() && this.isClone()))
+			return false;
+		return this.getId() == other.getId();
+	}
+
 	public String getBornString() {
 		if (getBorn() != null) {
 			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");

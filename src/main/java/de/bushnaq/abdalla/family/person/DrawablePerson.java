@@ -302,11 +302,10 @@ public abstract class DrawablePerson extends Person {
 	private void drawVerticalConnectors(Context context, Graphics2D graphics) {
 		int		x1		= xIndexToPixel(x);
 		int		y1		= yIndexToPixel(y);
-//		int	dy	= 0;				// childIndex;
 
 		Stroke	stroke	= graphics.getStroke();
 		// child Connector horizontal
-		if (isMember()) {
+		if (isMember() && !isSpouse()) {
 			graphics.setStroke(new BasicStroke(MEDIUM_LINE_STROKE_WIDTH));
 			graphics.setColor(connectorColor);
 			graphics.drawLine(x1 - PERSON_X_SPACE / 2, y1 + height / 2, x1, y1 + height / 2);
@@ -315,7 +314,6 @@ public abstract class DrawablePerson extends Person {
 		if (isSpouse()) {
 			graphics.setStroke(new BasicStroke(MEDIUM_LINE_STROKE_WIDTH));
 			int	cy1	= y1 + PERSON_HEIGHT / 2;
-//			PersonList	childrenList	= getChildrenList();
 			int	cy2	= yIndexToPixel(getChildrenList().last().y) + PERSON_HEIGHT / 2;
 			graphics.setColor(connectorColor);
 			graphics.drawLine(x1 + width + PERSON_X_SPACE / 2, cy1, x1 + width + PERSON_X_SPACE / 2, cy2);
@@ -328,7 +326,7 @@ public abstract class DrawablePerson extends Person {
 		}
 
 		// sexual relation connector
-		if (hasChildren() && isMember() && context.includeSpouse) {
+		if (hasChildren() && isMember() && !isSpouse() && context.includeSpouse) {
 			graphics.setStroke(new BasicStroke(FAT_LINE_STROKE_WIDTH, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 3 }, 0));
 			graphics.setColor(connectorColor);
 			graphics.drawLine(x1 + width, y1 + height / 2, x1 + width + PERSON_X_SPACE, y1 + height / 2);

@@ -12,10 +12,10 @@ public class PersonComperator implements Comparator<Person> {
 				return compare;
 			}
 		}
-		if (o1.isClone()) {
+		if (o1.isClone() && !o2.isClone()) {
 			return o1.getId() + 1000 - o2.getId();
 		}
-		if (o2.isClone()) {
+		if (!o1.isClone() && o2.isClone()) {
 			return o1.getId() - o2.getId() - 1000;
 		}
 
