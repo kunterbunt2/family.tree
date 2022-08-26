@@ -42,7 +42,7 @@ public class HorizontalTree extends Tree {
 
 	@Override
 	int position(Context context, Person person) {
-		person.attribute.show = true;
+		person.setVisible(true);
 //		person.attribute.member = true;
 		if (context.includeSpouse) {
 			int pX;
@@ -70,7 +70,7 @@ public class HorizontalTree extends Tree {
 				PersonList childrenList = person.getChildrenList(spouse);
 				for (Person child : childrenList) {
 //					child.childIndex = childIndex++;
-					spouse.attribute.show = true;
+					spouse.setVisible(true);
 //					child.setIsChild(true);
 //					if (firstChild) {
 //						child.setFirstChild(true);

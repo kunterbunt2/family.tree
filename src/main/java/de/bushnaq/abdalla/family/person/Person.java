@@ -14,7 +14,7 @@ public abstract class Person extends BasicFamilyMember {
 	public static final int	PERSON_WIDTH	= 100;
 	public static final int	PERSON_X_SPACE	= 24;
 	public static final int	PERSON_Y_SPACE	= 12;
-	public Attribute		attribute		= new Attribute();
+	private Attribute		attribute		= new Attribute();
 	public Integer			childIndex		= null;
 	public Integer			generation		= null;
 	public int				height			= Person.PERSON_HEIGHT;
@@ -38,15 +38,15 @@ public abstract class Person extends BasicFamilyMember {
 	}
 
 	public boolean bornBefore(Person person) {
-		if (born != null && person.born != null) {
-			return born.before(person.born);
+		if (getBorn() != null && person.getBorn() != null) {
+			return getBorn().before(person.getBorn());
 		}
-		return id < person.id;
+		return getId() < person.getId();
 	}
 
 	public void calculateWidth(Graphics2D graphics, Font nameFont, Font livedFont) {
 		graphics.setFont(livedFont);
-		idWidth = graphics.getFontMetrics().stringWidth("" + id);
+		idWidth = graphics.getFontMetrics().stringWidth("" + getId());
 
 //		width = 0;
 //		graphics.setFont(nameFont);
@@ -64,9 +64,9 @@ public abstract class Person extends BasicFamilyMember {
 	public abstract void drawVertical(Context context, Graphics2D graphics, Font nameFont, Font livedFont);
 
 	public String getBornString() {
-		if (born != null) {
+		if (getBorn() != null) {
 			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-			return "\u002A" + simpleDateFormat.format(born);
+			return "\u002A" + simpleDateFormat.format(getBorn());
 		}
 		return "";
 	}
@@ -76,8 +76,8 @@ public abstract class Person extends BasicFamilyMember {
 		PersonList	spouseList		= getSpouseList();
 		for (Person spouse : spouseList) {
 			for (Person child : personList) {
-				if (child.father != null && child.mother != null) {
-					if ((child.father.equals(this) && child.mother.equals(spouse)) || (child.father.equals(spouse) && child.mother.equals(this))) {
+				if (child.getFather() != null && child.getMother() != null) {
+					if ((child.getFather().equals(this) && child.getMother().equals(spouse)) || (child.getFather().equals(spouse) && child.getMother().equals(this))) {
 						childrenList.add(child);
 					}
 				}
@@ -89,8 +89,8 @@ public abstract class Person extends BasicFamilyMember {
 	public PersonList getChildrenList(Person spouse) {
 		PersonList childrenList = new PersonList();
 		for (Person child : personList) {
-			if (child.father != null && child.mother != null) {
-				if ((child.father.equals(this) && child.mother.equals(spouse)) || (child.father.equals(spouse) && child.mother.equals(this))) {
+			if (child.getFather() != null && child.getMother() != null) {
+				if ((child.getFather().equals(this) && child.getMother().equals(spouse)) || (child.getFather().equals(spouse) && child.getMother().equals(this))) {
 					childrenList.add(child);
 				}
 			}
@@ -99,33 +99,33 @@ public abstract class Person extends BasicFamilyMember {
 	}
 
 	protected String getDiedString() {
-		if (died != null) {
+		if (getDied() != null) {
 			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-			return "\u271D" + simpleDateFormat.format(died);
+			return "\u271D" + simpleDateFormat.format(getDied());
 		}
 		return "";
 	}
 
-	public String getFirstName() {
-		return String.format("%s", firstName);
+	public String getFirstNameAsString() {
+		return String.format("%s", getFirstName());
 	}
 
-	public String getLastName() {
-		if (lastName != null)
-			return String.format("%s", lastName);
+	public String getLastNameAsString() {
+		if (getLastName() != null)
+			return String.format("%s", getLastName());
 		else
 			return "";
 	}
 
 	protected String getLivedString() {
-		if (died != null)
+		if (getDied() != null)
 			return String.format("%s   -   %s", getBornString(), getDiedString());
 		else
 			return String.format("%s   -   %s", getBornString(), getBornString());
 	}
 
 	public String getName() {
-		return String.format("%s %s", firstName, lastName);
+		return String.format("%s %s", getFirstNameAsString(), getLastNameAsString());
 	}
 
 	public abstract String getSexCharacter();
@@ -133,17 +133,17 @@ public abstract class Person extends BasicFamilyMember {
 	public PersonList getSpouseList() {
 		PersonList spouseList = new PersonList();
 		for (Person p : personList) {
-			if (p.father != null && p.father.equals(this))
-				spouseList.add(p.mother);
-			if (p.mother != null && p.mother.equals(this))
-				spouseList.add(p.father);
+			if (p.getFather() != null && p.getFather().equals(this))
+				spouseList.add(p.getMother());
+			if (p.getMother() != null && p.getMother().equals(this))
+				spouseList.add(p.getFather());
 		}
 		return spouseList;
 	}
 
 	public boolean hasChildren() {
 		for (Person p : personList) {
-			if ((p.father != null && p.father.equals(this)) || (p.mother != null && p.mother.equals(this)))
+			if ((p.getFather() != null && p.getFather().equals(this)) || (p.getMother() != null && p.getMother().equals(this)))
 				return true;
 		}
 		return false;
@@ -151,6 +151,10 @@ public abstract class Person extends BasicFamilyMember {
 
 	public boolean isChild() {
 		return attribute.child;
+	}
+
+	public boolean isClone() {
+		return (this instanceof FemaleClone) || (this instanceof MaleClone);
 	}
 
 	public abstract boolean isFemale();
@@ -165,12 +169,20 @@ public abstract class Person extends BasicFamilyMember {
 
 	public abstract boolean isMale();
 
+	public boolean isMember() {
+		return getFather() != null || getMother() != null;
+	}
+
 	public boolean isSpouse() {
 		return attribute.spouse;
 	}
 
 	public boolean isSpouseOfLastChild() {
 		return attribute.spouseOfLastChild;
+	}
+
+	public boolean isVisible() {
+		return attribute.visible;
 	}
 
 	public void print() {
@@ -195,6 +207,10 @@ public abstract class Person extends BasicFamilyMember {
 
 	public void setSpouseOfLastChild(boolean spouseOfLastChild) {
 		this.attribute.spouseOfLastChild = spouseOfLastChild;
+	}
+
+	public void setVisible(boolean child) {
+		this.attribute.visible = child;
 	}
 
 }

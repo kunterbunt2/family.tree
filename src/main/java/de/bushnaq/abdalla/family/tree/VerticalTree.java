@@ -45,7 +45,7 @@ public class VerticalTree extends Tree {
 
 	@Override
 	int position(Context context, Person person) {
-		person.attribute.show = true;
+		person.setVisible(true);
 		int pY = person.y;
 		if (!person.hasChildren())
 			pY = person.y + 1;
@@ -57,7 +57,7 @@ public class VerticalTree extends Tree {
 			PersonList childrenList = person.getChildrenList(spouse);
 			for (Person child : childrenList) {
 				if (context.includeSpouse) {
-					spouse.attribute.show = true;
+					spouse.setVisible(true);
 					child.x = spouse.x + 1;
 				} else {
 					child.x = person.x + 1;

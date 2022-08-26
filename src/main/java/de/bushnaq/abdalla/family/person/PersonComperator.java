@@ -6,13 +6,20 @@ public class PersonComperator implements Comparator<Person> {
 
 	@Override
 	public int compare(Person o1, Person o2) {
-		if (o1.born != null && o2.born != null) {
-			int compare = o1.born.compareTo(o2.born);
+		if (o1.getBorn() != null && o2.getBorn() != null) {
+			int compare = o1.getBorn().compareTo(o2.getBorn());
 			if (compare != 0) {
 				return compare;
 			}
 		}
-		return o1.id - o2.id;
+		if (o1.isClone()) {
+			return o1.getId() + 1000 - o2.getId();
+		}
+		if (o2.isClone()) {
+			return o1.getId() - o2.getId() - 1000;
+		}
+
+		return o1.getId() - o2.getId();
 	}
 
 }

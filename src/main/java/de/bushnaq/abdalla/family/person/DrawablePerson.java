@@ -16,7 +16,6 @@ public abstract class DrawablePerson extends Person {
 	protected static final float	STANDARD_LINE_STROKE_WIDTH	= 3.1f;
 	private Color					backgroundColor;
 	private Color					borderColoe					= new Color(0, 0, 0, 64);
-
 	private Color					textColoe					= new Color(0, 0, 0);
 
 	public DrawablePerson(PersonList personList, int id, String firstName, String lastName, Date born, Date died, Male father, Female mother, Color backgroundColor) {
@@ -31,7 +30,7 @@ public abstract class DrawablePerson extends Person {
 
 	@Override
 	public void drawHorizontal(Context context, Graphics2D graphics, Font nameFont, Font livedFont) {
-		if (attribute.show) {
+		if (isVisible()) {
 			drawHorizontalBox(graphics, nameFont, livedFont);
 			drawHorizontalConnectors(context, graphics);
 		}
@@ -53,7 +52,7 @@ public abstract class DrawablePerson extends Person {
 			Font				font	= graphics.getFont();
 			// first name
 			{
-				String		string			= getFirstName();
+				String		string			= getFirstNameAsString();
 				LineMetrics	metrics			= font.getLineMetrics(string, frc);
 				float		descent			= metrics.getDescent();
 				Rectangle2D	stringBounds	= font.getStringBounds(string, frc);
@@ -63,7 +62,7 @@ public abstract class DrawablePerson extends Person {
 			}
 			// last name
 			{
-				String		string			= getLastName();
+				String		string			= getLastNameAsString();
 				LineMetrics	metrics			= font.getLineMetrics(string, frc);
 				float		descent			= metrics.getDescent();
 				Rectangle2D	stringBounds	= font.getStringBounds(string, frc);
@@ -78,7 +77,7 @@ public abstract class DrawablePerson extends Person {
 			FontRenderContext	frc		= graphics.getFontRenderContext();
 			Font				font	= graphics.getFont();
 			{
-				String		string	= "" + id;
+				String		string	= "" + getId();
 				LineMetrics	metrics	= font.getLineMetrics(string, frc);
 				graphics.drawString(string, x + 2, y + metrics.getHeight());
 			}
@@ -127,11 +126,11 @@ public abstract class DrawablePerson extends Person {
 		int	dy		= 0;				// childIndex;
 		// only child with no children
 		if (isFirstChild() && isLastChild() && !hasChildren()) {
-			Person	spouseParent	= mother;
-			Person	rootParent		= father;
-			if (mother.isMember()) {
-				spouseParent = father;
-				rootParent = mother;
+			Person	spouseParent	= getMother();
+			Person	rootParent		= getFather();
+			if (getMother().isMember()) {
+				spouseParent = getFather();
+				rootParent = getMother();
 			}
 			int	px	= spouseParent.x;
 			int	pw	= spouseParent.width;
@@ -147,11 +146,11 @@ public abstract class DrawablePerson extends Person {
 		} else {
 			// first child horizontal connector starts at the vertical one
 			if (isFirstChild()) {
-				Person	spouseParent	= mother;
-				Person	rootParent		= father;
-				if (mother.isMember()) {
-					spouseParent = father;
-					rootParent = mother;
+				Person	spouseParent	= getMother();
+				Person	rootParent		= getFather();
+				if (getMother().isMember()) {
+					spouseParent = getFather();
+					rootParent = getMother();
 				}
 				int	px	= spouseParent.x;
 				int	pw	= spouseParent.width;
@@ -210,7 +209,7 @@ public abstract class DrawablePerson extends Person {
 
 	@Override
 	public void drawVertical(Context context, Graphics2D graphics, Font nameFont, Font livedFont) {
-		if (attribute.show) {
+		if (isVisible()) {
 			drawVerticalBox(context, graphics, nameFont, livedFont);
 			drawVerticalConnectors(context, graphics);
 		}
@@ -231,7 +230,7 @@ public abstract class DrawablePerson extends Person {
 			Font				font	= graphics.getFont();
 			// first name
 			{
-				String		string			= getFirstName();
+				String		string			= getFirstNameAsString();
 				LineMetrics	metrics			= font.getLineMetrics(string, frc);
 				float		descent			= metrics.getDescent();
 				Rectangle2D	stringBounds	= font.getStringBounds(string, frc);
@@ -241,7 +240,7 @@ public abstract class DrawablePerson extends Person {
 			}
 			// last name
 			{
-				String		string			= getLastName();
+				String		string			= getLastNameAsString();
 				LineMetrics	metrics			= font.getLineMetrics(string, frc);
 				float		descent			= metrics.getDescent();
 				Rectangle2D	stringBounds	= font.getStringBounds(string, frc);
@@ -255,7 +254,7 @@ public abstract class DrawablePerson extends Person {
 			FontRenderContext	frc		= graphics.getFontRenderContext();
 			Font				font	= graphics.getFont();
 			{
-				String		string	= "" + id;
+				String		string	= "" + getId();
 				LineMetrics	metrics	= font.getLineMetrics(string, frc);
 				graphics.drawString(string, x1 + 2, y1 + metrics.getHeight());
 			}
@@ -299,8 +298,9 @@ public abstract class DrawablePerson extends Person {
 		}
 		// child Connector vertical
 		if (isSpouse()) {
-			int	cy1	= y1 + PERSON_HEIGHT / 2;
-			int	cy2	= yIndexToPixel(getChildrenList().last().y) + PERSON_HEIGHT / 2;
+			int			cy1				= y1 + PERSON_HEIGHT / 2;
+			PersonList	childrenList	= getChildrenList();
+			int			cy2				= yIndexToPixel(getChildrenList().last().y) + PERSON_HEIGHT / 2;
 			graphics.setColor(Color.black);
 			graphics.drawLine(x1 + width + PERSON_X_SPACE / 2, cy1, x1 + width + PERSON_X_SPACE / 2, cy2);
 		}
@@ -329,13 +329,9 @@ public abstract class DrawablePerson extends Person {
 		}
 	}
 
-	public boolean isMember() {
-		return attribute.member;
-	}
-
 	@Override
 	public String toString() {
-		return String.format("id=%d name='%s' lived='%s' x=%d y=%d", id, getName(), getLivedString(), x, y);
+		return String.format("id=%d name='%s' lived='%s' x=%d y=%d", getId(), getName(), getLivedString(), x, y);
 	}
 
 	private int xIndexToPixel(int x) {

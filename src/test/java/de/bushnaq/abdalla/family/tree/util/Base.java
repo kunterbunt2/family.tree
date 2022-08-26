@@ -10,24 +10,25 @@ import de.bushnaq.abdalla.util.TestUtil;
 
 public class Base {
 
-	public void generateHorizontal(Context context, String fileName, String outputName) throws Exception {
+	public void generateHorizontal(Context context, String inputName, String outputName) throws Exception {
 		Tree horizontalTree = new HorizontalTree(context);
-		horizontalTree.readExcel(fileName + ".xlsx");
+		horizontalTree.readExcel(inputName + ".xlsx");
 		BufferedImage image = horizontalTree.generate(context, outputName);
 		if (TestUtil.isRunningInEclipse())
-			showImage(image);
+			showImage(image, outputName);
 	}
 
-	public void generateVertical(Context context, String fileName, String outputName) throws Exception {
+	public void generateVertical(Context context, String inputName, String outputName) throws Exception {
 		Tree verticalTree = new VerticalTree(context);
-		verticalTree.readExcel(fileName + ".xlsx");
+		verticalTree.readExcel(inputName + ".xlsx");
 		BufferedImage image = verticalTree.generate(context, outputName);
 		if (TestUtil.isRunningInEclipse())
-			showImage(image);
+			showImage(image, outputName);
 	}
 
-	private void showImage(BufferedImage image) {
+	private void showImage(BufferedImage image, String title) {
 		MyCanvas c = new MyCanvas(image);
+		c.f.setTitle(title);
 		while (c.f.isVisible())
 			try {
 				Thread.sleep(100);
