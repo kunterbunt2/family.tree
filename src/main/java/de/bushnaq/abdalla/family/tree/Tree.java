@@ -25,7 +25,7 @@ public abstract class Tree {
 	int				iteration	= 0;
 	Font			livedFont	= new Font("Arial", Font.PLAIN, (Person.PERSON_HEIGHT - Person.PERSON_BORDER + 2 - Person.PERSON_MARGINE * 2) / 4);
 	final Logger	logger		= LoggerFactory.getLogger(this.getClass());
-	Font			nameFont	= new Font("Arial", Font.PLAIN, (Person.PERSON_HEIGHT - Person.PERSON_BORDER + 2 - Person.PERSON_MARGINE * 2) / 3);
+	Font			nameFont	= new Font("Arial", Font.BOLD, (Person.PERSON_HEIGHT - Person.PERSON_BORDER + 2 - Person.PERSON_MARGINE * 2) / 3);
 	PersonList		personList;
 
 	public Tree(Context context) {
