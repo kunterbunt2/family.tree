@@ -6,11 +6,11 @@ import java.util.Date;
 public class Male extends DrawablePerson {
 
 	public Male(PersonList personList, int id, String firstName, String lastName, Date born, Date died, Male father, Female mother) {
-		super(personList, id, firstName, lastName, born, died, father, mother, new Color(0x2d, 0xb1, 0xff, 64));
+		super(personList, id, firstName, lastName, born, died, father, mother, new Color(0x2d, 0xb1, 0xff, 32));
 	}
 
 	public Male(PersonList personList, Integer id) {
-		super(personList, id, new Color(0x2d, 0xb1, 0xff, 64));
+		super(personList, id, new Color(0x2d, 0xb1, 0xff, 32));
 	}
 
 	@Override

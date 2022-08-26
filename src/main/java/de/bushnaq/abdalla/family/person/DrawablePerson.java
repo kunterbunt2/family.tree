@@ -13,19 +13,24 @@ import java.util.Date;
 import de.bushnaq.abdalla.family.Context;
 
 public abstract class DrawablePerson extends Person {
-	protected static final float	STANDARD_LINE_STROKE_WIDTH	= 3.1f;
+	protected static final float	FAT_LINE_STROKE_WIDTH		= 3.1f;
+	protected static final float	MEDIUM_LINE_STROKE_WIDTH	= 2.1f;
 	private Color					backgroundColor;
-	private Color					borderColoe					= new Color(0, 0, 0, 64);
-	private Color					textColoe					= new Color(0, 0, 0);
+	private Color					borderColor					= new Color(0, 0, 0, 64);
+	private Color					connectorColor				= Color.gray;
+	private Color					spouseBorderColor;
+	private Color					textColor					= new Color(0, 0, 0);
 
 	public DrawablePerson(PersonList personList, int id, String firstName, String lastName, Date born, Date died, Male father, Female mother, Color backgroundColor) {
 		super(personList, id, firstName, lastName, born, died, father, mother);
 		this.backgroundColor = backgroundColor;
+		this.spouseBorderColor = new Color(backgroundColor.getRGB());
 	}
 
 	public DrawablePerson(PersonList personList, Integer id, Color backgroundColor) {
 		super(personList, id);
 		this.backgroundColor = backgroundColor;
+		this.spouseBorderColor = new Color(backgroundColor.getRGB());
 	}
 
 	@Override
@@ -43,9 +48,9 @@ public abstract class DrawablePerson extends Person {
 		int	mapY2	= y + PERSON_HEIGHT;
 		graphics.setColor(backgroundColor);
 		graphics.fillRect(mapX1, mapY1, mapX2 - mapX1, mapY2 - mapY1);
-		graphics.setColor(borderColoe);
+		graphics.setColor(borderColor);
 		graphics.drawRect(mapX1, mapY1, mapX2 - mapX1 - 1, mapY2 - mapY1 - 1);
-		graphics.setColor(textColoe);
+		graphics.setColor(textColor);
 		{
 			graphics.setFont(nameFont);
 			FontRenderContext	frc		= graphics.getFontRenderContext();
@@ -200,7 +205,7 @@ public abstract class DrawablePerson extends Person {
 		// sexual relation connector
 		if (hasChildren() && isMember() && context.includeSpouse) {
 			Stroke stroke = graphics.getStroke();
-			graphics.setStroke(new BasicStroke(STANDARD_LINE_STROKE_WIDTH, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 3 }, 0));
+			graphics.setStroke(new BasicStroke(FAT_LINE_STROKE_WIDTH, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 3 }, 0));
 			graphics.setColor(Color.black);
 			graphics.drawLine(mapX2, mapY1 + (mapY2 - mapY1) / 2, mapX2 + PERSON_X_SPACE, mapY1 + (mapY2 - mapY1) / 2);
 			graphics.setStroke(stroke);
@@ -221,9 +226,17 @@ public abstract class DrawablePerson extends Person {
 		int		y1		= y * (Person.PERSON_HEIGHT + Person.PERSON_Y_SPACE);
 		graphics.setColor(backgroundColor);
 		graphics.fillRect(x1, y1, width, height);
-		graphics.setColor(borderColoe);
-		graphics.drawRect(x1, y1, width - 1, height - 1);
-		graphics.setColor(textColoe);
+		if (isSpouse() && !isMember()) {
+			Stroke stroke = graphics.getStroke();
+			graphics.setStroke(new BasicStroke(FAT_LINE_STROKE_WIDTH, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 3 }, 0));
+			graphics.setColor(spouseBorderColor);
+			graphics.drawRect(x1, y1, width - 1, height - 1);
+			graphics.setStroke(stroke);
+		} else {
+			graphics.setColor(borderColor);
+			graphics.drawRect(x1, y1, width - 1, height - 1);
+		}
+		graphics.setColor(textColor);
 		{
 			graphics.setFont(nameFont);
 			FontRenderContext	frc		= graphics.getFontRenderContext();
@@ -287,46 +300,50 @@ public abstract class DrawablePerson extends Person {
 	}
 
 	private void drawVerticalConnectors(Context context, Graphics2D graphics) {
-		int	x1	= xIndexToPixel(x);
-		int	y1	= yIndexToPixel(y);
-		int	dy	= 0;				// childIndex;
+		int		x1		= xIndexToPixel(x);
+		int		y1		= yIndexToPixel(y);
+//		int	dy	= 0;				// childIndex;
 
+		Stroke	stroke	= graphics.getStroke();
 		// child Connector horizontal
 		if (isMember()) {
-			graphics.setColor(Color.black);
+			graphics.setStroke(new BasicStroke(MEDIUM_LINE_STROKE_WIDTH));
+			graphics.setColor(connectorColor);
 			graphics.drawLine(x1 - PERSON_X_SPACE / 2, y1 + height / 2, x1, y1 + height / 2);
 		}
 		// child Connector vertical
 		if (isSpouse()) {
-			int			cy1				= y1 + PERSON_HEIGHT / 2;
-			PersonList	childrenList	= getChildrenList();
-			int			cy2				= yIndexToPixel(getChildrenList().last().y) + PERSON_HEIGHT / 2;
-			graphics.setColor(Color.black);
+			graphics.setStroke(new BasicStroke(MEDIUM_LINE_STROKE_WIDTH));
+			int	cy1	= y1 + PERSON_HEIGHT / 2;
+//			PersonList	childrenList	= getChildrenList();
+			int	cy2	= yIndexToPixel(getChildrenList().last().y) + PERSON_HEIGHT / 2;
+			graphics.setColor(connectorColor);
 			graphics.drawLine(x1 + width + PERSON_X_SPACE / 2, cy1, x1 + width + PERSON_X_SPACE / 2, cy2);
 		}
 		// spouse connector to children
 		if (isSpouse()) {
-			graphics.setColor(Color.black);
+			graphics.setStroke(new BasicStroke(MEDIUM_LINE_STROKE_WIDTH));
+			graphics.setColor(connectorColor);
 			graphics.drawLine(x1 + width, y1 + height / 2, x1 + width + PERSON_X_SPACE / 2, y1 + height / 2);
 		}
 
 		// sexual relation connector
 		if (hasChildren() && isMember() && context.includeSpouse) {
-			Stroke stroke = graphics.getStroke();
-			graphics.setStroke(new BasicStroke(STANDARD_LINE_STROKE_WIDTH, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 3 }, 0));
-			graphics.setColor(Color.black);
+			graphics.setStroke(new BasicStroke(FAT_LINE_STROKE_WIDTH, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 3 }, 0));
+			graphics.setColor(connectorColor);
 			graphics.drawLine(x1 + width, y1 + height / 2, x1 + width + PERSON_X_SPACE, y1 + height / 2);
-			graphics.setStroke(stroke);
 		}
 		// spouse connector to children
 		if (hasChildren() && isMember() && !context.includeSpouse) {
-			graphics.setColor(Color.black);
+			graphics.setStroke(new BasicStroke(MEDIUM_LINE_STROKE_WIDTH));
+			graphics.setColor(connectorColor);
 			graphics.drawLine(x1 + width, y1 + height / 2, x1 + width + PERSON_X_SPACE / 2, y1 + height / 2);
 			int	cy1	= y1 + PERSON_HEIGHT / 2;
 			int	cy2	= yIndexToPixel(getChildrenList().last().y) + PERSON_HEIGHT / 2;
-			graphics.setColor(Color.black);
+			graphics.setColor(connectorColor);
 			graphics.drawLine(x1 + width + PERSON_X_SPACE / 2, cy1, x1 + width + PERSON_X_SPACE / 2, cy2);
 		}
+		graphics.setStroke(stroke);
 	}
 
 	@Override

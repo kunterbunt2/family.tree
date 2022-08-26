@@ -153,6 +153,7 @@ public abstract class Tree {
 
 	private void initAttributes() {
 		Male firstFather = findFirstFather();
+		firstFather.setFirstFather(true);
 		firstFather.generation = 0;
 		initAttribute(firstFather);
 	}

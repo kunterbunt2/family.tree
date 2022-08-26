@@ -163,6 +163,10 @@ public abstract class Person extends BasicFamilyMember {
 		return attribute.firstChild;
 	}
 
+	public boolean isFirstFather() {
+		return attribute.firstFather;
+	}
+
 	public boolean isLastChild() {
 		return attribute.lastChild;
 	}
@@ -170,7 +174,7 @@ public abstract class Person extends BasicFamilyMember {
 	public abstract boolean isMale();
 
 	public boolean isMember() {
-		return getFather() != null || getMother() != null;
+		return getFather() != null || getMother() != null || isFirstFather() || (this instanceof FemaleClone) || (this instanceof MaleClone);
 	}
 
 	public boolean isSpouse() {
@@ -191,6 +195,10 @@ public abstract class Person extends BasicFamilyMember {
 
 	public void setFirstChild(boolean firstChild) {
 		this.attribute.firstChild = firstChild;
+	}
+
+	public void setFirstFather(boolean firstFather) {
+		attribute.firstFather = firstFather;
 	}
 
 	public void setIsChild(boolean child) {
