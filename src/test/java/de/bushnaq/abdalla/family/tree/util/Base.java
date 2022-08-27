@@ -6,20 +6,29 @@ import de.bushnaq.abdalla.family.Context;
 import de.bushnaq.abdalla.family.tree.HorizontalTree;
 import de.bushnaq.abdalla.family.tree.Tree;
 import de.bushnaq.abdalla.family.tree.VerticalTree;
+import de.bushnaq.abdalla.util.ObfuscatingBase;
 import de.bushnaq.abdalla.util.TestUtil;
 
 public class Base {
+	private ObfuscatingBase	ObfuscatingBase	= new ObfuscatingBase();
+	protected boolean					obfuscate		= true;
 
-	public void generateHorizontal(Context context, String inputName, String outputName) throws Exception {
-		Tree horizontalTree = new HorizontalTree(context);
+	public void generateHorizontal(Context context, String inputName, String outputDecorator) throws Exception {
+		if (obfuscate)
+			inputName = ObfuscatingBase.obfuscateString(inputName);
+		String	outputName		= inputName + outputDecorator;
+		Tree	horizontalTree	= new HorizontalTree(context);
 		horizontalTree.readExcel(inputName + ".xlsx");
 		BufferedImage image = horizontalTree.generate(context, outputName);
 		if (TestUtil.isRunningInEclipse())
 			showImage(image, outputName);
 	}
 
-	public void generateVertical(Context context, String inputName, String outputName) throws Exception {
-		Tree verticalTree = new VerticalTree(context);
+	public void generateVertical(Context context, String inputName, String outputDecorator) throws Exception {
+		if (obfuscate)
+			inputName = ObfuscatingBase.obfuscateString(inputName);
+		String	outputName		= inputName + outputDecorator;
+		Tree	verticalTree	= new VerticalTree(context);
 		verticalTree.readExcel(inputName + ".xlsx");
 		BufferedImage image = verticalTree.generate(context, outputName);
 		if (TestUtil.isRunningInEclipse())

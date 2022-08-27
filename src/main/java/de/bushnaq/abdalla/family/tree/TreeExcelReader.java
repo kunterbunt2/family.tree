@@ -1,7 +1,5 @@
 package de.bushnaq.abdalla.family.tree;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -27,12 +25,11 @@ import de.bushnaq.abdalla.family.person.Female;
 import de.bushnaq.abdalla.family.person.Male;
 import de.bushnaq.abdalla.family.person.Person;
 import de.bushnaq.abdalla.family.person.PersonList;
+import de.bushnaq.abdalla.util.BasicExcelReader;
 import de.bushnaq.abdalla.util.ColumnHeaderList;
-import de.bushnaq.abdalla.util.ExcelErrorHandler;
 import de.bushnaq.abdalla.util.ExcelUtil;
 
-public class ExcelReader {
-	private final ColumnHeaderList		columnHeaderList	= new ColumnHeaderList();
+public class TreeExcelReader extends BasicExcelReader {
 	private final Logger				logger				= LoggerFactory.getLogger(this.getClass());
 	private final PersonList			personList			= new PersonList();
 	private final Map<Integer, Person>	rowIndexToPerson	= new HashMap<>();
@@ -45,7 +42,7 @@ public class ExcelReader {
 			if (row.getRowNum() != 0) {
 				if (row.getCell(0) != null) {
 					Integer	id	= row.getRowNum() + 1;
-					String	sex	= row.getCell(columnHeaderList.getExcelColumnIndex(ColumnHeaderList.SEX_COLUMN)).getStringCellValue();
+					String	sex	= row.getCell(getColumnHeaderList().getExcelColumnIndex(ColumnHeaderList.SEX_COLUMN)).getStringCellValue();
 					if (sex.equalsIgnoreCase("Male")) {
 						rowIndexToPerson.put(row.getRowNum() + 1, new Male(personList, id));
 					} else if (sex.equalsIgnoreCase("female")) {
@@ -57,18 +54,9 @@ public class ExcelReader {
 		}
 	}
 
-	private void detectExcelHeaderColumns(Workbook workbook) throws Exception {
-		ExcelErrorHandler grh = new ExcelErrorHandler();
-		{
-			Sheet			sheet			= workbook.getSheetAt(0);
-			Row				row				= sheet.getRow(0);
-			Iterator<Cell>	cellIterator	= row.iterator();
-			while (cellIterator.hasNext()) {
-				Cell currentCell = cellIterator.next();
-				columnHeaderList.register(grh, row, currentCell.getColumnIndex(), currentCell.getStringCellValue());
-			}
-			columnHeaderList.testForMissingColumns(grh, row);
-		}
+	public PersonList readPersonList(String fileName) throws Exception {
+		readExcel(fileName);
+		return personList;
 	}
 
 	private Date getDate(Cell cell) throws Exception {
@@ -89,7 +77,7 @@ public class ExcelReader {
 	}
 
 	private Female getFemaleRowByReference(Workbook workbook, Row row) throws Exception {
-		Cell	cell	= row.getCell(columnHeaderList.getExcelColumnIndex(ColumnHeaderList.MOTHER_COLUMN));
+		Cell	cell	= row.getCell(getColumnHeaderList().getExcelColumnIndex(ColumnHeaderList.MOTHER_COLUMN));
 		Person	p		= getPersonRowByReference(workbook, cell);
 		if (p == null || p.isFemale()) {
 			return (Female) p;
@@ -102,13 +90,6 @@ public class ExcelReader {
 	private String getFirstName(Workbook workbook, Cell cell) throws Exception {
 		if (cell != null) {
 			switch (cell.getCellType()) {
-//			case FORMULA:
-//				// expect a reference to a person's name
-//				Integer index = getReference(workbook, cell);
-//				if (index == null)
-//					return null;
-//				Person p = rowIndexToPerson.get(index);
-//				return p.getFirstName();
 			case STRING:
 				return cell.getStringCellValue();
 			default:
@@ -138,7 +119,7 @@ public class ExcelReader {
 	}
 
 	private Male getMaleRowByReference(Workbook workbook, Row row) throws Exception {
-		Cell	cell	= row.getCell(columnHeaderList.getExcelColumnIndex(ColumnHeaderList.FATHER_COLUMN));
+		Cell	cell	= row.getCell(getColumnHeaderList().getExcelColumnIndex(ColumnHeaderList.FATHER_COLUMN));
 		Person	p		= getPersonRowByReference(workbook, cell);
 		if (p == null || p.isMale()) {
 			return (Male) p;
@@ -192,53 +173,32 @@ public class ExcelReader {
 		return null;
 	}
 
-	private void read(Workbook workbook) throws Exception {
+	protected void readRow(Workbook workbook, Row row) throws Exception {
+		Person person = rowIndexToPerson.get(row.getRowNum() + 1);
+		person.setFirstName(getFirstName(workbook, row.getCell(getColumnHeaderList().getExcelColumnIndex(ColumnHeaderList.FIRST_NAME_COLUMN))));
+		if (person.getFirstName().isEmpty())
+			throw new Exception(String.format("firstName cannot be empty"));
+		person.setLastName(getLastName(workbook, row.getCell(getColumnHeaderList().getExcelColumnIndex(ColumnHeaderList.LAST_NAME_COLUMN))));
+		logger.warn(String.format("Person %s at row %d has no family name.", person.getFirstName(), person.getId()));
+		person.setBorn(getDate(row.getCell(getColumnHeaderList().getExcelColumnIndex(ColumnHeaderList.BORN_COLUMN))));
+		person.setDied(getDate(row.getCell(getColumnHeaderList().getExcelColumnIndex(ColumnHeaderList.DIED_COLUMN))));
+		person.setFather(getMaleRowByReference(workbook, row));
+		person.setMother(getFemaleRowByReference(workbook, row));
+	}
 
+	protected void readWokbook(Workbook workbook) throws Exception {
 		detectExcelHeaderColumns(workbook);
 		createPeronList(workbook);
-
-		Sheet			sheet		= workbook.getSheetAt(0);
-		Iterator<Row>	iterator	= sheet.iterator();
-		while (iterator.hasNext()) {
-			Row row = iterator.next();
-			if (row.getRowNum() != 0) {
-				if (row.getCell(0) != null) {
-					readRow(workbook, row);
-				}
-			}
-		}
+		readRows(workbook);
 
 		for (Person p : rowIndexToPerson.values()) {
 			personList.add(p);
 		}
-
 	}
 
 	public PersonList readExcel(String fileName) throws Exception {
-		File file = new File(fileName);
-		if (file.exists()) {
-			try (FileInputStream excelFilestream = new FileInputStream(file)) {
-				try (Workbook workbook = new XSSFWorkbook(excelFilestream)) {
-					read(workbook);
-				}
-			}
-		} else {
-			logger.error(String.format("File '%s' not found!", fileName));
-		}
+		readExcelFile(fileName);
 		return personList;
-	}
-
-	private void readRow(Workbook workbook, Row row) throws Exception {
-		Person person = rowIndexToPerson.get(row.getRowNum() + 1);
-		person.setFirstName(getFirstName(workbook, row.getCell(columnHeaderList.getExcelColumnIndex(ColumnHeaderList.FIRST_NAME_COLUMN))));
-		if (person.getFirstName().isEmpty())
-			throw new Exception(String.format("firstName cannot be empty"));
-		person.setLastName(getLastName(workbook, row.getCell(columnHeaderList.getExcelColumnIndex(ColumnHeaderList.LAST_NAME_COLUMN))));
-		logger.warn(String.format("Person %s at row %d has no family name.", person.getFirstName(), person.getId()));
-		person.setBorn(getDate(row.getCell(columnHeaderList.getExcelColumnIndex(ColumnHeaderList.BORN_COLUMN))));
-		person.setDied(getDate(row.getCell(columnHeaderList.getExcelColumnIndex(ColumnHeaderList.DIED_COLUMN))));
-		person.setFather(getMaleRowByReference(workbook, row));
-		person.setMother(getFemaleRowByReference(workbook, row));
 	}
 
 }

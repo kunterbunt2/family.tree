@@ -175,7 +175,7 @@ public abstract class Tree {
 	abstract int position(Context context, Person person);
 
 	public void readExcel(String fileName) throws Exception {
-		ExcelReader excelReader = new ExcelReader();
+		TreeExcelReader excelReader = new TreeExcelReader();
 		personList = excelReader.readExcel(fileName);
 	}
 

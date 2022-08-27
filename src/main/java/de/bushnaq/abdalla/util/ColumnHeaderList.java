@@ -15,6 +15,7 @@ public class ColumnHeaderList {
 	public static final String			LAST_NAME_COLUMN	= "Last Name";
 	public static final String			MOTHER_COLUMN		= "Mother";
 	public static final String			SEX_COLUMN			= "Sex";
+	public static final String			COMMENT_COLUMN		= "Comment";
 
 	private Map<Integer, ColumnHeader>	indexMap			= new HashMap<>();
 	private Map<String, ColumnHeader>	nameMap				= new HashMap<>();
@@ -28,6 +29,7 @@ public class ColumnHeaderList {
 		put(DIED_COLUMN, CellType.NUMERIC, false);
 		put(FATHER_COLUMN, CellType.FORMULA, false);
 		put(MOTHER_COLUMN, CellType.FORMULA, false);
+		put(COMMENT_COLUMN, CellType.STRING, false);
 	}
 
 	public ColumnHeader get(int columnIndex) {
