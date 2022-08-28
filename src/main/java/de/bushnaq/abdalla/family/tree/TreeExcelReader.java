@@ -175,11 +175,17 @@ public class TreeExcelReader extends BasicExcelReader {
 
 	protected void readRow(Workbook workbook, Row row) throws Exception {
 		Person person = rowIndexToPerson.get(row.getRowNum() + 1);
-		person.setFirstName(getFirstName(workbook, row.getCell(getColumnHeaderList().getExcelColumnIndex(ColumnHeaderList.FIRST_NAME_COLUMN))));
-		if (person.getFirstName().isEmpty())
-			throw new Exception(String.format("firstName cannot be empty"));
-		person.setLastName(getLastName(workbook, row.getCell(getColumnHeaderList().getExcelColumnIndex(ColumnHeaderList.LAST_NAME_COLUMN))));
-		logger.warn(String.format("Person %s at row %d has no family name.", person.getFirstName(), person.getId()));
+		{
+			Cell cell = row.getCell(getColumnHeaderList().getExcelColumnIndex(ColumnHeaderList.FIRST_NAME_COLUMN));
+			person.setFirstName(getFirstName(workbook, cell));
+			if (person.getFirstName().isEmpty())
+				throw new Exception(String.format("firstName cannot be empty at ", ExcelUtil.cellReference(cell)));
+		}
+		{
+			Cell cell = row.getCell(getColumnHeaderList().getExcelColumnIndex(ColumnHeaderList.LAST_NAME_COLUMN));
+			person.setLastName(getLastName(workbook, cell));
+			logger.warn(String.format("Person %s at row %d has no family name.", person.getFirstName(), person.getId()));
+		}
 		person.setBorn(getDate(row.getCell(getColumnHeaderList().getExcelColumnIndex(ColumnHeaderList.BORN_COLUMN))));
 		person.setDied(getDate(row.getCell(getColumnHeaderList().getExcelColumnIndex(ColumnHeaderList.DIED_COLUMN))));
 		person.setFather(getMaleRowByReference(workbook, row));
