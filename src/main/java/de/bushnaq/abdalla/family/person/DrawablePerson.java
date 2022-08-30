@@ -36,12 +36,12 @@ public abstract class DrawablePerson extends Person {
 	@Override
 	public void drawHorizontal(Context context, Graphics2D graphics, Font nameFont, Font livedFont) {
 		if (isVisible()) {
-			drawHorizontalBox(graphics, nameFont, livedFont);
+			drawHorizontalBox(context, graphics, nameFont, livedFont);
 			drawHorizontalConnectors(context, graphics);
 		}
 	}
 
-	private void drawHorizontalBox(Graphics2D graphics, Font nameFont, Font livedFont) {
+	private void drawHorizontalBox(Context context, Graphics2D graphics, Font nameFont, Font livedFont) {
 		int	mapX1	= x;
 		int	mapX2	= x + width;
 		int	mapY1	= y;
@@ -57,7 +57,7 @@ public abstract class DrawablePerson extends Person {
 			Font				font	= graphics.getFont();
 			// first name
 			{
-				String		string			= getFirstNameAsString();
+				String		string			= getFirstNameAsString(context);
 				LineMetrics	metrics			= font.getLineMetrics(string, frc);
 				float		descent			= metrics.getDescent();
 				Rectangle2D	stringBounds	= font.getStringBounds(string, frc);
@@ -67,7 +67,7 @@ public abstract class DrawablePerson extends Person {
 			}
 			// last name
 			{
-				String		string			= getLastNameAsString();
+				String		string			= getLastNameAsString(context);
 				LineMetrics	metrics			= font.getLineMetrics(string, frc);
 				float		descent			= metrics.getDescent();
 				Rectangle2D	stringBounds	= font.getStringBounds(string, frc);
@@ -243,7 +243,7 @@ public abstract class DrawablePerson extends Person {
 			Font				font	= graphics.getFont();
 			// first name
 			{
-				String		string			= getFirstNameAsString();
+				String		string			= getFirstNameAsString(context);
 				LineMetrics	metrics			= font.getLineMetrics(string, frc);
 				float		descent			= metrics.getDescent();
 				Rectangle2D	stringBounds	= font.getStringBounds(string, frc);
@@ -253,7 +253,7 @@ public abstract class DrawablePerson extends Person {
 			}
 			// last name
 			{
-				String		string			= getLastNameAsString();
+				String		string			= getLastNameAsString(context);
 				LineMetrics	metrics			= font.getLineMetrics(string, frc);
 				float		descent			= metrics.getDescent();
 				Rectangle2D	stringBounds	= font.getStringBounds(string, frc);
@@ -344,9 +344,8 @@ public abstract class DrawablePerson extends Person {
 		graphics.setStroke(stroke);
 	}
 
-	@Override
-	public String toString() {
-		return String.format("id=%d name='%s' lived='%s' x=%d y=%d", getId(), getName(), getLivedString(), x, y);
+	public String toString(Context context) {
+		return String.format("id=%d name='%s' lived='%s' x=%d y=%d", getId(), getName(context), getLivedString(), x, y);
 	}
 
 	private int xIndexToPixel(int x) {

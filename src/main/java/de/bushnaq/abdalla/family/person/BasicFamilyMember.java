@@ -7,8 +7,26 @@ public class BasicFamilyMember {
 	private Date	died	= null;
 	private Male	father;
 	private String	firstName;
+	private String	firstNameOriginalLanguage;
+	public String getFirstNameOriginalLanguage() {
+		return firstNameOriginalLanguage;
+	}
+
+	public void setFirstNameOriginalLanguage(String firstNameOriginalLanguage) {
+		this.firstNameOriginalLanguage = firstNameOriginalLanguage;
+	}
+
+	public String getLastNameOriginalLanguage() {
+		return lastNameOriginalLanguage;
+	}
+
+	public void setLastNameOriginalLanguage(String lastNameOriginalLanguage) {
+		this.lastNameOriginalLanguage = lastNameOriginalLanguage;
+	}
+
 	private int		id;
 	private String	lastName;
+	private String	lastNameOriginalLanguage;
 	private Female	mother;
 
 	public BasicFamilyMember(int id, String firstName, String lastName, Date born, Date died, Male father, Female mother) {

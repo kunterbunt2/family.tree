@@ -102,13 +102,13 @@ public class TreeExcelReader extends BasicExcelReader {
 	private String getLastName(Workbook workbook, Cell cell) throws Exception {
 		if (cell != null) {
 			switch (cell.getCellType()) {
-			case FORMULA:
-				// expect a reference to a person's name
-				Integer index = getReference(workbook, cell);
-				if (index == null)
-					return null;
-				Person p = rowIndexToPerson.get(index);
-				return p.getLastName();
+//			case FORMULA:
+//				// expect a reference to a person's name
+//				Integer index = getReference(workbook, cell);
+//				if (index == null)
+//					return null;
+//				Person p = rowIndexToPerson.get(index);
+//				return p.getLastName();
 			case STRING:
 				return cell.getStringCellValue();
 			default:
@@ -182,9 +182,17 @@ public class TreeExcelReader extends BasicExcelReader {
 				throw new Exception(String.format("firstName cannot be empty at ", ExcelUtil.cellReference(cell)));
 		}
 		{
+			Cell cell = row.getCell(getColumnHeaderList().getExcelColumnIndex(ColumnHeaderList.FIRST_NAME_COLUMN_ORIGINAL_LANGUAGE));
+			person.setFirstNameOriginalLanguage(getFirstName(workbook, cell));
+		}
+		{
 			Cell cell = row.getCell(getColumnHeaderList().getExcelColumnIndex(ColumnHeaderList.LAST_NAME_COLUMN));
 			person.setLastName(getLastName(workbook, cell));
 			logger.warn(String.format("Person %s at row %d has no family name.", person.getFirstName(), person.getId()));
+		}
+		{
+			Cell cell = row.getCell(getColumnHeaderList().getExcelColumnIndex(ColumnHeaderList.LAST_NAME_COLUMN_ORIGINAL_LANGUAGE));
+			person.setLastNameOriginalLanguage(getLastName(workbook, cell));
 		}
 		person.setBorn(getDate(row.getCell(getColumnHeaderList().getExcelColumnIndex(ColumnHeaderList.BORN_COLUMN))));
 		person.setDied(getDate(row.getCell(getColumnHeaderList().getExcelColumnIndex(ColumnHeaderList.DIED_COLUMN))));

@@ -72,4 +72,12 @@ public class BushnaqFamilyTest extends Base {
 		generateVertical(context, "bushnaq", "-v-noSpouse");
 	}
 
+	@Test
+	public void generateVerticalOL() throws Exception {
+		obfuscate = false;
+		Context context = new Context();
+		context.originalLanguage = true;
+		generateVertical(context, "bushnaq", "-v-ol");
+	}
+
 }

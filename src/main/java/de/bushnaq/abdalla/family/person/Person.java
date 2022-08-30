@@ -118,13 +118,23 @@ public abstract class Person extends BasicFamilyMember {
 		return "";
 	}
 
-	public String getFirstNameAsString() {
-		return String.format("%s", getFirstName());
+	public String getFirstNameAsString(Context context) {
+		String name = getFirstName();
+		if (context.originalLanguage) {
+			if (getFirstNameOriginalLanguage() != null)
+				name = getFirstNameOriginalLanguage();
+		}
+		return String.format("%s", name);
 	}
 
-	public String getLastNameAsString() {
-		if (getLastName() != null)
-			return String.format("%s", getLastName());
+	public String getLastNameAsString(Context context) {
+		String name = getLastName();
+		if (context.originalLanguage) {
+			if (getLastNameOriginalLanguage() != null)
+				name = getLastNameOriginalLanguage();
+		}
+		if (name != null)
+			return String.format("%s", name);
 		else
 			return "";
 	}
@@ -136,8 +146,8 @@ public abstract class Person extends BasicFamilyMember {
 			return String.format("%s   -   %s", getBornString(), getBornString());
 	}
 
-	public String getName() {
-		return String.format("%s %s", getFirstNameAsString(), getLastNameAsString());
+	public String getName(Context context) {
+		return String.format("%s %s", getFirstNameAsString(context), getLastNameAsString(context));
 	}
 
 	public abstract String getSexCharacter();

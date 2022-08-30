@@ -7,24 +7,28 @@ import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 
 public class ColumnHeaderList {
-	public static final String			BORN_COLUMN			= "Born";
-	public static final String			DIED_COLUMN			= "Died";
-	public static final String			FATHER_COLUMN		= "Father";
-	public static final String			FIRST_NAME_COLUMN	= "First Name";
-	public static final String			ID_COLUMN			= "ID";
-	public static final String			LAST_NAME_COLUMN	= "Last Name";
-	public static final String			MOTHER_COLUMN		= "Mother";
-	public static final String			SEX_COLUMN			= "Sex";
-	public static final String			COMMENT_COLUMN		= "Comment";
+	public static final String			BORN_COLUMN							= "Born";
+	public static final String			DIED_COLUMN							= "Died";
+	public static final String			FATHER_COLUMN						= "Father";
+	public static final String			FIRST_NAME_COLUMN					= "First Name";
+	public static final String			FIRST_NAME_COLUMN_ORIGINAL_LANGUAGE	= "First Name (OL)";
+	public static final String			ID_COLUMN							= "ID";
+	public static final String			LAST_NAME_COLUMN					= "Last Name";
+	public static final String			LAST_NAME_COLUMN_ORIGINAL_LANGUAGE	= "Last Name (OL)";
+	public static final String			MOTHER_COLUMN						= "Mother";
+	public static final String			SEX_COLUMN							= "Sex";
+	public static final String			COMMENT_COLUMN						= "Comment";
 
-	private Map<Integer, ColumnHeader>	indexMap			= new HashMap<>();
-	private Map<String, ColumnHeader>	nameMap				= new HashMap<>();
+	private Map<Integer, ColumnHeader>	indexMap							= new HashMap<>();
+	private Map<String, ColumnHeader>	nameMap								= new HashMap<>();
 
 	public ColumnHeaderList() {
 		put(ID_COLUMN, CellType.FORMULA, false);
 		put(SEX_COLUMN, CellType.STRING, false);
 		put(FIRST_NAME_COLUMN, CellType.STRING, false);
+		put(FIRST_NAME_COLUMN_ORIGINAL_LANGUAGE, CellType.STRING, false);
 		put(LAST_NAME_COLUMN, CellType.STRING, false);
+		put(LAST_NAME_COLUMN_ORIGINAL_LANGUAGE, CellType.STRING, false);
 		put(BORN_COLUMN, CellType.NUMERIC, false);
 		put(DIED_COLUMN, CellType.NUMERIC, false);
 		put(FATHER_COLUMN, CellType.FORMULA, false);
