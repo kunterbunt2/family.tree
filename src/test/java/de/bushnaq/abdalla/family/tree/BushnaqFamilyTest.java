@@ -1,83 +1,60 @@
 package de.bushnaq.abdalla.family.tree;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
 
-import de.bushnaq.abdalla.family.Context;
+import de.bushnaq.abdalla.family.Application;
 import de.bushnaq.abdalla.family.tree.util.Base;
-import de.bushnaq.abdalla.util.ObfuscatingBase;
 
+@SpringBootTest
+@ContextConfiguration(classes = Application.class)
+//@TestPropertySource
 public class BushnaqFamilyTest extends Base {
 
 	@Test
 	public void generateHorizontal() throws Exception {
-		obfuscate = false;
-		Context context = new Context();
-		generateHorizontal(context, "bushnaq", "-h");
+		generate(new String[] { "-input", "bushnaq", "-h" });
 	}
 
 	@Test
 	public void generateHorizontalFollowFemale() throws Exception {
-		obfuscate = false;
-		Context context = new Context();
-		context.followMale = false;
-		generateHorizontal(context, "bushnaq", "-h-followFemale");
+		generate(new String[] { "-input", "bushnaq", "-h", "-follow_females" });
 	}
 
 	@Test
 	public void generateHorizontalFollowFemaleWithoutSpouse() throws Exception {
-		obfuscate = false;
-		Context context = new Context();
-		context.includeSpouse = false;
-		context.followMale = false;
-		generateHorizontal(context, "bushnaq", "-h-followFemale-noSpouse");
+		generate(new String[] { "-input", "bushnaq", "-h", "-follow_females", "exclude_spouse" });
 	}
 
 	@Test
 	public void generateHorizontalWithoutSpouse() throws Exception {
-		obfuscate = false;
-		Context context = new Context();
-		context.includeSpouse = false;
-		generateHorizontal(context, "bushnaq", "-h-noSpouse");
+		generate(new String[] { "-input", "bushnaq", "-h", "exclude_spouse" });
 	}
 
 	@Test
 	public void generateVertical() throws Exception {
-		obfuscate = false;
-		Context context = new Context();
-		generateVertical(context, "bushnaq", "-v");
+		generate(new String[] { "-input", "bushnaq" });
 	}
 
 	@Test
 	public void generateVerticalFollowFemale() throws Exception {
-		obfuscate = false;
-		Context context = new Context();
-		context.followMale = false;
-		generateVertical(context, "bushnaq", "-v-followFemale");
+		generate(new String[] { "-input", "bushnaq", "-follow_females" });
 	}
 
 	@Test
 	public void generateVerticalFollowFemaleWithoutSpouse() throws Exception {
-		obfuscate = false;
-		Context context = new Context();
-		context.includeSpouse = false;
-		context.followMale = false;
-		generateVertical(context, "bushnaq", "-v-followFemale-noSpouse");
-	}
-
-	@Test
-	public void generateVerticalWithoutSpouse() throws Exception {
-		obfuscate = false;
-		Context context = new Context();
-		context.includeSpouse = false;
-		generateVertical(context, "bushnaq", "-v-noSpouse");
+		generate(new String[] { "-input", "bushnaq", "-follow_females", "exclude_spouse" });
 	}
 
 	@Test
 	public void generateVerticalOL() throws Exception {
-		obfuscate = false;
-		Context context = new Context();
-		context.originalLanguage = true;
-		generateVertical(context, "bushnaq", "-v-ol");
+		generate(new String[] { "-input", "bushnaq", "-ol" });
+	}
+
+	@Test
+	public void generateVerticalWithoutSpouse() throws Exception {
+		generate(new String[] { "-input", "bushnaq", "exclude_spouse" });
 	}
 
 }

@@ -6,15 +6,6 @@ public class ObfuscatingBase {
 	private static final int	RANDOM_SEED	= 1;
 	Random						generator	= new Random(RANDOM_SEED);
 
-	public String obfuscateString(String text) throws Exception {
-		StringBuffer sb = new StringBuffer();
-		for (int i = 0; i < text.length(); i++) {
-			char c = obfuscateCharacter(text.charAt(i));
-			sb.append(c);
-		}
-		return sb.toString();
-	}
-
 	private char obfuscateCharacter(char c) {
 		if (Character.isUpperCase(c)) {
 			c = 'A';
@@ -27,6 +18,15 @@ public class ObfuscatingBase {
 			c += generator.nextInt(10);
 		}
 		return c;
+	}
+
+	public String obfuscateString(String text) throws Exception {
+		StringBuffer sb = new StringBuffer();
+		for (int i = 0; i < text.length(); i++) {
+			char c = obfuscateCharacter(text.charAt(i));
+			sb.append(c);
+		}
+		return sb.toString();
 	}
 
 	public void reseed() {

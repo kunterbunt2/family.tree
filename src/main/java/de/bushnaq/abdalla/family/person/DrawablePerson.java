@@ -203,7 +203,7 @@ public abstract class DrawablePerson extends Person {
 		}
 
 		// sexual relation connector
-		if (hasChildren() && isMember() && context.includeSpouse) {
+		if (hasChildren() && isMember() && context.getParameterOptions().isIncludeSpouse()) {
 			Stroke stroke = graphics.getStroke();
 			graphics.setStroke(new BasicStroke(FAT_LINE_STROKE_WIDTH, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 3 }, 0));
 			graphics.setColor(Color.black);
@@ -326,13 +326,13 @@ public abstract class DrawablePerson extends Person {
 		}
 
 		// sexual relation connector
-		if (hasChildren() && isMember() && !isSpouse() && context.includeSpouse) {
+		if (hasChildren() && isMember() && !isSpouse() && context.getParameterOptions().isIncludeSpouse()) {
 			graphics.setStroke(new BasicStroke(FAT_LINE_STROKE_WIDTH, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 3 }, 0));
 			graphics.setColor(connectorColor);
 			graphics.drawLine(x1 + width, y1 + height / 2, x1 + width + PERSON_X_SPACE, y1 + height / 2);
 		}
 		// spouse connector to children
-		if (hasChildren() && isMember() && !context.includeSpouse) {
+		if (hasChildren() && isMember() && !context.getParameterOptions().isIncludeSpouse()) {
 			graphics.setStroke(new BasicStroke(MEDIUM_LINE_STROKE_WIDTH));
 			graphics.setColor(connectorColor);
 			graphics.drawLine(x1 + width, y1 + height / 2, x1 + width + PERSON_X_SPACE / 2, y1 + height / 2);

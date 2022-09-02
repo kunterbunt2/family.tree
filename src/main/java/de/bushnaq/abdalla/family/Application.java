@@ -2,6 +2,7 @@ package de.bushnaq.abdalla.family;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -10,24 +11,30 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 
-@ComponentScan(basePackages = { "com.ricoh.sdced" })
+import de.bushnaq.abdalla.util.MavenProperiesProvider;
+
+@ComponentScan(basePackages = { "de.bushnaq.abdalla" })
 @SpringBootApplication
 public class Application implements CommandLineRunner {
-	private static boolean	lazyStart	= true;	// for junit tests
-	private static boolean	started		= false;
-	private static String	startupMessage;
+	private static String	buildNumber		= MavenProperiesProvider.getProperty(Application.class, "build.number");
+	private static boolean	lazyStart		= true;																		// for junit tests
+	private static String	moduleVersion	= MavenProperiesProvider.getProperty(Application.class, "module.version");
 
 	/**
 	 * APPLICATION Called 1st when started as APPLICATION Not called when running junit test
 	 *
 	 */
 	public static void main(String[] args) {
+		lazyStart = false;
 		SpringApplicationBuilder		springApplicationBuilder	= new SpringApplicationBuilder(Application.class);
 		ConfigurableApplicationContext	context						= springApplicationBuilder.headless(false).run(args);
 		context.close();
 	}
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	private final Logger	logger	= LoggerFactory.getLogger(this.getClass());
+
+	@Autowired
+	Main					main;
 
 	public Application() {
 	}
@@ -38,12 +45,16 @@ public class Application implements CommandLineRunner {
 	 */
 	@EventListener
 	public void onApplicationEvent(ContextRefreshedEvent event) throws Exception {
-		logger.info("onAppöication");
+		if (lazyStart)
+			logger.info(String.format("starting family.tree %s.%s within a unit test", moduleVersion, buildNumber));
 	}
 
 	@Override
 	public void run(String... args) throws Exception {
-		logger.info("run");
+		if (!lazyStart) {
+			logger.info(String.format("starting family.tree %s.%s from command promt", moduleVersion, buildNumber));
+			main.start(args);
+		}
 	}
 
 }

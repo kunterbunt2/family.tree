@@ -120,7 +120,7 @@ public abstract class Person extends BasicFamilyMember {
 
 	public String getFirstNameAsString(Context context) {
 		String name = getFirstName();
-		if (context.originalLanguage) {
+		if (context.getParameterOptions().isOriginalLanguage()) {
 			if (getFirstNameOriginalLanguage() != null)
 				name = getFirstNameOriginalLanguage();
 		}
@@ -129,7 +129,7 @@ public abstract class Person extends BasicFamilyMember {
 
 	public String getLastNameAsString(Context context) {
 		String name = getLastName();
-		if (context.originalLanguage) {
+		if (context.getParameterOptions().isOriginalLanguage()) {
 			if (getLastNameOriginalLanguage() != null)
 				name = getLastNameOriginalLanguage();
 		}

@@ -54,11 +54,6 @@ public class TreeExcelReader extends BasicExcelReader {
 		}
 	}
 
-	public PersonList readPersonList(String fileName) throws Exception {
-		readExcel(fileName);
-		return personList;
-	}
-
 	private Date getDate(Cell cell) throws Exception {
 		if (cell != null) {
 			switch (cell.getCellType()) {
@@ -173,6 +168,17 @@ public class TreeExcelReader extends BasicExcelReader {
 		return null;
 	}
 
+	public PersonList readExcel(String fileName) throws Exception {
+		readExcelFile(fileName);
+		return personList;
+	}
+
+	public PersonList readPersonList(String fileName) throws Exception {
+		readExcel(fileName);
+		return personList;
+	}
+
+	@Override
 	protected void readRow(Workbook workbook, Row row) throws Exception {
 		Person person = rowIndexToPerson.get(row.getRowNum() + 1);
 		{
@@ -200,6 +206,7 @@ public class TreeExcelReader extends BasicExcelReader {
 		person.setMother(getFemaleRowByReference(workbook, row));
 	}
 
+	@Override
 	protected void readWokbook(Workbook workbook) throws Exception {
 		detectExcelHeaderColumns(workbook);
 		createPeronList(workbook);
@@ -208,11 +215,6 @@ public class TreeExcelReader extends BasicExcelReader {
 		for (Person p : rowIndexToPerson.values()) {
 			personList.add(p);
 		}
-	}
-
-	public PersonList readExcel(String fileName) throws Exception {
-		readExcelFile(fileName);
-		return personList;
 	}
 
 }

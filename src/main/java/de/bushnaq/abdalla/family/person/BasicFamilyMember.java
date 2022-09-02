@@ -8,25 +8,12 @@ public class BasicFamilyMember {
 	private Male	father;
 	private String	firstName;
 	private String	firstNameOriginalLanguage;
-	public String getFirstNameOriginalLanguage() {
-		return firstNameOriginalLanguage;
-	}
-
-	public void setFirstNameOriginalLanguage(String firstNameOriginalLanguage) {
-		this.firstNameOriginalLanguage = firstNameOriginalLanguage;
-	}
-
-	public String getLastNameOriginalLanguage() {
-		return lastNameOriginalLanguage;
-	}
-
-	public void setLastNameOriginalLanguage(String lastNameOriginalLanguage) {
-		this.lastNameOriginalLanguage = lastNameOriginalLanguage;
-	}
-
 	private int		id;
+
 	private String	lastName;
+
 	private String	lastNameOriginalLanguage;
+
 	private Female	mother;
 
 	public BasicFamilyMember(int id, String firstName, String lastName, Date born, Date died, Male father, Female mother) {
@@ -59,12 +46,20 @@ public class BasicFamilyMember {
 		return firstName;
 	}
 
+	public String getFirstNameOriginalLanguage() {
+		return firstNameOriginalLanguage;
+	}
+
 	public int getId() {
 		return id;
 	}
 
 	public String getLastName() {
 		return lastName;
+	}
+
+	public String getLastNameOriginalLanguage() {
+		return lastNameOriginalLanguage;
 	}
 
 	public Female getMother() {
@@ -87,12 +82,20 @@ public class BasicFamilyMember {
 		this.firstName = firstName;
 	}
 
+	public void setFirstNameOriginalLanguage(String firstNameOriginalLanguage) {
+		this.firstNameOriginalLanguage = firstNameOriginalLanguage;
+	}
+
 	public void setId(int id) {
 		this.id = id;
 	}
 
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
+	}
+
+	public void setLastNameOriginalLanguage(String lastNameOriginalLanguage) {
+		this.lastNameOriginalLanguage = lastNameOriginalLanguage;
 	}
 
 	public void setMother(Female mother) {

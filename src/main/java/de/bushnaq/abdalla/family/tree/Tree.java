@@ -101,7 +101,7 @@ public abstract class Tree {
 		for (Person spouse : spouseList) {
 			if (spouse.isMember()) {
 				// both parents are member of the family
-				if (context.followMale && person.isMale()) {
+				if (!context.getParameterOptions().isFollowFemales() && person.isMale()) {
 					// create a clone of the spouse and shift all child relations to that clone
 					FemaleClone	clone			= new FemaleClone(spouse.personList, spouse.getId(), spouse.getFirstName(), spouse.getLastName(), spouse.getBorn(), spouse.getDied(), null, null);
 					PersonList	childrenList	= person.getChildrenList(spouse);
@@ -112,7 +112,7 @@ public abstract class Tree {
 					spouse = clone;
 					spouse.spouseIndex = spouseIndex++;
 					spouse.setSpouse(true);
-				} else if (!context.followMale && person.isFemale()) {
+				} else if (context.getParameterOptions().isFollowFemales() && person.isFemale()) {
 					// create a clone of the spouse and shift all child relations to that clone
 					MaleClone	clone			= new MaleClone(spouse.personList, spouse.getId(), spouse.getFirstName(), spouse.getLastName(), spouse.getBorn(), spouse.getDied(), null, null);
 					PersonList	childrenList	= person.getChildrenList(spouse);
