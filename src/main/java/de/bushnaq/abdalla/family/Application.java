@@ -11,14 +11,14 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 
-import de.bushnaq.abdalla.util.MavenProperiesProvider;
+import de.bushnaq.abdalla.util.MavenPropertiesProvider;
 
 @ComponentScan(basePackages = { "de.bushnaq.abdalla" })
 @SpringBootApplication
 public class Application implements CommandLineRunner {
-	private static String	buildNumber		= MavenProperiesProvider.getProperty(Application.class, "build.number");
+	private static String	buildNumber		= MavenPropertiesProvider.getProperty(Application.class, "build.number");
 	private static boolean	lazyStart		= true;																		// for junit tests
-	private static String	moduleVersion	= MavenProperiesProvider.getProperty(Application.class, "module.version");
+	private static String	moduleVersion	= MavenPropertiesProvider.getProperty(Application.class, "module.version");
 
 	/**
 	 * APPLICATION Called 1st when started as APPLICATION Not called when running junit test
