@@ -211,8 +211,8 @@ public abstract class Person extends BasicFamilyMember {
 		return attribute.visible;
 	}
 
-	public void print() {
-		System.out.println(toString());
+	public void print(Context context) {
+		System.out.println(toString(context));
 	}
 
 	public void setFirstChild(boolean firstChild) {

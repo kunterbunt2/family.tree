@@ -38,7 +38,7 @@ public class Main {
 		} else {
 			tree = new VerticalTree(context);
 		}
-		tree.readExcel(inputName + "/" + inputName + ".xlsx");
+		tree.readExcel(inputName);
 		return tree.generate(context, outputName);
 	}
 

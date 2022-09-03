@@ -8,19 +8,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import de.bushnaq.abdalla.family.Context;
 import de.bushnaq.abdalla.family.Main;
-import de.bushnaq.abdalla.family.tree.HorizontalTree;
-import de.bushnaq.abdalla.family.tree.Tree;
-import de.bushnaq.abdalla.family.tree.VerticalTree;
-import de.bushnaq.abdalla.util.ObfuscatingBase;
+import de.bushnaq.abdalla.family.MyCanvas;
 import de.bushnaq.abdalla.util.TestUtil;
 
 public class Base {
 	@Autowired
-	Context					context;
+	Context	context;
 	@Autowired
-	Main					main;
-	protected boolean		obfuscate		= true;
-	private ObfuscatingBase	ObfuscatingBase	= new ObfuscatingBase();
+	Main	main;
 
 	public void generate(String[] args) throws Exception {
 		BufferedImage	image			= main.start(args);
@@ -30,28 +25,6 @@ public class Base {
 		if (TestUtil.isRunningInEclipse())
 			showImage(image, outputName);
 
-	}
-
-	public void generateHorizontal(Context context, String inputName, String outputDecorator) throws Exception {
-		if (obfuscate)
-			inputName = ObfuscatingBase.obfuscateString(inputName);
-		String	outputName		= inputName + outputDecorator;
-		Tree	horizontalTree	= new HorizontalTree(context);
-		horizontalTree.readExcel(inputName + "/" + inputName + ".xlsx");
-		BufferedImage image = horizontalTree.generate(context, outputName);
-		if (TestUtil.isRunningInEclipse())
-			showImage(image, outputName);
-	}
-
-	public void generateVertical(Context context, String inputName, String outputDecorator) throws Exception {
-		if (obfuscate)
-			inputName = ObfuscatingBase.obfuscateString(inputName);
-		String	outputName		= inputName + outputDecorator;
-		Tree	verticalTree	= new VerticalTree(context);
-		verticalTree.readExcel(inputName + "/" + inputName + ".xlsx");
-		BufferedImage image = verticalTree.generate(context, outputName);
-		if (TestUtil.isRunningInEclipse())
-			showImage(image, outputName);
 	}
 
 	@BeforeEach

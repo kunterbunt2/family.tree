@@ -194,7 +194,7 @@ public class TreeExcelReader extends BasicExcelReader {
 		{
 			Cell cell = row.getCell(getColumnHeaderList().getExcelColumnIndex(ColumnHeaderList.LAST_NAME_COLUMN));
 			person.setLastName(getLastName(workbook, cell));
-			logger.warn(String.format("Person %s at row %d has no family name.", person.getFirstName(), person.getId()));
+			logger.warn(String.format("[%3d] '%s' has no family name.", person.getId(),person.getFirstName()));
 		}
 		{
 			Cell cell = row.getCell(getColumnHeaderList().getExcelColumnIndex(ColumnHeaderList.LAST_NAME_COLUMN_ORIGINAL_LANGUAGE));

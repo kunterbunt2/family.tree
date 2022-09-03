@@ -4,6 +4,8 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.util.TreeSet;
 
+import de.bushnaq.abdalla.family.Context;
+
 public class PersonList extends TreeSet<Person> {
 
 	public PersonList() {
@@ -16,9 +18,9 @@ public class PersonList extends TreeSet<Person> {
 		}
 	}
 
-	public void printPersonList() {
+	public void printPersonList(Context context) {
 		for (Person p : this) {
-			p.print();
+			p.print(context);
 		}
 	}
 

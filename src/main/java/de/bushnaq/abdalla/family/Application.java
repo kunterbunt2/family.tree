@@ -35,6 +35,8 @@ public class Application implements CommandLineRunner {
 
 	@Autowired
 	Main					main;
+	@Autowired
+	Launcher				launcher;
 
 	public Application() {
 	}
@@ -53,7 +55,11 @@ public class Application implements CommandLineRunner {
 	public void run(String... args) throws Exception {
 		if (!lazyStart) {
 			logger.info(String.format("starting family.tree %s.%s from command promt", moduleVersion, buildNumber));
-			main.start(args);
+			if (args.length == 0) {
+				logger.info(String.format("no arguments provided, starting user interface"));
+				launcher.frmFamilytree.setVisible(true);
+			} else
+				main.start(args);
 		}
 	}
 

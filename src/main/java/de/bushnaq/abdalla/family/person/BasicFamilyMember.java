@@ -2,6 +2,8 @@ package de.bushnaq.abdalla.family.person;
 
 import java.util.Date;
 
+import de.bushnaq.abdalla.family.Context;
+
 public class BasicFamilyMember {
 	private Date	born	= null;
 	private Date	died	= null;
@@ -100,6 +102,10 @@ public class BasicFamilyMember {
 
 	public void setMother(Female mother) {
 		this.mother = mother;
+	}
+
+	public String toString(Context context) {
+		return toString();
 	}
 
 }

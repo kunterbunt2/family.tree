@@ -1,4 +1,4 @@
-package de.bushnaq.abdalla.family.tree.util;
+package de.bushnaq.abdalla.family;
 
 import java.awt.Canvas;
 import java.awt.Dimension;
@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 public class MyCanvas extends Canvas {
 
-	JFrame					f;
+	public JFrame			f;
 //	JPanel p;
 	private BufferedImage	image;
 	final Logger			logger	= LoggerFactory.getLogger(this.getClass());
