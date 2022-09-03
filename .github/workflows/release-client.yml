@@ -52,7 +52,7 @@ jobs:
          env:
             TAG_NAME: ${{ needs.create-release-job.outputs.output2 }}
          run: |
-           mvn install --batch-mode --update-snapshots package
+           mvn install -DskipTests --batch-mode --update-snapshots package
       -  name: upload-msi-step
          uses: actions/upload-release-asset@v1
          env:
