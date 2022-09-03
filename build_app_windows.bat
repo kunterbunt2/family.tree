@@ -30,27 +30,18 @@ rem ------ SETUP DIRECTORIES AND FILES ----------------------------------------
 rem Remove previously generated java runtime and installers. Copy all required
 rem jar files into the input/libs folder.
 
-echo 1
 IF EXIST target\java-runtime rmdir /S /Q  .\target\java-runtime
-echo 2
 IF EXIST target\installer rmdir /S /Q target\installer
-echo 3
 MD target\installer
-echo 4
 MD target\installer\input\
-echo 5
 MD target\installer\input\libs
-echo 6
 
 copy target\%MAIN_JAR% target\installer\input\libs\.
-echo 7
 rem xcopy /S /Q target\libs\* target\installer\input\libs\
-echo 8
 rem xcopy /S /Q target\assets\* target\installer\input\assets\
 rem xcopy /S /Q target\config\* target\installer\input\config\
 rem copy target\%MAIN_JAR% target\installer\input\libs\
 copy README.md target\installer\input\
-echo 9
 
 rem ------ REQUIRED MODULES ---------------------------------------------------
 rem Use jlink to detect all modules that are required to run the application.
@@ -114,7 +105,7 @@ call "%JAVA_HOME%\bin\jpackage" ^
   --dest target/installer ^
   --input target/installer/input ^
   --name family.tree ^
-  --main-class de.bushnaq.abdalla.family.Application ^
+  --main-class org.springframework.boot.loader.JarLauncher ^
   --main-jar libs/%MAIN_JAR% ^
   --java-options -Xmx2048m ^
   --runtime-image target/java-runtime ^
@@ -129,5 +120,5 @@ call "%JAVA_HOME%\bin\jpackage" ^
   --win-per-user-install ^
   --win-menu ^
   --win-upgrade-uuid e99dd49e-e4d2-11ec-8fea-0242ac120002 ^
+  --win-console ^
   --temp target/temp
-rem  --win-console ^
