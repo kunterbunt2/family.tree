@@ -24,7 +24,7 @@ jobs:
             echo "hallo"
             unset DISPLAY
             echo $DISPLAY
-            mvn test --batch-mode --update-snapshots package
+            mvn test -DskipTests --batch-mode --update-snapshots package
       -  name: Upload test result
          uses: actions/upload-artifact@v2
          with:
