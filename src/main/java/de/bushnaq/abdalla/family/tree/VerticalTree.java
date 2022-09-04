@@ -56,7 +56,7 @@ public class VerticalTree extends Tree {
 			// children
 			PersonList childrenList = person.getChildrenList(spouse);
 			for (Person child : childrenList) {
-				if (context.getParameterOptions().isIncludeSpouse()) {
+				if (context.getParameterOptions().isExcludeSpouse()) {
 					spouse.setVisible(true);
 					child.x = spouse.x + 1;
 				} else {

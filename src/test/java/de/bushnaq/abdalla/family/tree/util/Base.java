@@ -2,8 +2,6 @@ package de.bushnaq.abdalla.family.tree.util;
 
 import java.awt.image.BufferedImage;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.TestInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import de.bushnaq.abdalla.family.Context;
@@ -12,6 +10,9 @@ import de.bushnaq.abdalla.family.tree.ui.MyCanvas;
 import de.bushnaq.abdalla.util.TestUtil;
 
 public class Base {
+	static {
+		System.setProperty("java.awt.headless", "false");
+	}
 	@Autowired
 	Context	context;
 	@Autowired
@@ -25,11 +26,6 @@ public class Base {
 		if (TestUtil.isRunningInEclipse())
 			showImage(image, outputName);
 
-	}
-
-	@BeforeEach
-	public void prepare(TestInfo testInfo) {
-		System.setProperty("java.awt.headless", "false");
 	}
 
 	private void showImage(BufferedImage image, String title) {

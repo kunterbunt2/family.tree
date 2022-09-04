@@ -73,7 +73,7 @@ rem e.g., --include-locales=en,de.
 rem
 rem Don't forget the leading ','!
 
-set manual_modules=,jdk.localedata
+set manual_modules=,jdk.localedata,jdk.charsets
 rem ,jdk.crypto.ec
 echo manual modules: %manual_modules%
 
@@ -120,5 +120,6 @@ call "%JAVA_HOME%\bin\jpackage" ^
   --win-per-user-install ^
   --win-menu ^
   --win-upgrade-uuid e99dd49e-e4d2-11ec-8fea-0242ac120002 ^
-  --win-console ^
   --temp target/temp
+rem  --win-console ^
+  

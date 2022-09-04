@@ -13,8 +13,8 @@ import org.slf4j.LoggerFactory;
 
 import de.bushnaq.abdalla.util.BasicExcelReader;
 import de.bushnaq.abdalla.util.ColumnHeaderList;
-import de.bushnaq.abdalla.util.DirectoryUtil;
 import de.bushnaq.abdalla.util.ExcelUtil;
+import de.bushnaq.abdalla.util.FileUtil;
 import de.bushnaq.abdalla.util.ObfuscatingBase;
 
 public class Obfuscate extends BasicExcelReader {
@@ -30,15 +30,6 @@ public class Obfuscate extends BasicExcelReader {
 		Cell cell = row.getCell(getColumnHeaderList().getExcelColumnIndex(columnName));
 		if (cell != null) {
 			row.removeCell(cell);
-		}
-	}
-
-	private String extractFileNamePart(String originalName) {
-		int slash = originalName.lastIndexOf('/');
-		if (slash != -1) {
-			return originalName.substring(slash + 1, originalName.length());
-		} else {
-			return originalName;
 		}
 	}
 
@@ -72,8 +63,7 @@ public class Obfuscate extends BasicExcelReader {
 		FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
 		evaluator.evaluateAll();
 		ObfuscatingBase.reseed();
-		String familyName = ObfuscatingBase.obfuscateString(removeExtension(extractFileNamePart(fileName)));
-		DirectoryUtil.createDirectory(familyName);
+		String familyName = ObfuscatingBase.obfuscateString(FileUtil.removeExtension(FileUtil.extractFileNamePart(fileName)));
 		write(workbook, "examples/" + familyName + ".xlsx");
 	}
 
@@ -85,15 +75,6 @@ public class Obfuscate extends BasicExcelReader {
 		deleteColumn(row, ColumnHeaderList.FIRST_NAME_COLUMN_ORIGINAL_LANGUAGE);
 		deleteColumn(row, ColumnHeaderList.LAST_NAME_COLUMN_ORIGINAL_LANGUAGE);
 		deleteColumn(row, ColumnHeaderList.COMMENT_COLUMN_ORIGINAL_LANGUAGE);
-	}
-
-	public String removeExtension(String originalName) {
-		int lastDot = originalName.lastIndexOf(".");
-		if (lastDot != -1) {
-			return originalName.substring(0, lastDot);
-		} else {
-			return originalName;
-		}
 	}
 
 	void write(Workbook workbook, String outputFile) throws IOException {

@@ -23,9 +23,7 @@ public class ParameterOptions {
 	private boolean				h									= false;									// draw a horizontal tree if true
 	private String				input;																			// input excel file
 	private final Logger		logger								= LoggerFactory.getLogger(this.getClass());
-
 	private boolean				originalLanguage					= false;									// use original language fields for fist name and last name
-
 	private String				outputDecorator						= "";										// additional decorations for the output file name
 	private boolean				v									= true;										// vertical tree mode
 
@@ -37,16 +35,16 @@ public class ParameterOptions {
 		return outputDecorator;
 	}
 
+	public boolean isExcludeSpouse() {
+		return excludeSpouse;
+	}
+
 	public boolean isFollowFemales() {
 		return followFemales;
 	}
 
 	public boolean isH() {
 		return h;
-	}
-
-	public boolean isIncludeSpouse() {
-		return excludeSpouse;
 	}
 
 	public boolean isOriginalLanguage() {
@@ -57,7 +55,17 @@ public class ParameterOptions {
 		return v;
 	}
 
+	private void resetOptions() {
+		excludeSpouse = false;
+		followFemales = false;
+		h = false;
+		originalLanguage = false;
+		outputDecorator = "";
+		v = true;
+	}
+
 	public void start(String[] args) throws Exception {
+		resetOptions();
 		Options options = new Options();
 		options.addOption(Option.builder(CLI_OPTION_INPUT).hasArgs().desc("Input excel file name. This parameter is not optional.").build());
 		options.addOption(Option.builder(CLI_OPTION_OUTPUT_FILE_DECORATIONS).hasArgs().desc("Output file name decorations. This parameter is optional.").optionalArg(true).build());
@@ -85,6 +93,7 @@ public class ParameterOptions {
 		}
 		if (line.hasOption(CLI_OPTION_H)) {
 			h = true;
+			v = false;
 			logger.info("horizontal tree mode enabled.");
 		} else {
 			logger.info("horizontal tree mode disabled.");
@@ -92,6 +101,7 @@ public class ParameterOptions {
 
 		if (line.hasOption(CLI_OPTION_V)) {
 			v = true;
+			h = false;
 			logger.info("vertical tree mode enabled.");
 		} else {
 			logger.info("vertical tree mode disabled.");

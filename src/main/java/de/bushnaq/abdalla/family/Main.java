@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import de.bushnaq.abdalla.family.tree.HorizontalTree;
 import de.bushnaq.abdalla.family.tree.Tree;
 import de.bushnaq.abdalla.family.tree.VerticalTree;
+import de.bushnaq.abdalla.util.FileUtil;
 
 @Component
 @Scope("prototype")
@@ -31,14 +32,31 @@ public class Main {
 
 		String	inputName		= context.getParameterOptions().getInput();
 		String	outputDecorator	= context.getParameterOptions().getOutputDecorator();
-		String	outputName		= inputName + outputDecorator;
-		Tree	tree;
+		if (outputDecorator.isEmpty()) {
+			if (context.getParameterOptions().isH()) {
+				outputDecorator += "-h";
+			}
+			if (context.getParameterOptions().isV()) {
+				outputDecorator += "-v";
+			}
+			if (context.getParameterOptions().isFollowFemales()) {
+				outputDecorator += "-ff";
+			}
+			if (context.getParameterOptions().isExcludeSpouse()) {
+				outputDecorator += "-es";
+			}
+			if (context.getParameterOptions().isOriginalLanguage()) {
+				outputDecorator += "-ol";
+			}
+		}
+		Tree tree;
 		if (context.getParameterOptions().isH()) {
 			tree = new HorizontalTree(context);
 		} else {
 			tree = new VerticalTree(context);
 		}
 		tree.readExcel(inputName);
+		String outputName = FileUtil.removeExtension(inputName) + outputDecorator;
 		return tree.generate(context, outputName);
 	}
 

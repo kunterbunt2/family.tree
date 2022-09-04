@@ -72,7 +72,7 @@ public abstract class Tree {
 	}
 
 	public BufferedImage generate(Context context, String familyName) throws Exception {
-		String imageFilenName = familyName + "-family-tree.png";
+		String imageFilenName = familyName + ".png";
 		initializePersonList(context);
 		int				imageWidth	= calclateImageWidth();
 		int				imageHeight	= calculateImageHeight();

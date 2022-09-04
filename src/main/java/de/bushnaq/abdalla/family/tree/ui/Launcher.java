@@ -12,6 +12,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -80,12 +81,12 @@ public class Launcher {
 		JFrame.setDefaultLookAndFeelDecorated(true);
 		JDialog.setDefaultLookAndFeelDecorated(true);
 		System.setProperty("flatlaf.animatedLafChange", String.valueOf(true));
-		initialize();
 	}
 
 	/**
 	 * Initialize the contents of the frame.
 	 */
+	@PostConstruct
 	private void initialize() {
 		FlatLaf.setUseNativeWindowDecorations(true);
 		FlatAnimatedLafChange.showSnapshot();

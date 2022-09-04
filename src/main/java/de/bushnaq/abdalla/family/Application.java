@@ -34,7 +34,6 @@ public class Application implements CommandLineRunner {
 
 	@Autowired
 	Launcher				launcher;
-
 	private final Logger	logger	= LoggerFactory.getLogger(this.getClass());
 	@Autowired
 	Main					main;
