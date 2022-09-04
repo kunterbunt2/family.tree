@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import de.bushnaq.abdalla.family.Context;
 import de.bushnaq.abdalla.family.Main;
-import de.bushnaq.abdalla.family.MyCanvas;
+import de.bushnaq.abdalla.family.tree.ui.MyCanvas;
 import de.bushnaq.abdalla.util.TestUtil;
 
 public class Base {

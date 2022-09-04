@@ -1,4 +1,4 @@
-package de.bushnaq.abdalla.family;
+package de.bushnaq.abdalla.family.tree.ui;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
@@ -33,6 +33,8 @@ import org.springframework.stereotype.Component;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.extras.FlatAnimatedLafChange;
 
+import de.bushnaq.abdalla.family.Context;
+import de.bushnaq.abdalla.family.Main;
 import de.bushnaq.abdalla.theme.Util;
 
 @Component
@@ -60,7 +62,7 @@ public class Launcher {
 	private JCheckBox			excludeSpousesCheckBox;
 	private JRadioButton		followFemalesRadioButton;
 	private JRadioButton		followMalesRadioButton;
-	JFrame						frmFamilytree;
+	public JFrame				frmFamilytree;
 	private JRadioButton		htreeRadioButton;
 	private final Logger		logger		= LoggerFactory.getLogger(this.getClass());
 	@Autowired

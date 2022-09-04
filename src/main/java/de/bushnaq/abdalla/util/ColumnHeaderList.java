@@ -9,6 +9,7 @@ import org.apache.poi.ss.usermodel.Row;
 public class ColumnHeaderList {
 	public static final String			BORN_COLUMN							= "Born";
 	public static final String			COMMENT_COLUMN						= "Comment";
+	public static final String			COMMENT_COLUMN_ORIGINAL_LANGUAGE	= "Comment (OL)";
 	public static final String			DIED_COLUMN							= "Died";
 	public static final String			FATHER_COLUMN						= "Father";
 	public static final String			FIRST_NAME_COLUMN					= "First Name";
@@ -34,6 +35,7 @@ public class ColumnHeaderList {
 		put(FATHER_COLUMN, CellType.FORMULA, false);
 		put(MOTHER_COLUMN, CellType.FORMULA, false);
 		put(COMMENT_COLUMN, CellType.STRING, false);
+		put(COMMENT_COLUMN_ORIGINAL_LANGUAGE, CellType.STRING, false);
 	}
 
 	public ColumnHeader get(int columnIndex) {

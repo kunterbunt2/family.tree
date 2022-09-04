@@ -11,6 +11,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 
+import de.bushnaq.abdalla.family.tree.ui.Launcher;
 import de.bushnaq.abdalla.util.MavenPropertiesProvider;
 
 @ComponentScan(basePackages = { "de.bushnaq.abdalla" })

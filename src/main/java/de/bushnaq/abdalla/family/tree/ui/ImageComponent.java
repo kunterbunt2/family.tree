@@ -1,4 +1,4 @@
-package de.bushnaq.abdalla.family;
+package de.bushnaq.abdalla.family.tree.ui;
 
 import java.awt.Dimension;
 import java.awt.Graphics;

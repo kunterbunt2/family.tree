@@ -3,16 +3,104 @@ package de.bushnaq.abdalla.util;
 import java.util.Random;
 
 public class ObfuscatingBase {
-	private static final int	RANDOM_SEED	= 1;
-	Random						generator	= new Random(RANDOM_SEED);
+	private static final int	RANDOM_SEED		= 1;
+	Random						generator		= new Random(RANDOM_SEED);
+
+	char[]						lowerCaseVowels	= { 'a', 'e', 'i', 'o', 'u' };
+
+	char[]						upperCaseVowels	= { 'A', 'E', 'I', 'O', 'U' };
+
+	private char generateRandomLowerCaseConsonant() {
+		char c;
+		do {
+			c = 'a';
+			c += generator.nextInt(26);
+		} while (!isConsonant(c));
+		return c;
+	}
+
+	private char generateRandomLowerCaseVowel() {
+		char c;
+		do {
+			c = 'a';
+			c += generator.nextInt(26);
+		} while (!isVowel(c));
+		return c;
+	}
+
+	private char generateRandomUpperCaseConsonant() {
+		char c;
+		do {
+			c = 'A';
+			c += generator.nextInt(26);
+		} while (!isConsonant(c));
+		return c;
+	}
+
+	private char generateRandomUpperCaseVowel() {
+		char c;
+		do {
+			c = 'A';
+			c += generator.nextInt(26);
+		} while (!isVowel(c));
+		return c;
+	}
+
+	boolean isConsonant(char c) {
+		if (Character.isUpperCase(c)) {
+			for (char v : upperCaseVowels) {
+				if (c == v)
+					return false;
+			}
+			return true;
+		} else if (Character.isLowerCase(c)) {
+			for (char v : lowerCaseVowels) {
+				if (c == v)
+					return false;
+			}
+			return true;
+		} else if (Character.isDigit(c)) {
+			return false;
+		}
+		return false;
+	}
+
+	boolean isVowel(char c) {
+		if (Character.isUpperCase(c)) {
+			for (char v : upperCaseVowels) {
+				if (c == v)
+					return true;
+			}
+//			if (c == 'A' || c == 'E' || c == 'I' || c == 'O' || c == 'U')
+//				return true;
+//			else
+			return false;
+		} else if (Character.isLowerCase(c)) {
+			for (char v : lowerCaseVowels) {
+				if (c == v)
+					return true;
+			}
+//			if (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u')
+//				return true;
+//			else
+			return false;
+		} else if (Character.isDigit(c)) {
+			return false;
+		}
+		return false;
+	}
 
 	private char obfuscateCharacter(char c) {
 		if (Character.isUpperCase(c)) {
-			c = 'A';
-			c += generator.nextInt(26);
+			if (isVowel(c))
+				c = generateRandomUpperCaseVowel();
+			else
+				c = generateRandomUpperCaseConsonant();
 		} else if (Character.isLowerCase(c)) {
-			c = 'a';
-			c += generator.nextInt(26);
+			if (isVowel(c))
+				c = generateRandomLowerCaseVowel();
+			else
+				c = generateRandomLowerCaseConsonant();
 		} else if (Character.isDigit(c)) {
 			c = '0';
 			c += generator.nextInt(10);

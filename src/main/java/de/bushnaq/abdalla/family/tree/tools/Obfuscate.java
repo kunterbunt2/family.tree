@@ -1,4 +1,4 @@
-package de.bushnaq.abdalla.family;
+package de.bushnaq.abdalla.family.tree.tools;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -26,6 +26,13 @@ public class Obfuscate extends BasicExcelReader {
 	private final Logger	logger			= LoggerFactory.getLogger(this.getClass());
 	ObfuscatingBase			ObfuscatingBase	= new ObfuscatingBase();
 
+	private void deleteColumn(Row row, String columnName) throws Exception {
+		Cell cell = row.getCell(getColumnHeaderList().getExcelColumnIndex(columnName));
+		if (cell != null) {
+			row.removeCell(cell);
+		}
+	}
+
 	private String extractFileNamePart(String originalName) {
 		int slash = originalName.lastIndexOf('/');
 		if (slash != -1) {
@@ -37,6 +44,7 @@ public class Obfuscate extends BasicExcelReader {
 
 	private void obfuscate(String fileName) throws Exception {
 		readExcelFile(fileName);
+		logger.info("Success");
 	}
 
 	String obfuscateCell(Cell cell) throws Exception {
@@ -66,7 +74,7 @@ public class Obfuscate extends BasicExcelReader {
 		ObfuscatingBase.reseed();
 		String familyName = ObfuscatingBase.obfuscateString(removeExtension(extractFileNamePart(fileName)));
 		DirectoryUtil.createDirectory(familyName);
-		write(workbook, familyName + "/" + familyName + ".xlsx");
+		write(workbook, "examples/" + familyName + ".xlsx");
 	}
 
 	@Override
@@ -74,6 +82,9 @@ public class Obfuscate extends BasicExcelReader {
 		obfuscateColumn(row, ColumnHeaderList.FIRST_NAME_COLUMN);
 		obfuscateColumn(row, ColumnHeaderList.LAST_NAME_COLUMN);
 		obfuscateColumn(row, ColumnHeaderList.COMMENT_COLUMN);
+		deleteColumn(row, ColumnHeaderList.FIRST_NAME_COLUMN_ORIGINAL_LANGUAGE);
+		deleteColumn(row, ColumnHeaderList.LAST_NAME_COLUMN_ORIGINAL_LANGUAGE);
+		deleteColumn(row, ColumnHeaderList.COMMENT_COLUMN_ORIGINAL_LANGUAGE);
 	}
 
 	public String removeExtension(String originalName) {
