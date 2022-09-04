@@ -13,13 +13,13 @@ import de.bushnaq.abdalla.theme.IJThemesManager;
 public class ThemeInitializer {
 //    @Autowired
 //    private RcApplicationConfiguration settings;
-    @Autowired
-    private IJThemesManager themesManager;
+	@Autowired
+	private IJThemesManager themesManager;
 
-    @PostConstruct
-    public void postConstruct() {
+	@PostConstruct
+	public void postConstruct() {
 //        themesManager.setCurrentTheme(settings.intellijThemeFileName.getValue(), settings.enableTableGrid.getValue());
-        themesManager.setCurrentTheme("arc_theme_dark.theme.json", true);
-    }
+		themesManager.setCurrentTheme("arc_theme_dark.theme.json", true);
+	}
 
 }

@@ -2,6 +2,9 @@ package de.bushnaq.abdalla.family;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -19,6 +22,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextPane;
+import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 
 import org.slf4j.Logger;
@@ -26,40 +30,20 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.jgoodies.forms.layout.ColumnSpec;
-import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.layout.FormSpecs;
-import com.jgoodies.forms.layout.RowSpec;
-import javax.swing.SpringLayout;
-import javax.swing.BoxLayout;
-import java.awt.GridLayout;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
+import com.formdev.flatlaf.FlatLaf;
+import com.formdev.flatlaf.extras.FlatAnimatedLafChange;
+
+import de.bushnaq.abdalla.theme.Util;
 
 @Component
 public class Launcher {
-
-	private final Logger		logger		= LoggerFactory.getLogger(this.getClass());
-	JFrame						frmFamilytree;
-	private final ButtonGroup	treeGroup	= new ButtonGroup();
-	@Autowired
-	Main						main;
-	@Autowired
-	Context						context;
-	private JRadioButton		vtreeRadioButton;
-	private JRadioButton		htreeRadioButton;
-	private JRadioButton		followMalesRadioButton;
-	private JRadioButton		followFemalesRadioButton;
-	private JCheckBox			excludeSpousesCheckBox;
-	private JCheckBox			originalLanguageCheckBox;
-	private JTextPane			textPane;
 
 	/**
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					Launcher window = new Launcher();
@@ -70,6 +54,22 @@ public class Launcher {
 			}
 		});
 	}
+
+	@Autowired
+	Context						context;
+	private JCheckBox			excludeSpousesCheckBox;
+	private JRadioButton		followFemalesRadioButton;
+	private JRadioButton		followMalesRadioButton;
+	JFrame						frmFamilytree;
+	private JRadioButton		htreeRadioButton;
+	private final Logger		logger		= LoggerFactory.getLogger(this.getClass());
+	@Autowired
+	Main						main;
+	private JCheckBox			originalLanguageCheckBox;
+	private JTextPane			textPane;
+	private final ButtonGroup	treeGroup	= new ButtonGroup();
+
+	private JRadioButton		vtreeRadioButton;
 
 	/**
 	 * Create the application.
@@ -85,30 +85,34 @@ public class Launcher {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		FlatLaf.setUseNativeWindowDecorations(true);
+		FlatAnimatedLafChange.showSnapshot();
 		frmFamilytree = new JFrame();
 		frmFamilytree.setTitle("family.tree");
-		frmFamilytree.setBounds(100, 100, 734, 452);
-		frmFamilytree.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frmFamilytree.setBounds(100, 100, 346, 383);
+		frmFamilytree.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		frmFamilytree.setIconImages(Util.createThemedWindowIconImages("/file-tree.svg"));
 
 		JPanel panel = new JPanel();
-		panel.setBorder(new EmptyBorder(10, 10, 10, 10));
+		panel.setBorder(new EmptyBorder(20, 20, 20, 20));
 		frmFamilytree.getContentPane().add(panel, BorderLayout.CENTER);
-		
+		panel.setLayout(new BorderLayout(0, 0));
+
 		JPanel panelOptions = new JPanel();
 		panelOptions.setBorder(new EmptyBorder(10, 10, 10, 10));
 		panel.add(panelOptions, BorderLayout.NORTH);
-		GridBagLayout gbl_panel = new GridBagLayout();
-		gbl_panel.columnWidths = new int[] { 283, 283, 0 };
-		gbl_panel.rowHeights = new int[] { 23, 0, 23, 0, 23, 23, 23, 0 };
-		gbl_panel.columnWeights = new double[] { 0.0, 0.0, Double.MIN_VALUE };
-		gbl_panel.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
-		panelOptions.setLayout(gbl_panel);
+		GridBagLayout gbl_panelOptions = new GridBagLayout();
+		gbl_panelOptions.columnWidths = new int[] { 278, 283, 0 };
+		gbl_panelOptions.rowHeights = new int[] { 23, 23, 23, 23, 23, 23, 0 };
+		gbl_panelOptions.columnWeights = new double[] { 0.0, 0.0, Double.MIN_VALUE };
+		gbl_panelOptions.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
+		panelOptions.setLayout(gbl_panelOptions);
 
 		JLabel				lblNewLabel		= new JLabel("Tree Type");
 		GridBagConstraints	gbc_lblNewLabel	= new GridBagConstraints();
-		gbc_lblNewLabel.gridheight = 2;
 		gbc_lblNewLabel.fill = GridBagConstraints.BOTH;
 		gbc_lblNewLabel.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel.gridheight = 2;
 		gbc_lblNewLabel.gridx = 0;
 		gbc_lblNewLabel.gridy = 0;
 		panelOptions.add(lblNewLabel, gbc_lblNewLabel);
@@ -135,9 +139,9 @@ public class Launcher {
 
 		JLabel				lblNewLabel_1		= new JLabel("Children position");
 		GridBagConstraints	gbc_lblNewLabel_1	= new GridBagConstraints();
-		gbc_lblNewLabel_1.gridheight = 2;
 		gbc_lblNewLabel_1.fill = GridBagConstraints.BOTH;
 		gbc_lblNewLabel_1.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel_1.gridheight = 2;
 		gbc_lblNewLabel_1.gridx = 0;
 		gbc_lblNewLabel_1.gridy = 2;
 		panelOptions.add(lblNewLabel_1, gbc_lblNewLabel_1);
@@ -178,14 +182,13 @@ public class Launcher {
 		JLabel				lblNewLabel_3		= new JLabel("Original Language");
 		GridBagConstraints	gbc_lblNewLabel_3	= new GridBagConstraints();
 		gbc_lblNewLabel_3.fill = GridBagConstraints.BOTH;
-		gbc_lblNewLabel_3.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel_3.insets = new Insets(0, 0, 0, 5);
 		gbc_lblNewLabel_3.gridx = 0;
 		gbc_lblNewLabel_3.gridy = 5;
 		panelOptions.add(lblNewLabel_3, gbc_lblNewLabel_3);
 
 		originalLanguageCheckBox = new JCheckBox("Show if available");
 		GridBagConstraints gbc_originalLanguageCheckBox = new GridBagConstraints();
-		gbc_originalLanguageCheckBox.insets = new Insets(0, 0, 5, 0);
 		gbc_originalLanguageCheckBox.fill = GridBagConstraints.BOTH;
 		gbc_originalLanguageCheckBox.gridx = 1;
 		gbc_originalLanguageCheckBox.gridy = 5;
@@ -199,7 +202,7 @@ public class Launcher {
 		panelButton.add(btnNewButton);
 
 		JPanel panelText = new JPanel();
-		panel.add(panelText, BorderLayout.CENTER);
+		panel.add(panelText);
 		panelText.setLayout(new BorderLayout(0, 0));
 
 		textPane = new JTextPane();
@@ -210,6 +213,7 @@ public class Launcher {
 
 	private ActionListener selectFile() {
 		return new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent ae) {
 				JFileChooser	fileChooser	= new JFileChooser();
 				int				returnVal	= fileChooser.showOpenDialog(frmFamilytree);
@@ -242,6 +246,11 @@ public class Launcher {
 				} else {
 					System.out.println("File access cancelled by user.");
 				}
+//				try {
+//					BufferedImage img = ImageIO.read(new File("bushnaq/bushnaq.xlsx-family-tree.png"));
+//					showImage(img, "hallo");
+//				} catch (IOException e) {
+//				}
 			}
 		};
 	}
@@ -249,12 +258,6 @@ public class Launcher {
 	private void showImage(BufferedImage image, String title) {
 		MyCanvas c = new MyCanvas(image);
 		c.f.setTitle(title);
-		while (c.f.isVisible())
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
 	}
 
 }

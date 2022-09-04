@@ -22,26 +22,25 @@ import java.io.File;
  * @author Karl Tauber
  */
 public class IJThemeInfo {
-    public final String name;
-    public final String resourceName;
-    public final boolean dark;
-    public final String license;
-    final String licenseFile;
-    public final String sourceCodeUrl;
-    final String sourceCodePath;
-    public final File themeFile;
-    public final String lafClassName;
+	public final boolean	dark;
+	public final String		lafClassName;
+	public final String		license;
+	final String			licenseFile;
+	public final String		name;
+	public final String		resourceName;
+	final String			sourceCodePath;
+	public final String		sourceCodeUrl;
+	public final File		themeFile;
 
-    IJThemeInfo(String name, String resourceName, boolean dark, String license, String licenseFile, String sourceCodeUrl, String sourceCodePath, File themeFile,
-            String lafClassName) {
-        this.name = name;
-        this.resourceName = resourceName;
-        this.dark = dark;
-        this.license = license;
-        this.licenseFile = licenseFile;
-        this.sourceCodeUrl = sourceCodeUrl;
-        this.sourceCodePath = sourceCodePath;
-        this.themeFile = themeFile;
-        this.lafClassName = lafClassName;
-    }
+	IJThemeInfo(String name, String resourceName, boolean dark, String license, String licenseFile, String sourceCodeUrl, String sourceCodePath, File themeFile, String lafClassName) {
+		this.name = name;
+		this.resourceName = resourceName;
+		this.dark = dark;
+		this.license = license;
+		this.licenseFile = licenseFile;
+		this.sourceCodeUrl = sourceCodeUrl;
+		this.sourceCodePath = sourceCodePath;
+		this.themeFile = themeFile;
+		this.lafClassName = lafClassName;
+	}
 }

@@ -344,6 +344,7 @@ public abstract class DrawablePerson extends Person {
 		graphics.setStroke(stroke);
 	}
 
+	@Override
 	public String toString(Context context) {
 		return String.format("[%d] %s (%s) x=%d y=%d", getId(), getName(context), getLivedString(), x, y);
 	}

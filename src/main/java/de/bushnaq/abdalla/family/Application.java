@@ -31,12 +31,12 @@ public class Application implements CommandLineRunner {
 		context.close();
 	}
 
-	private final Logger	logger	= LoggerFactory.getLogger(this.getClass());
-
-	@Autowired
-	Main					main;
 	@Autowired
 	Launcher				launcher;
+
+	private final Logger	logger	= LoggerFactory.getLogger(this.getClass());
+	@Autowired
+	Main					main;
 
 	public Application() {
 	}

@@ -8,7 +8,7 @@ public class MavenPropertiesProvider {
 
 	@SuppressWarnings("unused")
 	private static final MavenPropertiesProvider	INSTANCE	= new MavenPropertiesProvider();
-	static ResourceBundle						rb;
+	static ResourceBundle							rb;
 
 	public static String getProperty(Class<?> clazz, String name) {
 		ResourceBundle bundle = ResourceBundle.getBundle("maven", Locale.getDefault(), clazz.getClassLoader());
