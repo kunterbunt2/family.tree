@@ -85,6 +85,8 @@ public class Launcher {
 
 	/**
 	 * Initialize the contents of the frame.
+	 *
+	 * @wbp.parser.entryPoint
 	 */
 	@PostConstruct
 	private void initialize() {
@@ -234,6 +236,8 @@ public class Launcher {
 						arguments.add("-follow_females");
 					if (excludeSpousesCheckBox.isSelected())
 						arguments.add("-exclude_spouse");
+					if (originalLanguageCheckBox.isSelected())
+						arguments.add("-ol");
 					String[] args = arguments.toArray(new String[0]);
 					try {
 						BufferedImage	image			= main.start(args);
