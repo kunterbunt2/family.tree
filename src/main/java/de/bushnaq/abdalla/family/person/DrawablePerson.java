@@ -202,12 +202,12 @@ public abstract class DrawablePerson extends Person {
 			graphics.fillRect(mapX1 + (mapX2 - mapX1) / 2, mapY1 - PERSON_Y_SPACE / 2, 1, PERSON_Y_SPACE / 2);
 		}
 
-		// sexual relation connector
-		if (hasChildren() && isMember() && context.getParameterOptions().isExcludeSpouse()) {
+		// sexual relation connector between a person and his/her spouse
+		if (hasChildren() && isMember() && !context.getParameterOptions().isExcludeSpouse()) {
 			Stroke stroke = graphics.getStroke();
 			graphics.setStroke(new BasicStroke(FAT_LINE_STROKE_WIDTH, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 3 }, 0));
 			graphics.setColor(Color.black);
-			graphics.drawLine(mapX2, mapY1 + (mapY2 - mapY1) / 2, mapX2 + PERSON_X_SPACE, mapY1 + (mapY2 - mapY1) / 2);
+			graphics.drawLine(mapX2, mapY1 + (mapY2 - mapY1) / 2, mapX2 + PERSON_X_SPACE / 2, mapY1 + (mapY2 - mapY1) / 2);
 			graphics.setStroke(stroke);
 		}
 	}
@@ -325,14 +325,21 @@ public abstract class DrawablePerson extends Person {
 			graphics.drawLine(x1 + width, y1 + height / 2, x1 + width + PERSON_X_SPACE / 2, y1 + height / 2);
 		}
 
-		// sexual relation connector
-		if (hasChildren() && isMember() && !isSpouse() && context.getParameterOptions().isExcludeSpouse()) {
+		// sexual relation connector from person to his/her spouse
+		if (hasChildren() && isMember() && !isSpouse() && !context.getParameterOptions().isExcludeSpouse()) {
 			graphics.setStroke(new BasicStroke(FAT_LINE_STROKE_WIDTH, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 3 }, 0));
 			graphics.setColor(connectorColor);
 			graphics.drawLine(x1 + width, y1 + height / 2, x1 + width + PERSON_X_SPACE, y1 + height / 2);
+			for (Person spouse : getSpouseList()) {
+				int	sx	= xIndexToPixel(spouse.x);
+				int	sy	= yIndexToPixel(spouse.y);
+				graphics.drawLine(x1 + width + PERSON_X_SPACE / 2, sy + PERSON_HEIGHT / 2, sx, sy + PERSON_HEIGHT / 2);
+			}
+			int lsy = yIndexToPixel(getSpouseList().last().y);
+			graphics.drawLine(x1 + width + PERSON_X_SPACE / 2, y1 + height / 2, x1 + width + PERSON_X_SPACE / 2, lsy + height / 2);
 		}
 		// spouse connector to children
-		if (hasChildren() && isMember() && !context.getParameterOptions().isExcludeSpouse()) {
+		if (hasChildren() && isMember() && context.getParameterOptions().isExcludeSpouse()) {
 			graphics.setStroke(new BasicStroke(MEDIUM_LINE_STROKE_WIDTH));
 			graphics.setColor(connectorColor);
 			graphics.drawLine(x1 + width, y1 + height / 2, x1 + width + PERSON_X_SPACE / 2, y1 + height / 2);

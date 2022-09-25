@@ -52,11 +52,11 @@ public class VerticalTree extends Tree {
 		PersonList spouseList = person.getSpouseList();
 		for (Person spouse : spouseList) {
 			spouse.x = person.x + 1;
-			spouse.y = person.y - spouse.spouseIndex;
+			spouse.y = person.y + spouse.spouseIndex;
 			// children
 			PersonList childrenList = person.getChildrenList(spouse);
 			for (Person child : childrenList) {
-				if (context.getParameterOptions().isExcludeSpouse()) {
+				if (!context.getParameterOptions().isExcludeSpouse()) {
 					spouse.setVisible(true);
 					child.x = spouse.x + 1;
 				} else {

@@ -44,7 +44,7 @@ public class HorizontalTree extends Tree {
 	int position(Context context, Person person) {
 		person.setVisible(true);
 //		person.attribute.member = true;
-		if (context.getParameterOptions().isExcludeSpouse()) {
+		if (!context.getParameterOptions().isExcludeSpouse()) {
 			int pX;
 			if (person.getSpouseList().size() == 1)
 				pX = (person.x);
