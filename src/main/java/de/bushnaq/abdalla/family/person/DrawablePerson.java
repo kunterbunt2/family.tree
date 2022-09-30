@@ -32,6 +32,16 @@ public abstract class DrawablePerson extends Person {
 		this.spouseBorderColor = new Color(backgroundColor.getRGB());
 	}
 
+	private void drawBorder(Graphics2D graphics, int x, int y, String string) {
+		FontRenderContext	frc				= graphics.getFontRenderContext();
+		Font				font			= graphics.getFont();
+		Rectangle2D			stringBounds	= font.getStringBounds(string, frc);
+		graphics.setColor(spouseBorderColor);
+		int	w	= (int) stringBounds.getWidth() - 1;
+		int	h	= (int) stringBounds.getHeight() - 1;
+		graphics.drawRect(x, y - h, w, h);
+	}
+
 	@Override
 	public void drawHorizontal(Context context, Graphics2D graphics, Font nameFont, Font livedFont) {
 		if (isVisible()) {
@@ -62,7 +72,7 @@ public abstract class DrawablePerson extends Person {
 				Rectangle2D	stringBounds	= font.getStringBounds(string, frc);
 				float		w				= (float) stringBounds.getWidth();
 				float		h				= (float) stringBounds.getHeight();
-				graphics.drawString(string, x + idWidth + (width - idWidth) / 2 - w / 2, y + PERSON_HEIGHT / 2 + metrics.getHeight() / 2 - descent - h);
+				graphics.drawString(string, x + (width) / 2 - w / 2, y + PERSON_HEIGHT / 2 + metrics.getHeight() / 2 - descent - h);
 			}
 			// last name
 			{
@@ -72,7 +82,7 @@ public abstract class DrawablePerson extends Person {
 				Rectangle2D	stringBounds	= font.getStringBounds(string, frc);
 				float		w				= (float) stringBounds.getWidth();
 //				float		h				= (float) stringBounds.getHeight();
-				graphics.drawString(string, x + idWidth + (width - idWidth) / 2 - w / 2, y + PERSON_HEIGHT / 2 + metrics.getHeight() / 2 - descent);
+				graphics.drawString(string, x + (width) / 2 - w / 2, y + PERSON_HEIGHT / 2 + metrics.getHeight() / 2 - descent);
 			}
 		}
 		{
@@ -98,7 +108,7 @@ public abstract class DrawablePerson extends Person {
 				Rectangle2D	stringBounds	= font.getStringBounds(string, frc);
 				float		w				= (float) stringBounds.getWidth();
 				float		h				= (float) stringBounds.getHeight();
-				graphics.drawString(string, x + idWidth + (width - idWidth) / 2 - w / 2, y + PERSON_HEIGHT / 2 + metrics.getHeight() / 2 - descent + h);
+				graphics.drawString(string, x + (width) / 2 - w / 2, y + PERSON_HEIGHT / 2 + metrics.getHeight() / 2 - descent + h);
 			}
 //			{
 //				String		string			= "-";
@@ -117,7 +127,7 @@ public abstract class DrawablePerson extends Person {
 				Rectangle2D	stringBounds	= font.getStringBounds(string, frc);
 				float		w				= (float) stringBounds.getWidth();
 				float		h				= (float) stringBounds.getHeight();
-				graphics.drawString(string, x + idWidth + (width - idWidth) / 2 - w / 2, y + PERSON_HEIGHT / 2 + metrics.getHeight() / 2 - descent + h + h);
+				graphics.drawString(string, x + (width) / 2 - w / 2, y + PERSON_HEIGHT / 2 + metrics.getHeight() / 2 - descent + h + h);
 			}
 		}
 	}
@@ -235,40 +245,63 @@ public abstract class DrawablePerson extends Person {
 			graphics.setColor(borderColor);
 			graphics.drawRect(x1, y1, width - 1, height - 1);
 		}
-		graphics.setColor(textColor);
 		{
-			graphics.setFont(nameFont);
-			FontRenderContext	frc		= graphics.getFontRenderContext();
-			Font				font	= graphics.getFont();
 			// first name
 			{
-				String		string			= getFirstNameAsString(context);
-				LineMetrics	metrics			= font.getLineMetrics(string, frc);
-				float		descent			= metrics.getDescent();
-				Rectangle2D	stringBounds	= font.getStringBounds(string, frc);
-				float		w				= (float) stringBounds.getWidth();
-				float		h				= (float) stringBounds.getHeight();
-				graphics.drawString(string, x1 + idWidth + (width - idWidth) / 2 - w / 2, y1 + PERSON_HEIGHT / 2 + metrics.getHeight() / 2 - descent - h);
+				graphics.setColor(textColor);
+				graphics.setFont(nameFont);
+				FontRenderContext	frc				= graphics.getFontRenderContext();
+				Font				font			= graphics.getFont();
+				String				string			= getFirstNameAsString(context);
+				LineMetrics			metrics			= font.getLineMetrics(string, frc);
+//				int					descent			= (int) metrics.getDescent();
+				Rectangle2D			stringBounds	= font.getStringBounds(string, frc);
+				if (stringBounds.getWidth() > width - 4) {
+					// reduce font size
+					int size = nameFont.getSize();
+					do {
+						size--;
+						Font deriveFont = nameFont.deriveFont((float) size);
+						graphics.setFont(deriveFont);
+						frc = graphics.getFontRenderContext();
+						stringBounds = deriveFont.getStringBounds(string, frc);
+					} while (stringBounds.getWidth() > width - 4);
+
+				}
+				int	w	= (int) stringBounds.getWidth();
+//				int					h				= (int) stringBounds.getHeight();
+				int	x2	= x1 + (width) / 2 - w / 2;
+				int	y2	= (int) (y1 + metrics.getHeight());
+				graphics.drawString(string, x2, y2);
+//				drawBorder(graphics, x2, y2, string);
 			}
 			// last name
 			{
-				String		string			= getLastNameAsString(context);
-				LineMetrics	metrics			= font.getLineMetrics(string, frc);
-				float		descent			= metrics.getDescent();
-				Rectangle2D	stringBounds	= font.getStringBounds(string, frc);
-				float		w				= (float) stringBounds.getWidth();
-				graphics.drawString(string, x1 + idWidth + (width - idWidth) / 2 - w / 2, y1 + PERSON_HEIGHT / 2 + metrics.getHeight() / 2 - descent);
+				graphics.setColor(textColor);
+				graphics.setFont(nameFont);
+				FontRenderContext	frc				= graphics.getFontRenderContext();
+				Font				font			= graphics.getFont();
+				String				string			= getLastNameAsString(context);
+				LineMetrics			metrics			= font.getLineMetrics(string, frc);
+//				int					descent			= (int) metrics.getDescent();
+				Rectangle2D			stringBounds	= font.getStringBounds(string, frc);
+				int					w				= (int) stringBounds.getWidth();
+				int					x2				= x1 + (width) / 2 - w / 2;
+				int					y2				= (int) (y1 + metrics.getHeight() * 2);
+				graphics.drawString(string, x2, y2);
+//				drawBorder(graphics, x2, y2, string);
 			}
 		}
 		{
 			// ID
-			graphics.setFont(livedFont);
-			FontRenderContext	frc		= graphics.getFontRenderContext();
-			Font				font	= graphics.getFont();
+			graphics.setColor(textColor);
+			graphics.setFont(nameFont);
 			{
-				String		string	= "" + getId();
-				LineMetrics	metrics	= font.getLineMetrics(string, frc);
-				graphics.drawString(string, x1 + 2, y1 + metrics.getHeight());
+				String	string	= "" + getId();
+				int		x2		= x1 + 4;
+				int		y2		= y1 + height - 4;
+				graphics.drawString(string, x2, y2);
+//				drawBorder(graphics, x2, y2, string);
 			}
 		}
 		{
@@ -283,7 +316,10 @@ public abstract class DrawablePerson extends Person {
 				Rectangle2D	stringBounds	= font.getStringBounds(string, frc);
 				float		w				= (float) stringBounds.getWidth();
 				float		h				= (float) stringBounds.getHeight();
-				graphics.drawString(string, x1 + idWidth + (width - idWidth) / 2 - w / 2, y1 + PERSON_HEIGHT / 2 + metrics.getHeight() / 2 - descent + h);
+				float		x2				= x1 + (width) / 2 - w / 2;
+//				float y2 = y1 + PERSON_HEIGHT / 2 + metrics.getHeight() / 2 - descent + h;
+				float		y2				= y1 + height - 4 - metrics.getHeight();
+				graphics.drawString(string, x2, y2);
 			}
 			// died
 			{
@@ -293,7 +329,10 @@ public abstract class DrawablePerson extends Person {
 				Rectangle2D	stringBounds	= font.getStringBounds(string, frc);
 				float		w				= (float) stringBounds.getWidth();
 				float		h				= (float) stringBounds.getHeight();
-				graphics.drawString(string, x1 + idWidth + (width - idWidth) / 2 - w / 2, y1 + PERSON_HEIGHT / 2 + metrics.getHeight() / 2 - descent + h + h);
+				float		x2				= x1 + (width) / 2 - w / 2;
+//				float y2 = y1 + PERSON_HEIGHT / 2 + metrics.getHeight() / 2 - descent + h + h;
+				float		y2				= y1 + height - 4;
+				graphics.drawString(string, x2, y2);
 			}
 		}
 	}

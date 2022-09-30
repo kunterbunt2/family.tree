@@ -7,16 +7,16 @@ import de.bushnaq.abdalla.family.Context;
 
 public abstract class Person extends BasicFamilyMember {
 	public static final int	PERSON_BORDER	= 1;
-	public static final int	PERSON_HEIGHT	= 50;
+	public static final int	PERSON_HEIGHT	= 64;
 	public static final int	PERSON_MARGINE	= 4;
-	public static final int	PERSON_WIDTH	= 100;
+	public static final int	PERSON_WIDTH	= 128;
 	public static final int	PERSON_X_SPACE	= 24;
 	public static final int	PERSON_Y_SPACE	= 12;
 	private Attribute		attribute		= new Attribute();
 	public Integer			childIndex		= null;
 	public Integer			generation		= null;
 	public int				height			= Person.PERSON_HEIGHT;
-	public int				idWidth			= 0;
+//	public int				idWidth			= 0;
 	public Integer			nextPersonX		= -1;
 	public Integer			nextPersonY		= -1;
 	public PersonList		personList		= null;
@@ -44,7 +44,7 @@ public abstract class Person extends BasicFamilyMember {
 
 	public void calculateWidth(Graphics2D graphics, Font nameFont, Font livedFont) {
 		graphics.setFont(livedFont);
-		idWidth = graphics.getFontMetrics().stringWidth("" + getId());
+//		idWidth = graphics.getFontMetrics().stringWidth("" + getId());
 
 //		width = 0;
 //		graphics.setFont(nameFont);
