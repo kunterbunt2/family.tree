@@ -2,7 +2,6 @@ package de.bushnaq.abdalla.family.person;
 
 import java.awt.Font;
 import java.awt.Graphics2D;
-import java.text.SimpleDateFormat;
 
 import de.bushnaq.abdalla.family.Context;
 
@@ -76,8 +75,7 @@ public abstract class Person extends BasicFamilyMember {
 
 	public String getBornString() {
 		if (getBorn() != null) {
-			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-			return "\u002A" + simpleDateFormat.format(getBorn());
+			return "\u002A" + getBorn().getString();
 		}
 		return "";
 	}
@@ -111,8 +109,7 @@ public abstract class Person extends BasicFamilyMember {
 
 	protected String getDiedString() {
 		if (getDied() != null) {
-			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-			return "\u271D" + simpleDateFormat.format(getDied());
+			return "\u271D" + getDied().getString();
 		}
 		return "";
 	}

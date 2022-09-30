@@ -1,6 +1,5 @@
 package de.bushnaq.abdalla.family.tree;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -28,6 +27,7 @@ import de.bushnaq.abdalla.family.person.PersonList;
 import de.bushnaq.abdalla.util.BasicExcelReader;
 import de.bushnaq.abdalla.util.ColumnHeaderList;
 import de.bushnaq.abdalla.util.ExcelUtil;
+import de.bushnaq.abdalla.util.FlexibleDate;
 
 public class TreeExcelReader extends BasicExcelReader {
 	private final Logger				logger				= LoggerFactory.getLogger(this.getClass());
@@ -54,13 +54,20 @@ public class TreeExcelReader extends BasicExcelReader {
 		}
 	}
 
-	private Date getDate(Cell cell) throws Exception {
+	private FlexibleDate getDate(Cell cell) throws Exception {
 		if (cell != null) {
 			switch (cell.getCellType()) {
 			case NUMERIC:
 				try {
-					Date date = cell.getDateCellValue();
-					return date;
+					double v = cell.getNumericCellValue();
+					if (v < 3000) {
+						// only year information
+						FlexibleDate date = new FlexibleDate((int) v);
+						return date;
+					} else {
+						FlexibleDate date = new FlexibleDate(cell.getDateCellValue());
+						return date;
+					}
 				} catch (IllegalStateException e) {
 					throw new Exception(String.format("Expected Date format at %s", ExcelUtil.cellReference(cell)));
 				}

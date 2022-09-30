@@ -1,19 +1,18 @@
 package de.bushnaq.abdalla.family.person;
 
-import java.util.Date;
-
 import de.bushnaq.abdalla.family.Context;
+import de.bushnaq.abdalla.util.FlexibleDate;
 
 public class BasicFamilyMember {
-	private Date	born	= null;
-	private Date	died	= null;
-	private Male	father;
-	private String	firstName;
-	private String	firstNameOriginalLanguage;
-	private int		id;
-	private String	lastName;
-	private String	lastNameOriginalLanguage;
-	private Female	mother;
+	private FlexibleDate	born;
+	private FlexibleDate	died;
+	private Male			father;
+	private String			firstName;
+	private String			firstNameOriginalLanguage;
+	private int				id;
+	private String			lastName;
+	private String			lastNameOriginalLanguage;
+	private Female			mother;
 
 	public BasicFamilyMember(BasicFamilyMember member) {
 		this.id = member.id;
@@ -31,11 +30,11 @@ public class BasicFamilyMember {
 		this.id = id;
 	}
 
-	public Date getBorn() {
+	public FlexibleDate getBorn() {
 		return born;
 	}
 
-	public Date getDied() {
+	public FlexibleDate getDied() {
 		return died;
 	}
 
@@ -67,11 +66,11 @@ public class BasicFamilyMember {
 		return mother;
 	}
 
-	public void setBorn(Date born) {
+	public void setBorn(FlexibleDate born) {
 		this.born = born;
 	}
 
-	public void setDied(Date died) {
+	public void setDied(FlexibleDate died) {
 		this.died = died;
 	}
 
