@@ -3,7 +3,6 @@ package de.bushnaq.abdalla.family.person;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import de.bushnaq.abdalla.family.Context;
 
@@ -27,13 +26,13 @@ public abstract class Person extends BasicFamilyMember {
 	public int				x				= 0;
 	public int				y				= 0;
 
-	public Person(PersonList personList, int id, String firstName, String lastName, Date born, Date died, Male father, Female mother) {
-		super(id, firstName, lastName, born, died, father, mother);
+	public Person(PersonList personList, Integer id) {
+		super(id);
 		this.personList = personList;
 	}
 
-	public Person(PersonList personList, Integer id) {
-		super(id);
+	public Person(PersonList personList, Person person) {
+		super(person);
 		this.personList = personList;
 	}
 

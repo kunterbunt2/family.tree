@@ -11,21 +11,20 @@ public class BasicFamilyMember {
 	private String	firstName;
 	private String	firstNameOriginalLanguage;
 	private int		id;
-
 	private String	lastName;
-
 	private String	lastNameOriginalLanguage;
-
 	private Female	mother;
 
-	public BasicFamilyMember(int id, String firstName, String lastName, Date born, Date died, Male father, Female mother) {
-		this.id = id;
-		this.setFirstName(firstName);
-		this.setLastName(lastName);
-		this.setBorn(born);
-		this.setDied(died);
-		this.setFather(father);
-		this.setMother(mother);
+	public BasicFamilyMember(BasicFamilyMember member) {
+		this.id = member.id;
+		this.setFirstName(member.firstName);
+		this.setFirstNameOriginalLanguage(member.firstNameOriginalLanguage);
+		this.setLastName(member.lastName);
+		this.setLastNameOriginalLanguage(member.lastNameOriginalLanguage);
+		this.setBorn(member.born);
+		this.setDied(member.died);
+		this.setFather(member.father);
+		this.setMother(member.mother);
 	}
 
 	public BasicFamilyMember(Integer id) {

@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.bushnaq.abdalla.family.Context;
+import de.bushnaq.abdalla.family.person.Female;
 import de.bushnaq.abdalla.family.person.FemaleClone;
 import de.bushnaq.abdalla.family.person.Male;
 import de.bushnaq.abdalla.family.person.MaleClone;
@@ -103,7 +104,7 @@ public abstract class Tree {
 				// both parents are member of the family
 				if (!context.getParameterOptions().isFollowFemales() && person.isMale()) {
 					// create a clone of the spouse and shift all child relations to that clone
-					FemaleClone	clone			= new FemaleClone(spouse.personList, spouse.getId(), spouse.getFirstName(), spouse.getLastName(), spouse.getBorn(), spouse.getDied(), null, null);
+					FemaleClone	clone			= new FemaleClone(spouse.personList, (Female) spouse);
 					PersonList	childrenList	= person.getChildrenList(spouse);
 					for (Person child : childrenList) {
 						child.setMother(clone);
@@ -114,7 +115,7 @@ public abstract class Tree {
 					spouse.setSpouse(true);
 				} else if (context.getParameterOptions().isFollowFemales() && person.isFemale()) {
 					// create a clone of the spouse and shift all child relations to that clone
-					MaleClone	clone			= new MaleClone(spouse.personList, spouse.getId(), spouse.getFirstName(), spouse.getLastName(), spouse.getBorn(), spouse.getDied(), null, null);
+					MaleClone	clone			= new MaleClone(spouse.personList, (Male) spouse);
 					PersonList	childrenList	= person.getChildrenList(spouse);
 					for (Person child : childrenList) {
 						child.setFather(clone);

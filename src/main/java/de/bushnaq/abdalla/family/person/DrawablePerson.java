@@ -8,7 +8,6 @@ import java.awt.Stroke;
 import java.awt.font.FontRenderContext;
 import java.awt.font.LineMetrics;
 import java.awt.geom.Rectangle2D;
-import java.util.Date;
 
 import de.bushnaq.abdalla.family.Context;
 
@@ -21,8 +20,8 @@ public abstract class DrawablePerson extends Person {
 	private Color					spouseBorderColor;
 	private Color					textColor					= new Color(0, 0, 0);
 
-	public DrawablePerson(PersonList personList, int id, String firstName, String lastName, Date born, Date died, Male father, Female mother, Color backgroundColor) {
-		super(personList, id, firstName, lastName, born, died, father, mother);
+	public DrawablePerson(PersonList personList, DrawablePerson person, Color backgroundColor) {
+		super(personList, person);
 		this.backgroundColor = backgroundColor;
 		this.spouseBorderColor = new Color(backgroundColor.getRGB());
 	}
