@@ -52,7 +52,7 @@ public class VerticalTree extends Tree {
 		PersonList spouseList = person.getSpouseList();
 		for (Person spouse : spouseList) {
 			spouse.x = person.x + 1;
-			spouse.y = person.y + spouse.spouseIndex;
+			spouse.y = pY/* person.y + spouse.spouseIndex */;
 			// children
 			PersonList childrenList = person.getChildrenList(spouse);
 			for (Person child : childrenList) {

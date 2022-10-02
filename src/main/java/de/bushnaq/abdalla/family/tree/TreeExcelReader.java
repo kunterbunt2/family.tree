@@ -94,8 +94,10 @@ public class TreeExcelReader extends BasicExcelReader {
 			switch (cell.getCellType()) {
 			case STRING:
 				return cell.getStringCellValue();
+			case BLANK:
+				return null;
 			default:
-				throw new Exception(String.format("Expected String cell value at %s", ExcelUtil.cellReference(cell)));
+				throw new Exception(String.format("Expected String cell value at %s but found %s.", ExcelUtil.cellReference(cell), cell.getCellType().name()));
 			}
 		}
 		return null;
@@ -104,17 +106,12 @@ public class TreeExcelReader extends BasicExcelReader {
 	private String getLastName(Workbook workbook, Cell cell) throws Exception {
 		if (cell != null) {
 			switch (cell.getCellType()) {
-//			case FORMULA:
-//				// expect a reference to a person's name
-//				Integer index = getReference(workbook, cell);
-//				if (index == null)
-//					return null;
-//				Person p = rowIndexToPerson.get(index);
-//				return p.getLastName();
 			case STRING:
 				return cell.getStringCellValue();
+			case BLANK:
+				return null;
 			default:
-				throw new Exception(String.format("Expected String cell value at %s", ExcelUtil.cellReference(cell)));
+				throw new Exception(String.format("Expected String cell value at %s but found %s.", ExcelUtil.cellReference(cell), cell.getCellType().name()));
 			}
 		}
 		return null;

@@ -58,6 +58,20 @@ public abstract class Tree {
 
 	abstract void draw(Context context, Graphics2D graphics);
 
+	private void drawGrid(Graphics2D graphics, int imageWidth, int imageHeight) {
+//		graphics.setFont(nameFont);
+//		graphics.setColor(Color.lightGray);
+//		int	h	= Person.PERSON_HEIGHT + Person.PERSON_Y_SPACE;
+//		int	w	= Person.PERSON_WIDTH + Person.PERSON_X_SPACE;
+//		for (int y = 0; y < imageHeight / h + 1; y++) {
+//			graphics.fillRect(0, -Person.PERSON_Y_SPACE / 2 + y * h, imageWidth, 1);
+//			for (int x = 0; x < imageWidth / w + 1; x++) {
+//				graphics.fillRect(-Person.PERSON_X_SPACE / 2 + x * w, 0, 1, imageHeight);
+//				graphics.drawString(String.format("%d,%d", x, y), x * w + 2, -Person.PERSON_Y_SPACE / 2 + y * h + Person.PERSON_HEIGHT - Person.PERSON_Y_SPACE - 2);
+//			}
+//		}
+	}
+
 	private Male findFirstFather() {
 		Male firstFather = null;
 		for (Person p : personList) {
@@ -86,6 +100,7 @@ public abstract class Tree {
 		graphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 		graphics.setColor(Color.white);
 		graphics.fillRect(0, 0, imageWidth, imageHeight);
+		drawGrid(graphics, imageWidth, imageHeight);
 		draw(context, graphics);
 		try {
 			File outputfile = new File(imageFilenName);
@@ -102,7 +117,8 @@ public abstract class Tree {
 		for (Person spouse : spouseList) {
 			if (spouse.isMember()) {
 				// both parents are member of the family
-				if (!context.getParameterOptions().isFollowFemales() && person.isMale()) {
+				// ignore any clone that we already have converted
+				if (!context.getParameterOptions().isFollowFemales() && person.isMale() && !(spouse instanceof FemaleClone)) {
 					// create a clone of the spouse and shift all child relations to that clone
 					FemaleClone	clone			= new FemaleClone(spouse.personList, (Female) spouse);
 					PersonList	childrenList	= person.getChildrenList(spouse);
@@ -113,7 +129,7 @@ public abstract class Tree {
 					spouse = clone;
 					spouse.spouseIndex = spouseIndex++;
 					spouse.setSpouse(true);
-				} else if (context.getParameterOptions().isFollowFemales() && person.isFemale()) {
+				} else if (context.getParameterOptions().isFollowFemales() && person.isFemale() && !(spouse instanceof MaleClone)) {
 					// create a clone of the spouse and shift all child relations to that clone
 					MaleClone	clone			= new MaleClone(spouse.personList, (Male) spouse);
 					PersonList	childrenList	= person.getChildrenList(spouse);
@@ -157,6 +173,9 @@ public abstract class Tree {
 		firstFather.setFirstFather(true);
 		firstFather.generation = 0;
 		initAttribute(firstFather);
+		for (Person p : personList) {
+			p.validate();
+		}
 	}
 
 	private void initializePersonList(Context context) {

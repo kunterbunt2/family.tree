@@ -293,6 +293,21 @@ public abstract class DrawablePerson extends Person {
 			}
 		}
 		{
+			// clone
+			graphics.setColor(textColor);
+			graphics.setFont(nameFont);
+			if (this instanceof FemaleClone || this instanceof MaleClone) {
+				FontRenderContext	frc				= graphics.getFontRenderContext();
+				Font				font			= graphics.getFont();
+				String				string			= "*";
+				Rectangle2D			stringBounds	= font.getStringBounds(string, frc);
+				int					x2				= (int) (x1 + width - stringBounds.getWidth());
+				int					y2				= (int) (y1 + stringBounds.getHeight());
+				graphics.drawString(string, x2, y2);
+//				drawBorder(graphics, x2, y2, string);
+			}
+		}
+		{
 			// ID
 			graphics.setColor(textColor);
 			graphics.setFont(nameFont);
@@ -305,6 +320,23 @@ public abstract class DrawablePerson extends Person {
 			}
 		}
 		{
+			// Coordinates
+			graphics.setColor(Color.lightGray);
+			graphics.setFont(livedFont);
+			{
+				String				string			= String.format("%d,%d", x, y);
+				Font				font			= graphics.getFont();
+				FontRenderContext	frc				= graphics.getFontRenderContext();
+				LineMetrics			metrics			= font.getLineMetrics(string, frc);
+				Rectangle2D			stringBounds	= font.getStringBounds(string, frc);
+				int					x2				= (int) (x1 + width - stringBounds.getWidth() - 2);
+				int					y2				= y1 + height - 4;
+				graphics.drawString(string, x2, y2);
+//				drawBorder(graphics, x2, y2, string);
+			}
+		}
+		{
+			graphics.setColor(textColor);
 			graphics.setFont(livedFont);
 			FontRenderContext	frc		= graphics.getFontRenderContext();
 			Font				font	= graphics.getFont();
@@ -333,6 +365,28 @@ public abstract class DrawablePerson extends Person {
 //				float y2 = y1 + PERSON_HEIGHT / 2 + metrics.getHeight() / 2 - descent + h + h;
 				float		y2				= y1 + height - 4;
 				graphics.drawString(string, x2, y2);
+			}
+		}
+		{
+			// errors
+			graphics.setColor(Color.red);
+			graphics.setFont(livedFont);
+			{
+				if (errors.size() != 0) {
+					StringBuffer sb = new StringBuffer();
+					for (String s : errors) {
+						sb.append(s);
+						sb.append(",");
+					}
+					String				string			= sb.toString();
+					FontRenderContext	frc				= graphics.getFontRenderContext();
+					Font				font			= graphics.getFont();
+					Rectangle2D			stringBounds	= font.getStringBounds(string, frc);
+					int					x2				= x1 + 4;
+					int					y2				= (int) (y1 + height + stringBounds.getHeight() - 2);
+					graphics.drawString(string, x2, y2);
+//					drawBorder(graphics, x2, y2, string);
+				}
 			}
 		}
 	}

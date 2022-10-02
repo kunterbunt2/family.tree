@@ -2,6 +2,8 @@ package de.bushnaq.abdalla.family.person;
 
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.util.ArrayList;
+import java.util.List;
 
 import de.bushnaq.abdalla.family.Context;
 
@@ -14,9 +16,10 @@ public abstract class Person extends BasicFamilyMember {
 	public static final int	PERSON_Y_SPACE	= 12;
 	private Attribute		attribute		= new Attribute();
 	public Integer			childIndex		= null;
+	public List<String>		errors			= new ArrayList<>();
 	public Integer			generation		= null;
 	public int				height			= Person.PERSON_HEIGHT;
-//	public int				idWidth			= 0;
+	// public int idWidth = 0;
 	public Integer			nextPersonX		= -1;
 	public Integer			nextPersonY		= -1;
 	public PersonList		personList		= null;
@@ -33,6 +36,7 @@ public abstract class Person extends BasicFamilyMember {
 	public Person(PersonList personList, Person person) {
 		super(person);
 		this.personList = personList;
+		person.errors = errors;
 	}
 
 	public boolean bornBefore(Person person) {
@@ -237,6 +241,18 @@ public abstract class Person extends BasicFamilyMember {
 
 	public void setVisible(boolean child) {
 		this.attribute.visible = child;
+	}
+
+	public void validate() {
+		if (!isMember() && getLastName() != null && getLastName().toLowerCase().contains("bushnaq")) {
+			errors.add("a bushnaq with unknown origins");
+		}
+		if (getLastName() == null || getLastName().isEmpty() || getLastName().contains("?")) {
+			errors.add("missing last name");
+		}
+		if (getFirstName() == null || getFirstName().isEmpty() || getFirstName().contains("?")) {
+			errors.add("missing first name");
+		}
 	}
 
 }
