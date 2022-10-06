@@ -4,9 +4,13 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.font.FontRenderContext;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 
@@ -22,15 +26,18 @@ import de.bushnaq.abdalla.family.person.Person;
 import de.bushnaq.abdalla.family.person.PersonList;
 
 public abstract class Tree {
-	private Context	context;
-	int				iteration	= 0;
-	Font			livedFont	= new Font("Arial", Font.PLAIN, (Person.PERSON_HEIGHT - Person.PERSON_BORDER + 2 - Person.PERSON_MARGINE * 2) / 5);
-	final Logger	logger		= LoggerFactory.getLogger(this.getClass());
-	Font			nameFont	= new Font("Arial", Font.BOLD, (Person.PERSON_HEIGHT - Person.PERSON_BORDER + 2 - Person.PERSON_MARGINE * 2) / 4);
-	PersonList		personList;
+	protected Context	context;
+	public List<String>	errors		= new ArrayList<>();
+	int					iteration	= 0;
+	Font				livedFont;
+	final Logger		logger		= LoggerFactory.getLogger(this.getClass());
+	Font				nameFont;
+	PersonList			personList;
 
 	public Tree(Context context) {
 		this.context = context;
+		livedFont = new Font("Arial", Font.PLAIN, (Person.PERSON_HEIGHT - Person.PERSON_BORDER + 2 - Person.PERSON_MARGINE * 2) / 5);
+		nameFont = new Font("Arial", Font.BOLD, (Person.PERSON_HEIGHT - Person.PERSON_BORDER + 2 - Person.PERSON_MARGINE * 2) / 4);
 	}
 
 	abstract int calclateImageWidth();
@@ -39,15 +46,15 @@ public abstract class Tree {
 		for (Person p : personList) {
 			Integer integerMaxWidth = context.generationToMaxWidthMap.get(p.generation);
 			if (integerMaxWidth == null) {
-				context.generationToMaxWidthMap.put(p.generation, p.width);
+				context.generationToMaxWidthMap.put(p.generation, Person.getWidth(context));
 			} else {
-				if (p.width > integerMaxWidth)
-					context.generationToMaxWidthMap.put(p.generation, p.width);
+				if (Person.getWidth(context) > integerMaxWidth)
+					context.generationToMaxWidthMap.put(p.generation, Person.getWidth(context));
 			}
 		}
 	}
 
-	abstract int calculateImageHeight();
+	abstract int calculateImageHeight(Context context);
 
 	protected void calculateWidths() {
 		BufferedImage	image		= new BufferedImage(50, 50, BufferedImage.TYPE_INT_ARGB);
@@ -57,6 +64,19 @@ public abstract class Tree {
 	}
 
 	abstract void draw(Context context, Graphics2D graphics);
+
+	private void drawErrors(Graphics2D graphics, int imageWidth, int imageHeight) {
+		graphics.setFont(nameFont);
+		graphics.setColor(Color.red);
+		int y = imageHeight - 2;
+		for (String s : errors) {
+			Font				font			= graphics.getFont();
+			FontRenderContext	frc				= graphics.getFontRenderContext();
+			Rectangle2D			stringBounds	= font.getStringBounds(s, frc);
+			graphics.drawString(s, 2, y);
+			y -= stringBounds.getHeight();
+		}
+	}
 
 	private void drawGrid(Graphics2D graphics, int imageWidth, int imageHeight) {
 //		graphics.setFont(nameFont);
@@ -72,25 +92,21 @@ public abstract class Tree {
 //		}
 	}
 
-	private Male findFirstFather() {
-		Male firstFather = null;
+	private List<Male> findFirstFathers() {
+		List<Male> fathers = new ArrayList<>();
 		for (Person p : personList) {
-			if (p.isMale()) {
-				if (p.hasChildren()) {
-					if (firstFather == null || p.bornBefore(firstFather)) {
-						firstFather = (Male) p;
-					}
-				}
+			if (p.isRootFather(context)) {
+				fathers.add((Male) p);
 			}
 		}
-		return firstFather;
+		return fathers;
 	}
 
 	public BufferedImage generate(Context context, String familyName) throws Exception {
 		String imageFilenName = familyName + ".png";
 		initializePersonList(context);
 		int				imageWidth	= calclateImageWidth();
-		int				imageHeight	= calculateImageHeight();
+		int				imageHeight	= calculateImageHeight(context);
 		BufferedImage	aImage		= new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D		graphics	= aImage.createGraphics();
 		graphics.setFont(nameFont);
@@ -101,6 +117,7 @@ public abstract class Tree {
 		graphics.setColor(Color.white);
 		graphics.fillRect(0, 0, imageWidth, imageHeight);
 		drawGrid(graphics, imageWidth, imageHeight);
+		drawErrors(graphics, imageWidth, imageHeight);
 		draw(context, graphics);
 		try {
 			File outputfile = new File(imageFilenName);
@@ -115,7 +132,7 @@ public abstract class Tree {
 		PersonList	spouseList	= person.getSpouseList();
 		int			spouseIndex	= 0;
 		for (Person spouse : spouseList) {
-			if (spouse.isMember()) {
+			if (spouse.isMember(context)) {
 				// both parents are member of the family
 				// ignore any clone that we already have converted
 				if (!context.getParameterOptions().isFollowFemales() && person.isMale() && !(spouse instanceof FemaleClone)) {
@@ -169,12 +186,14 @@ public abstract class Tree {
 	}
 
 	private void initAttributes() {
-		Male firstFather = findFirstFather();
-		firstFather.setFirstFather(true);
-		firstFather.generation = 0;
-		initAttribute(firstFather);
+		List<Male> firstFathers = findFirstFathers();
+		for (Person firstFather : firstFathers) {
+			firstFather.setFirstFather(true);
+			firstFather.generation = 0;
+			initAttribute(firstFather);
+		}
 		for (Person p : personList) {
-			p.validate();
+			p.validate(context);
 		}
 	}
 
@@ -183,13 +202,21 @@ public abstract class Tree {
 		calculateWidths();
 		calculateGenrationMaxWidth();
 		position(context);
+		for (Person p : personList) {
+			if (!p.isVisible())
+				errors.add(String.format("Error #001: [%d]%s %s is not visible. A person is visible if he is member of the family or has children with someone from the family.", p.getId(), p.getFirstName(),
+						p.getLastName()));
+		}
 	}
 
 	private void position(Context context) {
-		Male firstFather = findFirstFather();
-		firstFather.x = 0;
-		firstFather.y = 0;
-		position(context, firstFather);
+		List<Male>	firstFathers	= findFirstFathers();
+		int			rootFatherIndex	= 0;
+		for (Person firstFather : firstFathers) {
+			firstFather.x = rootFatherIndex++ * 10;
+			firstFather.y = 0;
+			position(context, firstFather);
+		}
 	}
 
 	abstract int position(Context context, Person person);

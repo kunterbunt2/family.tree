@@ -17,23 +17,23 @@ public class VerticalTree extends Tree {
 		int	minX	= Integer.MAX_VALUE;
 		int	maxX	= Integer.MIN_VALUE;
 		for (Person p : personList) {
-			int x = p.x * (p.width + Person.PERSON_X_SPACE);
+			int x = p.x * (Person.getWidth(context) + Person.PERSON_X_SPACE);
 			minX = Math.min(minX, (x));
-			maxX = Math.max(maxX, x + p.width);
+			maxX = Math.max(maxX, x + Person.getWidth(context));
 		}
 		return maxX;
 	}
 
 	@Override
-	int calculateImageHeight() {
+	int calculateImageHeight(Context context) {
 		int	minY	= Integer.MAX_VALUE;
 		int	maxY	= Integer.MIN_VALUE;
 		for (Person p : personList) {
-			int y = p.y * (Person.PERSON_HEIGHT + Person.PERSON_Y_SPACE);
+			int y = p.y * (Person.getHeight(context) + Person.PERSON_Y_SPACE);
 			minY = Math.min(minY, y);
 			maxY = Math.max(maxY, y);
 		}
-		return maxY + Person.PERSON_HEIGHT;
+		return maxY + Person.getHeight(context);
 	}
 
 	@Override

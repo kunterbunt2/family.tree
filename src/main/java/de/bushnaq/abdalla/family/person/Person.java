@@ -8,25 +8,46 @@ import java.util.List;
 import de.bushnaq.abdalla.family.Context;
 
 public abstract class Person extends BasicFamilyMember {
-	public static final int	PERSON_BORDER	= 1;
-	public static final int	PERSON_HEIGHT	= 64;
-	public static final int	PERSON_MARGINE	= 4;
-	public static final int	PERSON_WIDTH	= 128;
-	public static final int	PERSON_X_SPACE	= 24;
-	public static final int	PERSON_Y_SPACE	= 12;
-	private Attribute		attribute		= new Attribute();
-	public Integer			childIndex		= null;
-	public List<String>		errors			= new ArrayList<>();
-	public Integer			generation		= null;
-	public int				height			= Person.PERSON_HEIGHT;
+	public static final int	PERSON_BORDER			= 1;
+	public static final int	PERSON_COMPACT_HEIGHT	= 32;
+	public static final int	PERSON_COMPACT_WIDTH	= 64;
+	public static final int	PERSON_HEIGHT			= 64;
+	public static final int	PERSON_MARGINE			= 4;
+	public static final int	PERSON_WIDTH			= 128;
+	public static final int	PERSON_X_SPACE			= 24;
+	public static final int	PERSON_Y_SPACE			= 12;
+
+	public static int getHeight(Context context) {
+		if (context.getParameterOptions().isCompact())
+			return PERSON_COMPACT_HEIGHT;
+		else
+			return PERSON_HEIGHT;
+	}
+
+	public static int getWidth(Context context) {
+		if (context.getParameterOptions().isCompact())
+			return PERSON_COMPACT_WIDTH;
+		else
+			return PERSON_WIDTH;
+	}
+
+	private Attribute	attribute	= new Attribute();
+	public Integer		childIndex	= null;
+
+	public List<String>	errors		= new ArrayList<>();
+
+	public Integer		generation	= null;
+//	private int			height					= Person.PERSON_HEIGHT_M;
 	// public int idWidth = 0;
-	public Integer			nextPersonX		= -1;
-	public Integer			nextPersonY		= -1;
-	public PersonList		personList		= null;
-	public Integer			spouseIndex		= null;
-	public int				width			= 0;
-	public int				x				= 0;
-	public int				y				= 0;
+	public Integer		nextPersonX	= -1;
+	public Integer		nextPersonY	= -1;
+	public PersonList	personList	= null;
+
+	public Integer		spouseIndex	= null;
+//	protected int		width		= 0;
+
+	public int			x			= 0;
+	public int			y			= 0;
 
 	public Person(PersonList personList, Integer id) {
 		super(id);
@@ -58,7 +79,7 @@ public abstract class Person extends BasicFamilyMember {
 //		width = Math.max(width, graphics.getFontMetrics().stringWidth(getBornString()));
 //		width = Math.max(width, graphics.getFontMetrics().stringWidth(getDiedString()));
 //		width += Person.PERSON_MARGINE * 2 + Person.PERSON_BORDER * 2 + idWidth;
-		width = PERSON_WIDTH;
+//		width = PERSON_WIDTH;
 	}
 
 	public abstract void drawHorizontal(Context context, Graphics2D graphics, Font nameFont, Font livedFont);
@@ -185,9 +206,9 @@ public abstract class Person extends BasicFamilyMember {
 		return attribute.firstChild;
 	}
 
-	public boolean isFirstFather() {
-		return attribute.firstFather;
-	}
+//	public boolean isFirstFather() {
+//		return attribute.firstFather;
+//	}
 
 	public boolean isLastChild() {
 		return attribute.lastChild;
@@ -195,8 +216,37 @@ public abstract class Person extends BasicFamilyMember {
 
 	public abstract boolean isMale();
 
-	public boolean isMember() {
-		return getFather() != null || getMother() != null || isFirstFather() || (this instanceof FemaleClone) || (this instanceof MaleClone);
+	public boolean isMember(Context context) {
+		if ((getFather() != null) || (getMother() != null) || (this instanceof FemaleClone) || (this instanceof MaleClone))
+			return true;
+		// not children with spouse that has parents
+		for (Person spouse : getSpouseList()) {
+			if (spouse.getFather() != null || spouse.getMother() != null)
+				return false;
+			if (spouse.isRootFather(context))
+				return false;
+		}
+		return true;
+//		return getFather() != null || getMother() != null || isFirstFather() || (this instanceof FemaleClone) || (this instanceof MaleClone);
+	}
+
+	/**
+	 * definition of root father = is male, has no parents, is a member of the family, has children with a spouse that has no parents
+	 *
+	 * @return
+	 */
+	public boolean isRootFather(Context context) {
+		if (isFemale() || (getFather() != null) || (getMother() != null) || !isMember(context))
+			return false;
+		for (Person spouse : getSpouseList()) {
+			if (spouse.getFather() != null || spouse.getMother() != null)
+				return false;
+		}
+
+		if (context.getParameterOptions().getFamilyName() == null || !getLastName().toLowerCase().contains(context.getParameterOptions().getFamilyName().toLowerCase())) {
+			return false;
+		}
+		return true;
 	}
 
 	public boolean isSpouse() {
@@ -243,14 +293,14 @@ public abstract class Person extends BasicFamilyMember {
 		this.attribute.visible = child;
 	}
 
-	public void validate() {
-		if (!isMember() && getLastName() != null && getLastName().toLowerCase().contains("bushnaq")) {
+	public void validate(Context context) {
+		if (!isMember(context) && getLastName() != null && getLastName().toLowerCase().contains("bushnaq")) {
 			errors.add("a bushnaq with unknown origins");
 		}
-		if (getLastName() == null || getLastName().isEmpty() || getLastName().contains("?")) {
+		if (getLastName() == null || getLastName().isEmpty()) {
 			errors.add("missing last name");
 		}
-		if (getFirstName() == null || getFirstName().isEmpty() || getFirstName().contains("?")) {
+		if (getFirstName() == null || getFirstName().isEmpty()) {
 			errors.add("missing first name");
 		}
 	}

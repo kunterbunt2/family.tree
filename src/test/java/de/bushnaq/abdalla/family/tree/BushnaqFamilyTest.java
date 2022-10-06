@@ -43,7 +43,12 @@ public class BushnaqFamilyTest extends Base {
 
 	@Test
 	public void generateVertical() throws Exception {
-		generate(new String[] { "-input", buildFileName() });
+		generate(new String[] { "-input", buildFileName(), "-family_name", "bushnaq" });
+	}
+
+	@Test
+	public void generateVerticalCompact() throws Exception {
+		generate(new String[] { "-input", buildFileName(), "-family_name", "bushnaq", "-c" });
 	}
 
 	@Test

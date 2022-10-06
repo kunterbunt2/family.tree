@@ -39,6 +39,12 @@ public class Main {
 			if (context.getParameterOptions().isV()) {
 				outputDecorator += "-v";
 			}
+			if (context.getParameterOptions().isCompact()) {
+				outputDecorator += "-c";
+			}
+			if (context.getParameterOptions().isCoordinates()) {
+				outputDecorator += "-coordinates";
+			}
 			if (context.getParameterOptions().isFollowFemales()) {
 				outputDecorator += "-ff";
 			}

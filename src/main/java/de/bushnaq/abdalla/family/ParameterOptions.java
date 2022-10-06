@@ -10,7 +10,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ParameterOptions {
+	private static final String	CLI_OPTION_COMPACT					= "c";
+	private static final String	CLI_OPTION_COORDINATES				= "coordinates";
 	private static final String	CLI_OPTION_EXCLUDE_SPOUSE			= "exclude_spouse";
+	private static final String	CLI_OPTION_FAMILY_NAME				= "family_name";
 	private static final String	CLI_OPTION_FOLLOW_FEMALES			= "follow_females";
 	private static final String	CLI_OPTION_FOLLOW_OL				= "ol";
 	private static final String	CLI_OPTION_H						= "h";
@@ -18,14 +21,22 @@ public class ParameterOptions {
 	private static final String	CLI_OPTION_OUTPUT_FILE_DECORATIONS	= "output_decorations";
 	private static final String	CLI_OPTION_V						= "v";
 
+	private boolean				compact								= false;									// compact tree (no birth, died, ID)
+	private boolean				coordinates							= false;									// enable coordinates
 	private boolean				excludeSpouse						= false;									// excluded the spouse in the tree if true otherwise do not include them
+	private String				familyName;
 	private boolean				followFemales						= false;									// children will be shown under the mother if both parents are member of the family
 	private boolean				h									= false;									// draw a horizontal tree if true
 	private String				input;																			// input excel file
 	private final Logger		logger								= LoggerFactory.getLogger(this.getClass());
 	private boolean				originalLanguage					= false;									// use original language fields for fist name and last name
 	private String				outputDecorator						= "";										// additional decorations for the output file name
+
 	private boolean				v									= true;										// vertical tree mode
+
+	public String getFamilyName() {
+		return familyName;
+	}
 
 	public String getInput() {
 		return input;
@@ -33,6 +44,14 @@ public class ParameterOptions {
 
 	public String getOutputDecorator() {
 		return outputDecorator;
+	}
+
+	public boolean isCompact() {
+		return compact;
+	}
+
+	public boolean isCoordinates() {
+		return coordinates;
 	}
 
 	public boolean isExcludeSpouse() {
@@ -68,12 +87,15 @@ public class ParameterOptions {
 		resetOptions();
 		Options options = new Options();
 		options.addOption(Option.builder(CLI_OPTION_INPUT).hasArgs().desc("Input excel file name. This parameter is not optional.").build());
+		options.addOption(Option.builder(CLI_OPTION_FAMILY_NAME).hasArgs().desc("Family name used to pic root of family. This parameter is optional.").optionalArg(true).build());
 		options.addOption(Option.builder(CLI_OPTION_OUTPUT_FILE_DECORATIONS).hasArgs().desc("Output file name decorations. This parameter is optional.").optionalArg(true).build());
 		options.addOption(Option.builder(CLI_OPTION_H).desc("Generte horizontal tree. This parameter is optional. Default is false.").optionalArg(true).build());
 		options.addOption(Option.builder(CLI_OPTION_V).desc("Generte vertical tree. This parameter is optional. This parameter is optional. Default is true.").optionalArg(true).build());
 		options.addOption(Option.builder(CLI_OPTION_EXCLUDE_SPOUSE).desc("Exclude spouses if true. This parameter is optional. Default is false.").build());
 		options.addOption(Option.builder(CLI_OPTION_FOLLOW_FEMALES).desc("If children can be visualized with the father or the mother, this parameter will decide. This parameter is optional. Default is false.").build());
 		options.addOption(Option.builder(CLI_OPTION_FOLLOW_OL).desc("Use original language for first name and last name if they exist. This parameter is optional. Default is false.").build());
+		options.addOption(Option.builder(CLI_OPTION_COMPACT).desc("Generte compact tree. This parameter is optional. This parameter is optional. Default is false.").optionalArg(true).build());
+		options.addOption(Option.builder(CLI_OPTION_COORDINATES).desc("Generte coordinates. This parameter is optional. This parameter is optional. Default is false.").optionalArg(true).build());
 
 		// create the parser
 		CommandLineParser	parser	= new DefaultParser();
@@ -97,6 +119,18 @@ public class ParameterOptions {
 			logger.info("horizontal tree mode enabled.");
 		} else {
 			logger.info("horizontal tree mode disabled.");
+		}
+		if (line.hasOption(CLI_OPTION_COMPACT)) {
+			compact = true;
+			logger.info("compact tree enabled.");
+		} else {
+			logger.info("compact tree disabled.");
+		}
+		if (line.hasOption(CLI_OPTION_COORDINATES) && !compact) {
+			coordinates = true;
+			logger.info("coordinates enabled.");
+		} else {
+			logger.info("coordinates disabled.");
 		}
 
 		if (line.hasOption(CLI_OPTION_V)) {
@@ -126,6 +160,10 @@ public class ParameterOptions {
 			logger.info("original language mode enabled.");
 		} else {
 			logger.info("original language mode disabled.");
+		}
+		if (line.hasOption(CLI_OPTION_FAMILY_NAME)) {
+			familyName = line.getOptionValue(CLI_OPTION_FAMILY_NAME);
+		} else {
 		}
 	}
 
