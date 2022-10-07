@@ -36,8 +36,12 @@ public abstract class Tree {
 
 	public Tree(Context context) {
 		this.context = context;
+
 		livedFont = new Font("Arial", Font.PLAIN, (Person.PERSON_HEIGHT - Person.PERSON_BORDER + 2 - Person.PERSON_MARGINE * 2) / 5);
-		nameFont = new Font("Arial", Font.BOLD, (Person.PERSON_HEIGHT - Person.PERSON_BORDER + 2 - Person.PERSON_MARGINE * 2) / 4);
+		if (context.getParameterOptions().isCompact())
+			nameFont = new Font("Arial", Font.PLAIN, (Person.PERSON_HEIGHT - Person.PERSON_BORDER + 2 - Person.PERSON_MARGINE * 2) / 4);
+		else
+			nameFont = new Font("Arial", Font.BOLD, (Person.PERSON_HEIGHT - Person.PERSON_BORDER + 2 - Person.PERSON_MARGINE * 2) / 4);
 	}
 
 	abstract int calclateImageWidth();

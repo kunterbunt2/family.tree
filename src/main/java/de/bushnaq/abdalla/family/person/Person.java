@@ -8,14 +8,16 @@ import java.util.List;
 import de.bushnaq.abdalla.family.Context;
 
 public abstract class Person extends BasicFamilyMember {
-	public static final int	PERSON_BORDER			= 1;
-	public static final int	PERSON_COMPACT_HEIGHT	= 32;
-	public static final int	PERSON_COMPACT_WIDTH	= 64;
-	public static final int	PERSON_HEIGHT			= 64;
-	public static final int	PERSON_MARGINE			= 4;
-	public static final int	PERSON_WIDTH			= 128;
-	public static final int	PERSON_X_SPACE			= 24;
-	public static final int	PERSON_Y_SPACE			= 12;
+	public static final int		PERSON_BORDER			= 1;
+	public static final int		PERSON_COMPACT_HEIGHT	= 32;
+	public static final int		PERSON_COMPACT_WIDTH	= 64;
+	private static final int	PERSON_COMPACT_X_SPACE	= 7;
+	private static final int	PERSON_COMPACT_Y_SPACE	= 5;
+	public static final int		PERSON_HEIGHT			= 64;
+	public static final int		PERSON_MARGINE			= 4;
+	public static final int		PERSON_WIDTH			= 128;
+	private static final int	PERSON_X_SPACE			= 24;
+	private static final int	PERSON_Y_SPACE			= 12;
 
 	public static int getHeight(Context context) {
 		if (context.getParameterOptions().isCompact())
@@ -29,6 +31,20 @@ public abstract class Person extends BasicFamilyMember {
 			return PERSON_COMPACT_WIDTH;
 		else
 			return PERSON_WIDTH;
+	}
+
+	public static int getXSpace(Context context) {
+		if (context.getParameterOptions().isCompact())
+			return PERSON_COMPACT_X_SPACE;
+		else
+			return PERSON_X_SPACE;
+	}
+
+	public static int getYSpace(Context context) {
+		if (context.getParameterOptions().isCompact())
+			return PERSON_COMPACT_Y_SPACE;
+		else
+			return PERSON_Y_SPACE;
 	}
 
 	private Attribute	attribute	= new Attribute();
@@ -221,9 +237,7 @@ public abstract class Person extends BasicFamilyMember {
 			return true;
 		// not children with spouse that has parents
 		for (Person spouse : getSpouseList()) {
-			if (spouse.getFather() != null || spouse.getMother() != null)
-				return false;
-			if (spouse.isRootFather(context))
+			if (spouse.getFather() != null || spouse.getMother() != null || spouse.isRootFather(context))
 				return false;
 		}
 		return true;

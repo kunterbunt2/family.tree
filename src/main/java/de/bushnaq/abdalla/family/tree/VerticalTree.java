@@ -17,7 +17,7 @@ public class VerticalTree extends Tree {
 		int	minX	= Integer.MAX_VALUE;
 		int	maxX	= Integer.MIN_VALUE;
 		for (Person p : personList) {
-			int x = p.x * (Person.getWidth(context) + Person.PERSON_X_SPACE);
+			int x = p.x * (Person.getWidth(context) + Person.getXSpace(context));
 			minX = Math.min(minX, (x));
 			maxX = Math.max(maxX, x + Person.getWidth(context));
 		}
@@ -29,7 +29,7 @@ public class VerticalTree extends Tree {
 		int	minY	= Integer.MAX_VALUE;
 		int	maxY	= Integer.MIN_VALUE;
 		for (Person p : personList) {
-			int y = p.y * (Person.getHeight(context) + Person.PERSON_Y_SPACE);
+			int y = p.y * (Person.getHeight(context) + Person.getYSpace(context));
 			minY = Math.min(minY, y);
 			maxY = Math.max(maxY, y);
 		}

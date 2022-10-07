@@ -49,7 +49,7 @@ public class HorizontalTree extends Tree {
 			if (person.getSpouseList().size() == 1)
 				pX = (person.x);
 			else
-				pX = person.x + Person.getWidth(context) + Person.PERSON_X_SPACE;
+				pX = person.x + Person.getWidth(context) + Person.getXSpace(context);
 			person.nextPersonX = pX;
 			PersonList spouseList = person.getSpouseList();
 //			int			childIndex	= 0;
@@ -59,7 +59,7 @@ public class HorizontalTree extends Tree {
 //				}
 
 				if (person.getSpouseList().size() == 1)
-					spouse.x = pX + Person.getWidth(context) + Person.PERSON_X_SPACE;
+					spouse.x = pX + Person.getWidth(context) + Person.getXSpace(context);
 				else
 					spouse.x = pX;
 				spouse.y = person.y;
@@ -80,11 +80,11 @@ public class HorizontalTree extends Tree {
 //						child.setLastChild(true);
 //					}
 					child.x = pX;
-					child.y = spouse.y + Person.getHeight(context) + Person.PERSON_Y_SPACE;
+					child.y = spouse.y + Person.getHeight(context) + Person.getYSpace(context);
 					pX = position(context, child);
 				}
 				if (person.getSpouseList().size() == 1) {
-					pX = Math.max(pX, spouse.x + Person.getWidth(context) + Person.PERSON_X_SPACE);
+					pX = Math.max(pX, spouse.x + Person.getWidth(context) + Person.getXSpace(context));
 					person.nextPersonX = pX;
 					spouse.nextPersonX = pX;
 				} else {
@@ -99,7 +99,7 @@ public class HorizontalTree extends Tree {
 			if (person.hasChildren())
 				pX = (person.x);
 			else
-				pX = person.x + Person.getWidth(context) + Person.PERSON_X_SPACE;
+				pX = person.x + Person.getWidth(context) + Person.getXSpace(context);
 			person.nextPersonX = pX;
 //			int childIndex = 0;
 			for (Person child : childrenList) {
@@ -113,10 +113,10 @@ public class HorizontalTree extends Tree {
 //					child.setLastChild(true);
 //				}
 				child.x = pX;
-				child.y = person.y + Person.getHeight(context) + Person.PERSON_Y_SPACE;
+				child.y = person.y + Person.getHeight(context) + Person.getYSpace(context);
 				pX = position(context, child);
 			}
-			pX = Math.max(pX, person.x + Person.getWidth(context) + Person.PERSON_X_SPACE);
+			pX = Math.max(pX, person.x + Person.getWidth(context) + Person.getXSpace(context));
 			person.nextPersonX = pX;
 			return (pX);
 		}
