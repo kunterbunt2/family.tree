@@ -7,6 +7,7 @@ import de.bushnaq.abdalla.family.person.Person;
 import de.bushnaq.abdalla.family.person.PersonList;
 
 public class HorizontalTree extends Tree {
+
 	public HorizontalTree(Context context) {
 		super(context);
 	}
@@ -16,8 +17,9 @@ public class HorizontalTree extends Tree {
 		int	minX	= Integer.MAX_VALUE;
 		int	maxX	= Integer.MIN_VALUE;
 		for (Person p : personList) {
-			minX = Math.min(minX, (p.x));
-			maxX = Math.max(maxX, p.x + Person.getWidth(context));
+			int x = p.x * (Person.getWidth(context) + Person.getXSpace(context));
+			minX = Math.min(minX, (x));
+			maxX = Math.max(maxX, x + Person.getWidth(context));
 		}
 		return maxX;
 	}
@@ -27,8 +29,9 @@ public class HorizontalTree extends Tree {
 		int	minY	= Integer.MAX_VALUE;
 		int	maxY	= Integer.MIN_VALUE;
 		for (Person p : personList) {
-			minY = Math.min(minY, p.y);
-			maxY = Math.max(maxY, p.y);
+			int y = p.y * (Person.getHeight(context) + Person.getYSpace(context));
+			minY = Math.min(minY, y);
+			maxY = Math.max(maxY, y);
 		}
 		return maxY + Person.getHeight(context);
 	}
@@ -43,83 +46,78 @@ public class HorizontalTree extends Tree {
 	@Override
 	int position(Context context, Person person) {
 		person.setVisible(true);
-//		person.attribute.member = true;
-		if (!context.getParameterOptions().isExcludeSpouse()) {
-			int pX;
-			if (person.getSpouseList().size() == 1)
-				pX = (person.x);
-			else
-				pX = person.x + Person.getWidth(context) + Person.getXSpace(context);
-			person.nextPersonX = pX;
-			PersonList spouseList = person.getSpouseList();
-//			int			childIndex	= 0;
-			for (Person spouse : spouseList) {
-//				if (person.isLastChild()) {
-//					spouse.setSpouseOfLastChild(true);
-//				}
-
-				if (person.getSpouseList().size() == 1)
-					spouse.x = pX + Person.getWidth(context) + Person.getXSpace(context);
-				else
-					spouse.x = pX;
-				spouse.y = person.y;
-//				spouse.setSpouse(true);
-				person.nextPersonX = pX;
-				// children
-//				boolean		firstChild		= true;
-				PersonList childrenList = person.getChildrenList(spouse);
-				for (Person child : childrenList) {
-//					child.childIndex = childIndex++;
-					spouse.setVisible(true);
-//					child.setIsChild(true);
-//					if (firstChild) {
-//						child.setFirstChild(true);
-//						firstChild = false;
-//					}
-//					if (child.equals(childrenList.last())) {
-//						child.setLastChild(true);
-//					}
-					child.x = pX;
-					child.y = spouse.y + Person.getHeight(context) + Person.getYSpace(context);
-					pX = position(context, child);
-				}
-				if (person.getSpouseList().size() == 1) {
-					pX = Math.max(pX, spouse.x + Person.getWidth(context) + Person.getXSpace(context));
-					person.nextPersonX = pX;
-					spouse.nextPersonX = pX;
-				} else {
-					spouse.nextPersonX = pX;
-				}
-			}
-			return pX;
-		} else {
-			int			pX;
-//			boolean		firstChild		= true;
-			PersonList	childrenList	= person.getChildrenList();
-			if (person.hasChildren())
-				pX = (person.x);
-			else
-				pX = person.x + Person.getWidth(context) + Person.getXSpace(context);
-			person.nextPersonX = pX;
-//			int childIndex = 0;
+		int pX = person.x;
+		if (!person.hasChildren())
+			pX = person.x + 1;
+		PersonList spouseList = person.getSpouseList();
+		for (Person spouse : spouseList) {
+			spouse.y = person.y + 1;
+			spouse.x = pX;
+			// children
+			PersonList childrenList = person.getChildrenList(spouse);
 			for (Person child : childrenList) {
-//				child.childIndex = childIndex++;
-//				child.setIsChild(true);
-//				if (firstChild) {
-//					child.setFirstChild(true);
-//					firstChild = false;
-//				}
-//				if (child.equals(childrenList.last())) {
-//					child.setLastChild(true);
-//				}
+				if (!context.getParameterOptions().isExcludeSpouse()) {
+					spouse.setVisible(true);
+					child.y = spouse.y + 1;
+				} else {
+					child.y = person.y + 1;
+				}
 				child.x = pX;
-				child.y = person.y + Person.getHeight(context) + Person.getYSpace(context);
 				pX = position(context, child);
 			}
-			pX = Math.max(pX, person.x + Person.getWidth(context) + Person.getXSpace(context));
-			person.nextPersonX = pX;
-			return (pX);
 		}
+		return pX;
+//		person.setVisible(true);
+//		if (!context.getParameterOptions().isExcludeSpouse()) {
+//			int pX;
+//			if (person.getSpouseList().size() == 1)
+//				pX = (person.x);
+//			else
+//				pX = person.x + Person.getWidth(context) + Person.getXSpace(context);
+//			person.nextPersonX = pX;
+//			PersonList spouseList = person.getSpouseList();
+//			for (Person spouse : spouseList) {
+//
+//				if (person.getSpouseList().size() == 1)
+//					spouse.x = pX + Person.getWidth(context) + Person.getXSpace(context);
+//				else
+//					spouse.x = pX;
+//				spouse.y = person.y;
+//				person.nextPersonX = pX;
+//				// children
+//				PersonList childrenList = person.getChildrenList(spouse);
+//				for (Person child : childrenList) {
+//					spouse.setVisible(true);
+//					child.x = pX;
+//					child.y = spouse.y + Person.getHeight(context) + Person.getYSpace(context);
+//					pX = position(context, child);
+//				}
+//				if (person.getSpouseList().size() == 1) {
+//					pX = Math.max(pX, spouse.x + Person.getWidth(context) + Person.getXSpace(context));
+//					person.nextPersonX = pX;
+//					spouse.nextPersonX = pX;
+//				} else {
+//					spouse.nextPersonX = pX;
+//				}
+//			}
+//			return pX;
+//		} else {
+//			int			pX;
+//			PersonList	childrenList	= person.getChildrenList();
+//			if (person.hasChildren())
+//				pX = (person.x);
+//			else
+//				pX = person.x + Person.getWidth(context) + Person.getXSpace(context);
+//			person.nextPersonX = pX;
+//			for (Person child : childrenList) {
+//				child.x = pX;
+//				child.y = person.y + Person.getHeight(context) + Person.getYSpace(context);
+//				pX = position(context, child);
+//			}
+//			pX = Math.max(pX, person.x + Person.getWidth(context) + Person.getXSpace(context));
+//			person.nextPersonX = pX;
+//			return (pX);
+//		}
 	}
 
 }

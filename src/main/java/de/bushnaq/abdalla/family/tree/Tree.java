@@ -217,8 +217,16 @@ public abstract class Tree {
 		List<Male>	firstFathers	= findFirstFathers();
 		int			rootFatherIndex	= 0;
 		for (Person firstFather : firstFathers) {
-			firstFather.x = rootFatherIndex++ * 10;
-			firstFather.y = 0;
+			if (context.getParameterOptions().isV())
+			{
+				firstFather.x = rootFatherIndex++ * 10;
+				firstFather.y = 0;
+			}
+			else
+			{
+				firstFather.x = 0;
+				firstFather.y = rootFatherIndex++ * 10;
+			}
 			position(context, firstFather);
 		}
 	}

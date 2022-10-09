@@ -23,22 +23,27 @@ public class BushnaqFamilyTest extends Base {
 
 	@Test
 	public void generateHorizontal() throws Exception {
-		generate(new String[] { "-input", buildFileName(), "-h" });
+		generate(new String[] { "-input", buildFileName(), "-family_name", "bushnaq", "-h" });
+	}
+
+	@Test
+	public void generateHorizontalCompact() throws Exception {
+		generate(new String[] { "-input", buildFileName(), "-family_name", "bushnaq", "-h", "-c" });
 	}
 
 	@Test
 	public void generateHorizontalFollowFemale() throws Exception {
-		generate(new String[] { "-input", buildFileName(), "-h", "-follow_females" });
+		generate(new String[] { "-input", buildFileName(), "-family_name", "bushnaq", "-h", "-follow_females" });
 	}
 
 	@Test
 	public void generateHorizontalFollowFemaleWithoutSpouse() throws Exception {
-		generate(new String[] { "-input", buildFileName(), "-h", "-follow_females", "-exclude_spouse" });
+		generate(new String[] { "-input", buildFileName(), "-family_name", "bushnaq", "-h", "-follow_females", "-exclude_spouse" });
 	}
 
 	@Test
 	public void generateHorizontalWithoutSpouse() throws Exception {
-		generate(new String[] { "-input", buildFileName(), "-h", "-exclude_spouse" });
+		generate(new String[] { "-input", buildFileName(), "-family_name", "bushnaq", "-h", "-exclude_spouse" });
 	}
 
 	@Test
@@ -53,22 +58,22 @@ public class BushnaqFamilyTest extends Base {
 
 	@Test
 	public void generateVerticalFollowFemale() throws Exception {
-		generate(new String[] { "-input", buildFileName(), "-follow_females" });
+		generate(new String[] { "-input", buildFileName(), "-family_name", "bushnaq", "-follow_females" });
 	}
 
 	@Test
 	public void generateVerticalFollowFemaleWithoutSpouse() throws Exception {
-		generate(new String[] { "-input", buildFileName(), "-follow_females", "-exclude_spouse" });
+		generate(new String[] { "-input", buildFileName(), "-family_name", "bushnaq", "-follow_females", "-exclude_spouse" });
 	}
 
 	@Test
 	public void generateVerticalOL() throws Exception {
-		generate(new String[] { "-input", buildFileName(), "-ol" });
+		generate(new String[] { "-input", buildFileName(), "-family_name", "bushnaq", "-ol" });
 	}
 
 	@Test
 	public void generateVerticalWithoutSpouse() throws Exception {
-		generate(new String[] { "-input", buildFileName(), "-exclude_spouse" });
+		generate(new String[] { "-input", buildFileName(), "-family_name", "bushnaq", "-exclude_spouse" });
 	}
 
 }

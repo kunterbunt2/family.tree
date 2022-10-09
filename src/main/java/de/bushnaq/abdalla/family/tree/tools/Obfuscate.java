@@ -43,8 +43,10 @@ public class Obfuscate extends BasicExcelReader {
 			switch (cell.getCellType()) {
 			case STRING:
 				return ObfuscatingBase.obfuscateString(cell.getStringCellValue());
+			case BLANK:
+				return null;
 			default:
-				throw new Exception(String.format("Expected String cell value at %s", ExcelUtil.cellReference(cell)));
+				throw new Exception(String.format("Expected String cell value at %s instead found %s", ExcelUtil.cellReference(cell), cell.getCellType().name()));
 			}
 		}
 		return null;

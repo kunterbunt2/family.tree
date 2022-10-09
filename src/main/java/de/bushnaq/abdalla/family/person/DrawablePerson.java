@@ -45,194 +45,194 @@ public abstract class DrawablePerson extends Person {
 	@Override
 	public void drawHorizontal(Context context, Graphics2D graphics, Font nameFont, Font livedFont) {
 		if (isVisible()) {
-			drawHorizontalBox(context, graphics, nameFont, livedFont);
+			drawBox(context, graphics, nameFont, livedFont);
 			drawHorizontalConnectors(context, graphics);
 		}
 	}
 
-	private void drawHorizontalBox(Context context, Graphics2D graphics, Font nameFont, Font livedFont) {
-		int	mapX1	= x;
-		int	mapX2	= x + getWidth(context);
-		int	mapY1	= y;
-		int	mapY2	= y + getHeight(context);
-		graphics.setColor(backgroundColor);
-		graphics.fillRect(mapX1, mapY1, mapX2 - mapX1, mapY2 - mapY1);
-		graphics.setColor(borderColor);
-		graphics.drawRect(mapX1, mapY1, mapX2 - mapX1 - 1, mapY2 - mapY1 - 1);
-		graphics.setColor(textColor);
-		{
-			// first name
-			{
-				graphics.setFont(nameFont);
-				FontRenderContext	frc				= graphics.getFontRenderContext();
-				Font				font			= graphics.getFont();
-				String				string			= getFirstNameAsString(context);
-				LineMetrics			metrics			= font.getLineMetrics(string, frc);
-				float				descent			= metrics.getDescent();
-				Rectangle2D			stringBounds	= font.getStringBounds(string, frc);
-				float				w				= (float) stringBounds.getWidth();
-				float				h				= metrics.getHeight();
-				graphics.drawString(string, x + (getWidth(context)) / 2 - w / 2, y + getHeight(context) / 2 + metrics.getHeight() / 2 - descent - h);
-			}
-			// last name
-			{
-				graphics.setFont(nameFont);
-				FontRenderContext	frc				= graphics.getFontRenderContext();
-				Font				font			= graphics.getFont();
-				String				string			= getLastNameAsString(context);
-				LineMetrics			metrics			= font.getLineMetrics(string, frc);
-				float				descent			= metrics.getDescent();
-				Rectangle2D			stringBounds	= font.getStringBounds(string, frc);
-				float				w				= (float) stringBounds.getWidth();
-//				float		h				= (float) stringBounds.getHeight();
-				graphics.drawString(string, x + (getWidth(context)) / 2 - w / 2, y + getHeight(context) / 2 + metrics.getHeight() / 2 - descent);
-			}
-		}
-		{
-			// ID
-			graphics.setFont(livedFont);
-			FontRenderContext	frc		= graphics.getFontRenderContext();
-			Font				font	= graphics.getFont();
-			{
-				String		string	= "" + getId();
-				LineMetrics	metrics	= font.getLineMetrics(string, frc);
-				graphics.drawString(string, x + 2, y + metrics.getHeight());
-			}
-		}
-		{
-			graphics.setFont(livedFont);
-			FontRenderContext	frc		= graphics.getFontRenderContext();
-			Font				font	= graphics.getFont();
-			// born
-			{
-				String		string			= getBornString();
-				LineMetrics	metrics			= font.getLineMetrics(string, frc);
-				float		descent			= metrics.getDescent();
-				Rectangle2D	stringBounds	= font.getStringBounds(string, frc);
-				float		w				= (float) stringBounds.getWidth();
-				float		h				= (float) stringBounds.getHeight();
-				graphics.drawString(string, x + (getWidth(context)) / 2 - w / 2, y + getHeight(context) / 2 + metrics.getHeight() / 2 - descent + h);
-			}
+//	private void drawHorizontalBox(Context context, Graphics2D graphics, Font nameFont, Font livedFont) {
+//		int	mapX1	= x;
+//		int	mapX2	= x + getWidth(context);
+//		int	mapY1	= y;
+//		int	mapY2	= y + getHeight(context);
+//		graphics.setColor(backgroundColor);
+//		graphics.fillRect(mapX1, mapY1, mapX2 - mapX1, mapY2 - mapY1);
+//		graphics.setColor(borderColor);
+//		graphics.drawRect(mapX1, mapY1, mapX2 - mapX1 - 1, mapY2 - mapY1 - 1);
+//		graphics.setColor(textColor);
+//		{
+//			// first name
 //			{
-//				String		string			= "-";
+//				graphics.setFont(nameFont);
+//				FontRenderContext	frc				= graphics.getFontRenderContext();
+//				Font				font			= graphics.getFont();
+//				String				string			= getFirstNameAsString(context);
+//				LineMetrics			metrics			= font.getLineMetrics(string, frc);
+//				float				descent			= metrics.getDescent();
+//				Rectangle2D			stringBounds	= font.getStringBounds(string, frc);
+//				float				w				= (float) stringBounds.getWidth();
+//				float				h				= metrics.getHeight();
+//				graphics.drawString(string, x + (getWidth(context)) / 2 - w / 2, y + getHeight(context) / 2 + metrics.getHeight() / 2 - descent - h);
+//			}
+//			// last name
+//			{
+//				graphics.setFont(nameFont);
+//				FontRenderContext	frc				= graphics.getFontRenderContext();
+//				Font				font			= graphics.getFont();
+//				String				string			= getLastNameAsString(context);
+//				LineMetrics			metrics			= font.getLineMetrics(string, frc);
+//				float				descent			= metrics.getDescent();
+//				Rectangle2D			stringBounds	= font.getStringBounds(string, frc);
+//				float				w				= (float) stringBounds.getWidth();
+////				float		h				= (float) stringBounds.getHeight();
+//				graphics.drawString(string, x + (getWidth(context)) / 2 - w / 2, y + getHeight(context) / 2 + metrics.getHeight() / 2 - descent);
+//			}
+//		}
+//		{
+//			// ID
+//			graphics.setFont(livedFont);
+//			FontRenderContext	frc		= graphics.getFontRenderContext();
+//			Font				font	= graphics.getFont();
+//			{
+//				String		string	= "" + getId();
+//				LineMetrics	metrics	= font.getLineMetrics(string, frc);
+//				graphics.drawString(string, x + 2, y + metrics.getHeight());
+//			}
+//		}
+//		{
+//			graphics.setFont(livedFont);
+//			FontRenderContext	frc		= graphics.getFontRenderContext();
+//			Font				font	= graphics.getFont();
+//			// born
+//			{
+//				String		string			= getBornString();
 //				LineMetrics	metrics			= font.getLineMetrics(string, frc);
 //				float		descent			= metrics.getDescent();
 //				Rectangle2D	stringBounds	= font.getStringBounds(string, frc);
 //				float		w				= (float) stringBounds.getWidth();
 //				float		h				= (float) stringBounds.getHeight();
-//				graphics.drawString(string, x + width / 2 - w / 2, y + PERSON_HEIGHT / 2 + metrics.getHeight() / 2 - descent + h);
+//				graphics.drawString(string, x + (getWidth(context)) / 2 - w / 2, y + getHeight(context) / 2 + metrics.getHeight() / 2 - descent + h);
 //			}
-			// died
-			{
-				String		string			= getDiedString();
-				LineMetrics	metrics			= font.getLineMetrics(string, frc);
-				float		descent			= metrics.getDescent();
-				Rectangle2D	stringBounds	= font.getStringBounds(string, frc);
-				float		w				= (float) stringBounds.getWidth();
-				float		h				= (float) stringBounds.getHeight();
-				graphics.drawString(string, x + (getWidth(context)) / 2 - w / 2, y + getHeight(context) / 2 + metrics.getHeight() / 2 - descent + h + h);
-			}
-		}
-	}
-
-	private void drawHorizontalConnectors(Context context, Graphics2D graphics) {
-		int	mapX1	= x;
-		int	mapX2	= x + getWidth(context);
-		int	mapY1	= y;
-		int	mapY2	= y + getHeight(context);
-		int	dy		= 0;						// childIndex;
-		// only child with no children
-		if (isFirstChild() && isLastChild() && !hasChildren()) {
-			Person	spouseParent	= getMother();
-			Person	rootParent		= getFather();
-			if (getMother().isMember(context)) {
-				spouseParent = getFather();
-				rootParent = getMother();
-			}
-			int	px	= spouseParent.x;
-			int	pw	= Person.getWidth(context);
-			if (rootParent.getSpouseList().size() == 1) {
-				px = rootParent.x;
-				pw = Person.getWidth(context);
-			} else {
-				px = spouseParent.x;
-				pw = Person.getWidth(context);
-			}
-			// vertical connector
-			graphics.fillRect(px + (pw) / 2, mapY1 - getYSpace(context), 1, getYSpace(context));
-		} else {
-			// first child horizontal connector starts at the vertical one
-			if (isFirstChild()) {
-				Person	spouseParent	= getMother();
-				Person	rootParent		= getFather();
-				if (getMother().isMember(context)) {
-					spouseParent = getFather();
-					rootParent = getMother();
-				}
-				int	px	= spouseParent.x;
-				int	pw	= Person.getWidth(context);
-				if (rootParent.getSpouseList().size() == 1) {
-					px = rootParent.x;
-					pw = Person.getWidth(context);
-				} else {
-					px = spouseParent.x;
-					pw = Person.getWidth(context);
-				}
-				graphics.setColor(Color.black);
-				// horizontal connector
-				graphics.fillRect(px + pw / 2, mapY1 - getYSpace(context) / 2 + dy, nextPersonX - (px + pw / 2), 1);
-				// vertical connector
-				graphics.fillRect(px + (pw) / 2, mapY1 - getYSpace(context), 1, getYSpace(context));
-			}
-			// last child horizontal connector without spouse ends at the vertical
-			else if (isLastChild()) {
-				graphics.setColor(Color.black);
-				graphics.fillRect(mapX1, mapY1 - getYSpace(context) / 2, (mapX2 - mapX1) / 2, 1);
-			}
-		}
-		// all the children in between
-		if (!isFirstChild() && !isLastChild() && isMember(context)) {
-			graphics.setColor(Color.black);
-			if (getSpouseList().size() == 1) {
-//				graphics.setColor(Color.red);
-				Person spouse = getSpouseList().first();
-				graphics.fillRect(mapX1, mapY1 - getYSpace(context) / 2 + dy, nextPersonX - (mapX1) /*- (int)(spouse.width - Person.PERSON_X_SPACE)*/, 1);
-//				graphics.setColor(Color.black);
-			} else {
-//				graphics.setColor(Color.green);
-				graphics.fillRect(mapX1, mapY1 - getYSpace(context) / 2 + dy, nextPersonX - (mapX1), 1);
-//				graphics.setColor(Color.black);
-			}
-		}
-//		if (isSpouseOfLastChild()) {
-//			graphics.setColor(Color.black);
-//			graphics.fillRect(mapX1 - PERSON_X_SPACE / 2, mapY1 - PERSON_Y_SPACE / 2, (mapX2 - mapX1) / 2 + PERSON_X_SPACE / 2, 1);
+////			{
+////				String		string			= "-";
+////				LineMetrics	metrics			= font.getLineMetrics(string, frc);
+////				float		descent			= metrics.getDescent();
+////				Rectangle2D	stringBounds	= font.getStringBounds(string, frc);
+////				float		w				= (float) stringBounds.getWidth();
+////				float		h				= (float) stringBounds.getHeight();
+////				graphics.drawString(string, x + width / 2 - w / 2, y + PERSON_HEIGHT / 2 + metrics.getHeight() / 2 - descent + h);
+////			}
+//			// died
+//			{
+//				String		string			= getDiedString();
+//				LineMetrics	metrics			= font.getLineMetrics(string, frc);
+//				float		descent			= metrics.getDescent();
+//				Rectangle2D	stringBounds	= font.getStringBounds(string, frc);
+//				float		w				= (float) stringBounds.getWidth();
+//				float		h				= (float) stringBounds.getHeight();
+//				graphics.drawString(string, x + (getWidth(context)) / 2 - w / 2, y + getHeight(context) / 2 + metrics.getHeight() / 2 - descent + h + h);
+//			}
 //		}
+//	}
 
-		// vertical connector
-		if (!isFirstChild() && !isSpouse()) {
-			graphics.fillRect(mapX1 + (mapX2 - mapX1) / 2, mapY1 - getYSpace(context) / 2, 1, getYSpace(context) / 2);
-		}
-
-		// sexual relation connector between a person and his/her spouse
-		if (hasChildren() && isMember(context) && !context.getParameterOptions().isExcludeSpouse()) {
-			Stroke stroke = graphics.getStroke();
-			graphics.setStroke(new BasicStroke(FAT_LINE_STROKE_WIDTH, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 3 }, 0));
-			graphics.setColor(Color.black);
-			graphics.drawLine(mapX2, mapY1 + (mapY2 - mapY1) / 2, mapX2 + getXSpace(context) / 2, mapY1 + (mapY2 - mapY1) / 2);
-			graphics.setStroke(stroke);
-		}
-	}
+//	private void drawHorizontalConnectors(Context context, Graphics2D graphics) {
+//		int	mapX1	= x;
+//		int	mapX2	= x + getWidth(context);
+//		int	mapY1	= y;
+//		int	mapY2	= y + getHeight(context);
+//		int	dy		= 0;						// childIndex;
+//		// only child with no children
+//		if (isFirstChild() && isLastChild() && !hasChildren()) {
+//			Person	spouseParent	= getMother();
+//			Person	rootParent		= getFather();
+//			if (getMother().isMember(context)) {
+//				spouseParent = getFather();
+//				rootParent = getMother();
+//			}
+//			int	px	= spouseParent.x;
+//			int	pw	= Person.getWidth(context);
+//			if (rootParent.getSpouseList().size() == 1) {
+//				px = rootParent.x;
+//				pw = Person.getWidth(context);
+//			} else {
+//				px = spouseParent.x;
+//				pw = Person.getWidth(context);
+//			}
+//			// vertical connector
+//			graphics.fillRect(px + (pw) / 2, mapY1 - getYSpace(context), 1, getYSpace(context));
+//		} else {
+//			// first child horizontal connector starts at the vertical one
+//			if (isFirstChild()) {
+//				Person	spouseParent	= getMother();
+//				Person	rootParent		= getFather();
+//				if (getMother().isMember(context)) {
+//					spouseParent = getFather();
+//					rootParent = getMother();
+//				}
+//				int	px	= spouseParent.x;
+//				int	pw	= Person.getWidth(context);
+//				if (rootParent.getSpouseList().size() == 1) {
+//					px = rootParent.x;
+//					pw = Person.getWidth(context);
+//				} else {
+//					px = spouseParent.x;
+//					pw = Person.getWidth(context);
+//				}
+//				graphics.setColor(Color.black);
+//				// horizontal connector
+//				graphics.fillRect(px + pw / 2, mapY1 - getYSpace(context) / 2 + dy, nextPersonX - (px + pw / 2), 1);
+//				// vertical connector
+//				graphics.fillRect(px + (pw) / 2, mapY1 - getYSpace(context), 1, getYSpace(context));
+//			}
+//			// last child horizontal connector without spouse ends at the vertical
+//			else if (isLastChild()) {
+//				graphics.setColor(Color.black);
+//				graphics.fillRect(mapX1, mapY1 - getYSpace(context) / 2, (mapX2 - mapX1) / 2, 1);
+//			}
+//		}
+//		// all the children in between
+//		if (!isFirstChild() && !isLastChild() && isMember(context)) {
+//			graphics.setColor(Color.black);
+//			if (getSpouseList().size() == 1) {
+////				graphics.setColor(Color.red);
+//				Person spouse = getSpouseList().first();
+//				graphics.fillRect(mapX1, mapY1 - getYSpace(context) / 2 + dy, nextPersonX - (mapX1) /*- (int)(spouse.width - Person.PERSON_X_SPACE)*/, 1);
+////				graphics.setColor(Color.black);
+//			} else {
+////				graphics.setColor(Color.green);
+//				graphics.fillRect(mapX1, mapY1 - getYSpace(context) / 2 + dy, nextPersonX - (mapX1), 1);
+////				graphics.setColor(Color.black);
+//			}
+//		}
+////		if (isSpouseOfLastChild()) {
+////			graphics.setColor(Color.black);
+////			graphics.fillRect(mapX1 - PERSON_X_SPACE / 2, mapY1 - PERSON_Y_SPACE / 2, (mapX2 - mapX1) / 2 + PERSON_X_SPACE / 2, 1);
+////		}
+//
+//		// vertical connector
+//		if (!isFirstChild() && !isSpouse()) {
+//			graphics.fillRect(mapX1 + (mapX2 - mapX1) / 2, mapY1 - getYSpace(context) / 2, 1, getYSpace(context) / 2);
+//		}
+//
+//		// sexual relation connector between a person and his/her spouse
+//		if (hasChildren() && isMember(context) && !context.getParameterOptions().isExcludeSpouse()) {
+//			Stroke stroke = graphics.getStroke();
+//			graphics.setStroke(new BasicStroke(FAT_LINE_STROKE_WIDTH, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 3 }, 0));
+//			graphics.setColor(Color.black);
+//			graphics.drawLine(mapX2, mapY1 + (mapY2 - mapY1) / 2, mapX2 + getXSpace(context) / 2, mapY1 + (mapY2 - mapY1) / 2);
+//			graphics.setStroke(stroke);
+//		}
+//	}
 
 	@Override
 	public void drawVertical(Context context, Graphics2D graphics, Font nameFont, Font livedFont) {
 		if (isVisible()) {
-			drawVerticalBox(context, graphics, nameFont, livedFont);
+			drawBox(context, graphics, nameFont, livedFont);
 			drawVerticalConnectors(context, graphics);
 		}
 	}
 
-	private void drawVerticalBox(Context context, Graphics2D graphics, Font nameFont, Font livedFont) {
+	private void drawBox(Context context, Graphics2D graphics, Font nameFont, Font livedFont) {
 		Integer	width	= context.generationToMaxWidthMap.get(generation);
 		int		x1		= x * (width + getXSpace(context));
 		int		y1		= y * (getHeight(context) + Person.getYSpace(context));
@@ -445,6 +445,65 @@ public abstract class DrawablePerson extends Person {
 			int	cy2	= yIndexToPixel(context, getChildrenList().last().y) + getHeight(context) / 2;
 			graphics.setColor(connectorColor);
 			graphics.drawLine(x1 + getWidth(context) + getXSpace(context) / 2, cy1, x1 + getWidth(context) + getXSpace(context) / 2, cy2);
+		}
+		graphics.setStroke(stroke);
+	}
+
+	private void drawHorizontalConnectors(Context context, Graphics2D graphics) {
+		int		x1		= xIndexToPixel(context, x);
+		int		y1		= yIndexToPixel(context, y);
+
+		Stroke	stroke	= graphics.getStroke();
+		// child Connector vertical
+		if (isMember(context) && !isSpouse()) {
+			graphics.setStroke(new BasicStroke(MEDIUM_LINE_STROKE_WIDTH));
+			graphics.setColor(connectorColor);
+//			graphics.drawLine(x1 - getXSpace(context) / 2, y1 + getHeight(context) / 2, x1, y1 + getHeight(context) / 2);
+			graphics.drawLine(x1 + getWidth(context) / 2, y1 - getYSpace(context) / 2, x1 + getWidth(context) / 2, y1);
+		}
+		// child Connector horizontal
+		if (isSpouse()) {
+			graphics.setStroke(new BasicStroke(MEDIUM_LINE_STROKE_WIDTH));
+			int	cx1	= x1 + getWidth(context) / 2;
+			int	cx2	= xIndexToPixel(context, getChildrenList().last().x) + getWidth(context) / 2;
+			graphics.setColor(connectorColor);
+//			graphics.drawLine(x1 + getWidth(context) + getXSpace(context) / 2, cy1, x1 + getWidth(context) + getXSpace(context) / 2, cy2);
+			graphics.drawLine(cx1, y1 + getHeight(context) + getYSpace(context) / 2, cx2, y1 + getHeight(context) + getYSpace(context) / 2);
+		}
+		// spouse connector to children
+		if (isSpouse()) {
+			graphics.setStroke(new BasicStroke(MEDIUM_LINE_STROKE_WIDTH));
+			graphics.setColor(connectorColor);
+//			graphics.drawLine(x1 + getWidth(context), y1 + getHeight(context) / 2, x1 + getWidth(context) + getXSpace(context) / 2, y1 + getHeight(context) / 2);
+			graphics.drawLine(x1 + getWidth(context) / 2, y1 + getHeight(context), x1 + getWidth(context) / 2, y1 + getHeight(context) + getYSpace(context) / 2);
+		}
+
+		// sexual relation connector from person to his/her spouse
+		if (hasChildren() && isMember(context) && !isSpouse() && !context.getParameterOptions().isExcludeSpouse()) {
+			graphics.setStroke(new BasicStroke(FAT_LINE_STROKE_WIDTH, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 3 }, 0));
+			graphics.setColor(connectorColor);
+//			graphics.drawLine(x1 + getWidth(context), y1 + getHeight(context) / 2, x1 + getWidth(context) + getXSpace(context), y1 + getHeight(context) / 2);
+			graphics.drawLine(x1 + getWidth(context) / 2, y1 + getHeight(context), x1 + getWidth(context) / 2, y1 + getHeight(context) + getYSpace(context));
+			for (Person spouse : getSpouseList()) {
+				int	sx	= xIndexToPixel(context, spouse.x);
+				int	sy	= yIndexToPixel(context, spouse.y);
+//				graphics.drawLine(x1 + getWidth(context) + getXSpace(context) / 2, sy + getHeight(context) / 2, sx, sy + getHeight(context) / 2);
+				graphics.drawLine(sx + getWidth(context) / 2, y1 + getHeight(context) + getYSpace(context) / 2, sx + getWidth(context) / 2, y1 + getHeight(context) + getYSpace(context));
+			}
+			int lsx = xIndexToPixel(context, getSpouseList().last().x);
+//			graphics.drawLine(x1 + getWidth(context) + getXSpace(context) / 2, y1 + getHeight(context) / 2, x1 + getWidth(context) + getXSpace(context) / 2, lsy + getHeight(context) / 2);
+			graphics.drawLine(x1 + getWidth(context) / 2, y1 + getHeight(context) + getYSpace(context) / 2, lsx + getWidth(context) / 2, y1 + getHeight(context) + getYSpace(context) / 2);
+		}
+		// parent connector to children
+		if (hasChildren() && isMember(context) && context.getParameterOptions().isExcludeSpouse()) {
+			graphics.setStroke(new BasicStroke(MEDIUM_LINE_STROKE_WIDTH));
+			graphics.setColor(connectorColor);
+			graphics.drawLine(x1 + getWidth(context), y1 + getHeight(context) / 2, x1 + getWidth(context) + getXSpace(context) / 2, y1 + getHeight(context) / 2);
+			int	cx1	= y1 + getWidth(context) / 2;
+			int	cx2	= xIndexToPixel(context, getChildrenList().last().x) + getWidth(context) / 2;
+			graphics.setColor(connectorColor);
+//			graphics.drawLine(x1 + getWidth(context) + getXSpace(context) / 2, cy1, x1 + getWidth(context) + getXSpace(context) / 2, cy2);
+			graphics.drawLine(cx1, y1 + getHeight(context) + getYSpace(context) / 2, cx2, y1 + getHeight(context) + getYSpace(context) / 2);
 		}
 		graphics.setStroke(stroke);
 	}
