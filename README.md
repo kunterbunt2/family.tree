@@ -65,3 +65,6 @@ Every record represents one person and the relations to other peopele within the
 # Missing tests
 1. every person with a father must have a mother and vice versa
 2. every person has to have a first name
+
+# Issues
+PdfBox PDExtendedGraphicsState.setLineWidth has no impact on setLineDashPattern

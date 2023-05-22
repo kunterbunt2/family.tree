@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import de.bushnaq.abdalla.family.Context;
 import de.bushnaq.abdalla.family.Main;
 import de.bushnaq.abdalla.family.tree.ui.MyCanvas;
-import de.bushnaq.abdalla.util.TestUtil;
 
 public class Base {
 	static {
@@ -23,8 +22,8 @@ public class Base {
 		String			inputName		= context.getParameterOptions().getInput();
 		String			outputDecorator	= context.getParameterOptions().getOutputDecorator();
 		String			outputName		= inputName + outputDecorator;
-		if (TestUtil.isRunningInEclipse())
-			showImage(image, outputName);
+//		if (TestUtil.isRunningInEclipse())
+//			showImage(image, outputName);
 
 	}
 

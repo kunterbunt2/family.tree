@@ -25,42 +25,42 @@ public class RahjmuwFamilyTest extends Base {
 
 	@Test
 	public void generateHorizontal() throws Exception {
-		generate(new String[] { "-input", buildFileName(), "-h" });
+		generate(new String[] { "-input", buildFileName(), "-family_name", "rahjmuw", "-h" });
 	}
 
 	@Test
 	public void generateHorizontalFollowFemale() throws Exception {
-		generate(new String[] { "-input", buildFileName(), "-h", "-follow_females" });
+		generate(new String[] { "-input", buildFileName(), "-family_name", "rahjmuw", "-h", "-follow_females" });
 	}
 
 	@Test
 	public void generateHorizontalFollowFemaleWithoutSpouse() throws Exception {
-		generate(new String[] { "-input", buildFileName(), "-h", "-follow_females", "-exclude_spouse" });
+		generate(new String[] { "-input", buildFileName(), "-family_name", "rahjmuw", "-h", "-follow_females", "-exclude_spouse" });
 	}
 
 	@Test
 	public void generateHorizontalWithoutSpouse() throws Exception {
-		generate(new String[] { "-input", buildFileName(), "-h", "-exclude_spouse" });
+		generate(new String[] { "-input", buildFileName(), "-family_name", "rahjmuw", "-h", "-exclude_spouse" });
 	}
 
 	@Test
 	public void generateVertical() throws Exception {
-		generate(new String[] { "-input", buildFileName() });
+		generate(new String[] { "-input", buildFileName(), "-family_name", "rahjmuw" });
 	}
 
 	@Test
 	public void generateVerticalFollowFemale() throws Exception {
-		generate(new String[] { "-input", buildFileName(), "-follow_females" });
+		generate(new String[] { "-input", buildFileName(), "-family_name", "rahjmuw", "-follow_females" });
 	}
 
 	@Test
 	public void generateVerticalFollowFemaleWithoutSpouse() throws Exception {
-		generate(new String[] { "-input", buildFileName(), "-follow_females", "-exclude_spouse" });
+		generate(new String[] { "-input", buildFileName(), "-family_name", "rahjmuw", "-follow_females", "-exclude_spouse" });
 	}
 
 	@Test
 	public void generateVerticalWithoutSpouse() throws Exception {
-		generate(new String[] { "-input", buildFileName(), "-exclude_spouse" });
+		generate(new String[] { "-input", buildFileName(), "-family_name", "rahjmuw", "-exclude_spouse" });
 	}
 
 }

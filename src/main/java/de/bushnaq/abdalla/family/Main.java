@@ -28,6 +28,7 @@ public class Main {
 	}
 
 	public BufferedImage start(String[] args) throws Exception {
+
 		context.getParameterOptions().start(args);
 
 		String	inputName		= context.getParameterOptions().getInput();
@@ -64,6 +65,7 @@ public class Main {
 		tree.readExcel(inputName);
 		String outputName = FileUtil.removeExtension(inputName) + outputDecorator;
 		return tree.generate(context, outputName);
+
 	}
 
 }

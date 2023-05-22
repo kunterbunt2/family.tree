@@ -1,10 +1,12 @@
 package de.bushnaq.abdalla.family.tree;
 
 import java.awt.Graphics2D;
+import java.io.IOException;
 
 import de.bushnaq.abdalla.family.Context;
 import de.bushnaq.abdalla.family.person.Person;
 import de.bushnaq.abdalla.family.person.PersonList;
+import de.bushnaq.abdalla.pdf.PdfDocument;
 
 public class HorizontalTree extends Tree {
 
@@ -41,6 +43,12 @@ public class HorizontalTree extends Tree {
 		for (Person p : personList) {
 			p.drawHorizontal(context, graphics, nameFont, livedFont);
 		}
+	}
+
+	@Override
+	void draw(Context context, PdfDocument pdfDocument) throws IOException {
+		// TODO Auto-generated method stub
+
 	}
 
 	@Override

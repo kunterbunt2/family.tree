@@ -2,10 +2,17 @@ package de.bushnaq.abdalla.family.person;
 
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ibm.icu.text.ArabicShaping;
+import com.ibm.icu.text.ArabicShapingException;
+import com.ibm.icu.text.Bidi;
+
 import de.bushnaq.abdalla.family.Context;
+import de.bushnaq.abdalla.pdf.PdfDocument;
+import de.bushnaq.abdalla.pdf.PdfFont;
 
 public abstract class Person extends BasicFamilyMember {
 	public static final int		PERSON_BORDER			= 1;
@@ -18,6 +25,18 @@ public abstract class Person extends BasicFamilyMember {
 	public static final int		PERSON_WIDTH			= 128;
 	private static final int	PERSON_X_SPACE			= 24;
 	private static final int	PERSON_Y_SPACE			= 12;
+
+	private static String bidiReorder(String text) {
+		if (text == null)
+			return text;
+		try {
+			Bidi bidi = new Bidi((new ArabicShaping(ArabicShaping.LETTERS_SHAPE)).shape(text), 127);
+			bidi.setReorderingMode(0);
+			return bidi.writeReordered(2);
+		} catch (ArabicShapingException ase3) {
+			return text;
+		}
+	}
 
 	public static int getHeight(Context context) {
 		if (context.getParameterOptions().isCompact())
@@ -48,21 +67,22 @@ public abstract class Person extends BasicFamilyMember {
 	}
 
 	private Attribute	attribute	= new Attribute();
+
 	public Integer		childIndex	= null;
 
 	public List<String>	errors		= new ArrayList<>();
-
 	public Integer		generation	= null;
-//	private int			height					= Person.PERSON_HEIGHT_M;
+	// private int height = Person.PERSON_HEIGHT_M;
 	// public int idWidth = 0;
 	public Integer		nextPersonX	= -1;
 	public Integer		nextPersonY	= -1;
+
 	public PersonList	personList	= null;
 
 	public Integer		spouseIndex	= null;
 //	protected int		width		= 0;
-
 	public int			x			= 0;
+
 	public int			y			= 0;
 
 	public Person(PersonList personList, Integer id) {
@@ -101,6 +121,8 @@ public abstract class Person extends BasicFamilyMember {
 	public abstract void drawHorizontal(Context context, Graphics2D graphics, Font nameFont, Font livedFont);
 
 	public abstract void drawVertical(Context context, Graphics2D graphics, Font nameFont, Font livedFont);
+
+	public abstract void drawVertical(Context context, PdfDocument pdfDocument, PdfFont nameFont, PdfFont livedFont, PdfFont pdfDateFont) throws IOException;
 
 	@Override
 	public boolean equals(Object o) {
@@ -150,7 +172,7 @@ public abstract class Person extends BasicFamilyMember {
 
 	protected String getDiedString() {
 		if (getDied() != null) {
-			return "\u271D" + getDied().getString();
+			return /* "\u271D" */"+" + getDied().getString();
 		}
 		return "";
 	}
@@ -159,7 +181,7 @@ public abstract class Person extends BasicFamilyMember {
 		String name = getFirstName();
 		if (context.getParameterOptions().isOriginalLanguage()) {
 			if (getFirstNameOriginalLanguage() != null)
-				name = getFirstNameOriginalLanguage();
+				name = bidiReorder(getFirstNameOriginalLanguage());// assuming Arabic language
 		}
 		return String.format("%s", name);
 	}
@@ -168,7 +190,7 @@ public abstract class Person extends BasicFamilyMember {
 		String name = getLastName();
 		if (context.getParameterOptions().isOriginalLanguage()) {
 			if (getLastNameOriginalLanguage() != null)
-				name = getLastNameOriginalLanguage();
+				name = bidiReorder(getLastNameOriginalLanguage());// assuming Arabic language
 		}
 		if (name != null)
 			return String.format("%s", name);
@@ -226,8 +248,24 @@ public abstract class Person extends BasicFamilyMember {
 //		return attribute.firstFather;
 //	}
 
+	boolean isFirstNameOl(Context context) {
+		if (context.getParameterOptions().isOriginalLanguage()) {
+			if (getFirstNameOriginalLanguage() != null)
+				return true;
+		}
+		return false;
+	}
+
 	public boolean isLastChild() {
 		return attribute.lastChild;
+	}
+
+	boolean isLastNameOl(Context context) {
+		if (context.getParameterOptions().isOriginalLanguage()) {
+			if (getLastNameOriginalLanguage() != null)
+				return true;
+		}
+		return false;
 	}
 
 	public abstract boolean isMale();

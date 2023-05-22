@@ -22,7 +22,8 @@ public class ParameterOptions {
 	private static final String	CLI_OPTION_V						= "v";
 
 	private boolean				compact								= false;									// compact tree (no birth, died, ID)
-	private boolean				coordinates							= false;									// enable coordinates
+	private boolean				coordinates							= true;										// enable coordinates
+	private boolean				drawTextBorders						= false;
 	private boolean				excludeSpouse						= false;									// excluded the spouse in the tree if true otherwise do not include them
 	private String				familyName;
 	private boolean				followFemales						= false;									// children will be shown under the mother if both parents are member of the family
@@ -31,7 +32,6 @@ public class ParameterOptions {
 	private final Logger		logger								= LoggerFactory.getLogger(this.getClass());
 	private boolean				originalLanguage					= false;									// use original language fields for fist name and last name
 	private String				outputDecorator						= "";										// additional decorations for the output file name
-
 	private boolean				v									= true;										// vertical tree mode
 
 	public String getFamilyName() {
@@ -52,6 +52,10 @@ public class ParameterOptions {
 
 	public boolean isCoordinates() {
 		return coordinates;
+	}
+
+	public boolean isDrawTextBorders() {
+		return drawTextBorders;
 	}
 
 	public boolean isExcludeSpouse() {

@@ -3,16 +3,14 @@ package de.bushnaq.abdalla.family.tree;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.imageio.ImageIO;
+import javax.xml.transform.TransformerException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,24 +22,24 @@ import de.bushnaq.abdalla.family.person.Male;
 import de.bushnaq.abdalla.family.person.MaleClone;
 import de.bushnaq.abdalla.family.person.Person;
 import de.bushnaq.abdalla.family.person.PersonList;
+import de.bushnaq.abdalla.pdf.CloseableGraphicsState;
+import de.bushnaq.abdalla.pdf.PdfDocument;
+import de.bushnaq.abdalla.pdf.PdfFont;
 
 public abstract class Tree {
 	protected Context	context;
 	public List<String>	errors		= new ArrayList<>();
 	int					iteration	= 0;
-	Font				livedFont;
+	Font				livedFont;												// used for date text
 	final Logger		logger		= LoggerFactory.getLogger(this.getClass());
-	Font				nameFont;
+	Font				nameFont;												// used for name text
+	PdfFont				pdfDateFont;											// used for date text
+	PdfFont				pdfNameFont;											// used for name text
+	PdfFont				pdfNameOLFont;
 	PersonList			personList;
 
 	public Tree(Context context) {
 		this.context = context;
-
-		livedFont = new Font("Arial", Font.PLAIN, (Person.PERSON_HEIGHT - Person.PERSON_BORDER + 2 - Person.PERSON_MARGINE * 2) / 5);
-		if (context.getParameterOptions().isCompact())
-			nameFont = new Font("Arial", Font.PLAIN, (Person.PERSON_HEIGHT - Person.PERSON_BORDER + 2 - Person.PERSON_MARGINE * 2) / 4);
-		else
-			nameFont = new Font("Arial", Font.BOLD, (Person.PERSON_HEIGHT - Person.PERSON_BORDER + 2 - Person.PERSON_MARGINE * 2) / 4);
 	}
 
 	abstract int calclateImageWidth();
@@ -69,6 +67,8 @@ public abstract class Tree {
 
 	abstract void draw(Context context, Graphics2D graphics);
 
+	abstract void draw(Context context, PdfDocument pdfDocument) throws IOException;
+
 	private void drawErrors(Graphics2D graphics, int imageWidth, int imageHeight) {
 		graphics.setFont(nameFont);
 		graphics.setColor(Color.red);
@@ -79,6 +79,22 @@ public abstract class Tree {
 			Rectangle2D			stringBounds	= font.getStringBounds(s, frc);
 			graphics.drawString(s, 2, y);
 			y -= stringBounds.getHeight();
+		}
+	}
+
+	private void drawErrors(PdfDocument pdfDocument, int imageWidth, int imageHeight) throws IOException {
+		try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument)) {
+			p.setNonStrokingColor(Color.red);
+			p.setFont(pdfNameFont);
+
+			int y = imageHeight - 2;
+			for (String s : errors) {
+				p.beginText();
+				p.newLineAtOffset(2, y);
+				p.showText(s);
+				p.endText();
+				y -= p.getStringHeight(s);
+			}
 		}
 	}
 
@@ -96,6 +112,26 @@ public abstract class Tree {
 //		}
 	}
 
+	private void drawPdf(String familyName) throws IOException, TransformerException {
+		String		imageFilenName	= familyName + ".pdf";
+		int			imageWidth		= calclateImageWidth();
+		int			imageHeight		= calculateImageHeight(context);
+		PdfDocument	pdfDocument		= new PdfDocument(imageFilenName, imageWidth, imageHeight);
+
+		pdfDateFont = new PdfFont(pdfDocument.loadFont("NotoSans-Regular.ttf"), (Person.PERSON_HEIGHT - Person.PERSON_BORDER + 2 - Person.PERSON_MARGINE * 2) / 5);
+		if (context.getParameterOptions().isCompact()) {
+			pdfNameFont = new PdfFont(pdfDocument.loadFont("NotoSans-Regular.ttf"), (Person.PERSON_HEIGHT - Person.PERSON_BORDER + 2 - Person.PERSON_MARGINE * 2) / 4);
+			pdfNameOLFont = new PdfFont(pdfDocument.loadFont("Amiri-Regular.ttf"), (Person.PERSON_HEIGHT - Person.PERSON_BORDER + 2 - Person.PERSON_MARGINE * 2) / 4);
+		} else {
+			pdfNameFont = new PdfFont(pdfDocument.loadFont("NotoSans-Bold.ttf"), (Person.PERSON_HEIGHT - Person.PERSON_BORDER + 2 - Person.PERSON_MARGINE * 2) / 4);
+			pdfNameOLFont = new PdfFont(pdfDocument.loadFont("Amiri-bold.ttf"), (Person.PERSON_HEIGHT - Person.PERSON_BORDER + 2 - Person.PERSON_MARGINE * 2) / 4);
+		}
+
+		drawErrors(pdfDocument, imageWidth, imageHeight);
+		draw(context, pdfDocument);
+		pdfDocument.endDocument();
+	}
+
 	private List<Male> findFirstFathers() {
 		List<Male> fathers = new ArrayList<>();
 		for (Person p : personList) {
@@ -107,28 +143,30 @@ public abstract class Tree {
 	}
 
 	public BufferedImage generate(Context context, String familyName) throws Exception {
-		String imageFilenName = familyName + ".png";
+//		String imageFilenName = familyName + ".png";
 		initializePersonList(context);
 		int				imageWidth	= calclateImageWidth();
 		int				imageHeight	= calculateImageHeight(context);
 		BufferedImage	aImage		= new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_ARGB);
-		Graphics2D		graphics	= aImage.createGraphics();
-		graphics.setFont(nameFont);
-		personList.printPersonList(context);
-		graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-		graphics.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
-		graphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-		graphics.setColor(Color.white);
-		graphics.fillRect(0, 0, imageWidth, imageHeight);
-		drawGrid(graphics, imageWidth, imageHeight);
-		drawErrors(graphics, imageWidth, imageHeight);
-		draw(context, graphics);
-		try {
-			File outputfile = new File(imageFilenName);
-			ImageIO.write(aImage, "png", outputfile);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+//		Graphics2D		graphics	= aImage.createGraphics();
+//		graphics.setFont(nameFont);
+//		personList.printPersonList(context);
+//		graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+//		graphics.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+//		graphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+//		graphics.setColor(Color.white);
+//		graphics.fillRect(0, 0, imageWidth, imageHeight);
+//		drawGrid(graphics, imageWidth, imageHeight);
+//		drawErrors(graphics, imageWidth, imageHeight);
+//		draw(context, graphics);
+//		try {
+//			File outputfile = new File(imageFilenName);
+//			ImageIO.write(aImage, "png", outputfile);
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+		drawPdf(familyName);
+
 		return aImage;
 	}
 
@@ -217,13 +255,10 @@ public abstract class Tree {
 		List<Male>	firstFathers	= findFirstFathers();
 		int			rootFatherIndex	= 0;
 		for (Person firstFather : firstFathers) {
-			if (context.getParameterOptions().isV())
-			{
+			if (context.getParameterOptions().isV()) {
 				firstFather.x = rootFatherIndex++ * 10;
 				firstFather.y = 0;
-			}
-			else
-			{
+			} else {
 				firstFather.x = 0;
 				firstFather.y = rootFatherIndex++ * 10;
 			}

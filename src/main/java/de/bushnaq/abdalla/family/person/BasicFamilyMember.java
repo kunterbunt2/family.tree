@@ -1,5 +1,8 @@
 package de.bushnaq.abdalla.family.person;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.bushnaq.abdalla.family.Context;
 import de.bushnaq.abdalla.util.FlexibleDate;
 
@@ -12,6 +15,7 @@ public class BasicFamilyMember {
 	private int				id;
 	private String			lastName;
 	private String			lastNameOriginalLanguage;
+	final Logger			logger	= LoggerFactory.getLogger(this.getClass());
 	private Female			mother;
 
 	public BasicFamilyMember(BasicFamilyMember member) {
@@ -95,6 +99,7 @@ public class BasicFamilyMember {
 	}
 
 	public void setLastNameOriginalLanguage(String lastNameOriginalLanguage) {
+
 		this.lastNameOriginalLanguage = lastNameOriginalLanguage;
 	}
 

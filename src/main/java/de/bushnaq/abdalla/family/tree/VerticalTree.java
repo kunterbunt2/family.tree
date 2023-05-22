@@ -1,10 +1,12 @@
 package de.bushnaq.abdalla.family.tree;
 
 import java.awt.Graphics2D;
+import java.io.IOException;
 
 import de.bushnaq.abdalla.family.Context;
 import de.bushnaq.abdalla.family.person.Person;
 import de.bushnaq.abdalla.family.person.PersonList;
+import de.bushnaq.abdalla.pdf.PdfDocument;
 
 public class VerticalTree extends Tree {
 
@@ -40,6 +42,13 @@ public class VerticalTree extends Tree {
 	void draw(Context context, Graphics2D graphics) {
 		for (Person p : personList) {
 			p.drawVertical(context, graphics, nameFont, livedFont);
+		}
+	}
+
+	@Override
+	void draw(Context context, PdfDocument pdfDocument) throws IOException {
+		for (Person p : personList) {
+			p.drawVertical(context, pdfDocument, pdfNameFont, pdfNameOLFont, pdfDateFont);
 		}
 	}
 

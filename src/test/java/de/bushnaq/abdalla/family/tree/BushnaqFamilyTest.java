@@ -57,6 +57,11 @@ public class BushnaqFamilyTest extends Base {
 	}
 
 	@Test
+	public void generateVerticalCompactOL() throws Exception {
+		generate(new String[] { "-input", buildFileName(), "-family_name", "bushnaq", "-c", "-ol" });
+	}
+
+	@Test
 	public void generateVerticalFollowFemale() throws Exception {
 		generate(new String[] { "-input", buildFileName(), "-family_name", "bushnaq", "-follow_females" });
 	}

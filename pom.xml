@@ -83,6 +83,22 @@
 			<artifactId>svgSalamander</artifactId>
 			<version>1.1.2.4</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.pdfbox</groupId>
+			<artifactId>pdfbox</artifactId>
+			<version>3.0.0-RC1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.pdfbox</groupId>
+			<artifactId>xmpbox</artifactId>
+			<version>3.0.0-RC1</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.ibm.icu/icu4j -->
+		<dependency>
+			<groupId>com.ibm.icu</groupId>
+			<artifactId>icu4j</artifactId>
+			<version>73.1</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
