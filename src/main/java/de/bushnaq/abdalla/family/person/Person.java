@@ -15,16 +15,16 @@ import de.bushnaq.abdalla.pdf.PdfDocument;
 import de.bushnaq.abdalla.pdf.PdfFont;
 
 public abstract class Person extends BasicFamilyMember {
-	public static final int		PERSON_BORDER			= 1;
-	public static final int		PERSON_COMPACT_HEIGHT	= 32;
-	public static final int		PERSON_COMPACT_WIDTH	= 64;
-	private static final int	PERSON_COMPACT_X_SPACE	= 7;
-	private static final int	PERSON_COMPACT_Y_SPACE	= 5;
-	public static final int		PERSON_HEIGHT			= 64;
-	public static final int		PERSON_MARGINE			= 4;
-	public static final int		PERSON_WIDTH			= 128;
-	private static final int	PERSON_X_SPACE			= 24;
-	private static final int	PERSON_Y_SPACE			= 12;
+	public static final float	PERSON_BORDER			= 1;
+	public static final float	PERSON_COMPACT_HEIGHT	= 32;
+	public static final float	PERSON_COMPACT_WIDTH	= 64;
+	private static final float	PERSON_COMPACT_X_SPACE	= 7;
+	private static final float	PERSON_COMPACT_Y_SPACE	= 5;
+	public static final float	PERSON_HEIGHT			= 64;
+	public static final float	PERSON_MARGINE			= 4;
+	public static final float	PERSON_WIDTH			= 128;
+	private static final float	PERSON_X_SPACE			= 24;
+	private static final float	PERSON_Y_SPACE			= 12;
 
 	private static String bidiReorder(String text) {
 		if (text == null)
@@ -38,52 +38,45 @@ public abstract class Person extends BasicFamilyMember {
 		}
 	}
 
-	public static int getHeight(Context context) {
+	public static float getHeight(Context context) {
 		if (context.getParameterOptions().isCompact())
-			return PERSON_COMPACT_HEIGHT;
+			return PERSON_COMPACT_HEIGHT * context.getParameterOptions().getZoom();
 		else
-			return PERSON_HEIGHT;
+			return PERSON_HEIGHT * context.getParameterOptions().getZoom();
 	}
 
-	public static int getWidth(Context context) {
+	public static float getWidth(Context context) {
 		if (context.getParameterOptions().isCompact())
-			return PERSON_COMPACT_WIDTH;
+			return PERSON_COMPACT_WIDTH * context.getParameterOptions().getZoom();
 		else
-			return PERSON_WIDTH;
+			return PERSON_WIDTH * context.getParameterOptions().getZoom();
 	}
 
-	public static int getXSpace(Context context) {
+	public static float getXSpace(Context context) {
 		if (context.getParameterOptions().isCompact())
-			return PERSON_COMPACT_X_SPACE;
+			return PERSON_COMPACT_X_SPACE * context.getParameterOptions().getZoom();
 		else
-			return PERSON_X_SPACE;
+			return PERSON_X_SPACE * context.getParameterOptions().getZoom();
 	}
 
-	public static int getYSpace(Context context) {
+	public static float getYSpace(Context context) {
 		if (context.getParameterOptions().isCompact())
-			return PERSON_COMPACT_Y_SPACE;
+			return PERSON_COMPACT_Y_SPACE * context.getParameterOptions().getZoom();
 		else
-			return PERSON_Y_SPACE;
+			return PERSON_Y_SPACE * context.getParameterOptions().getZoom();
 	}
 
 	private Attribute	attribute	= new Attribute();
-
 	public Integer		childIndex	= null;
-
 	public List<String>	errors		= new ArrayList<>();
 	public Integer		generation	= null;
-	// private int height = Person.PERSON_HEIGHT_M;
-	// public int idWidth = 0;
 	public Integer		nextPersonX	= -1;
 	public Integer		nextPersonY	= -1;
-
+	public Integer		pageIndex	= null;				// index of the pdf page this person is located at
 	public PersonList	personList	= null;
-
 	public Integer		spouseIndex	= null;
-//	protected int		width		= 0;
-	public int			x			= 0;
-
-	public int			y			= 0;
+	public float		x			= 0;
+	public float		y			= 0;
 
 	public Person(PersonList personList, Integer id) {
 		super(id);
@@ -118,9 +111,10 @@ public abstract class Person extends BasicFamilyMember {
 //		width = PERSON_WIDTH;
 	}
 
-	public abstract void drawHorizontal(Context context, Graphics2D graphics, Font nameFont, Font livedFont);
+//	public abstract void drawHorizontal(Context context, Graphics2D graphics, Font nameFont, Font livedFont);
 
-	public abstract void drawVertical(Context context, Graphics2D graphics, Font nameFont, Font livedFont);
+//	public abstract void drawVertical(Context context, Graphics2D graphics, Font nameFont, Font livedFont);
+	public abstract void drawHorizontal(Context context, PdfDocument pdfDocument, PdfFont nameFont, PdfFont nameOLFont, PdfFont dateFont) throws IOException;
 
 	public abstract void drawVertical(Context context, PdfDocument pdfDocument, PdfFont nameFont, PdfFont livedFont, PdfFont pdfDateFont) throws IOException;
 
@@ -209,6 +203,10 @@ public abstract class Person extends BasicFamilyMember {
 		return String.format("%s %s", getFirstNameAsString(context), getLastNameAsString(context));
 	}
 
+	public Integer getPageIndex() {
+		return pageIndex;
+	}
+
 	public abstract String getSexCharacter();
 
 	public PersonList getSpouseList() {
@@ -244,10 +242,6 @@ public abstract class Person extends BasicFamilyMember {
 		return attribute.firstChild;
 	}
 
-//	public boolean isFirstFather() {
-//		return attribute.firstFather;
-//	}
-
 	boolean isFirstNameOl(Context context) {
 		if (context.getParameterOptions().isOriginalLanguage()) {
 			if (getFirstNameOriginalLanguage() != null)
@@ -255,6 +249,10 @@ public abstract class Person extends BasicFamilyMember {
 		}
 		return false;
 	}
+
+//	public boolean isFirstFather() {
+//		return attribute.firstFather;
+//	}
 
 	public boolean isLastChild() {
 		return attribute.lastChild;
@@ -333,6 +331,10 @@ public abstract class Person extends BasicFamilyMember {
 		this.attribute.lastChild = lastChild;
 	}
 
+	public void setPageIndex(Integer pageIndex) {
+		this.pageIndex = pageIndex;
+	}
+
 	public void setSpouse(boolean spouse) {
 		this.attribute.spouse = spouse;
 	}
@@ -354,6 +356,9 @@ public abstract class Person extends BasicFamilyMember {
 		}
 		if (getFirstName() == null || getFirstName().isEmpty()) {
 			errors.add("missing first name");
+		}
+		if (getPageIndex() == null) {
+			errors.add("Page index null");
 		}
 	}
 

@@ -1,9 +1,10 @@
 package de.bushnaq.abdalla.family.tree;
 
-import java.awt.Graphics2D;
 import java.io.IOException;
+import java.util.List;
 
 import de.bushnaq.abdalla.family.Context;
+import de.bushnaq.abdalla.family.person.Male;
 import de.bushnaq.abdalla.family.person.Person;
 import de.bushnaq.abdalla.family.person.PersonList;
 import de.bushnaq.abdalla.pdf.PdfDocument;
@@ -15,11 +16,11 @@ public class HorizontalTree extends Tree {
 	}
 
 	@Override
-	int calclateImageWidth() {
-		int	minX	= Integer.MAX_VALUE;
-		int	maxX	= Integer.MIN_VALUE;
+	float calclateImageWidth() {
+		float	minX	= Integer.MAX_VALUE;
+		float	maxX	= Integer.MIN_VALUE;
 		for (Person p : personList) {
-			int x = p.x * (Person.getWidth(context) + Person.getXSpace(context));
+			float x = p.x * (Person.getWidth(context) + Person.getXSpace(context));
 			minX = Math.min(minX, (x));
 			maxX = Math.max(maxX, x + Person.getWidth(context));
 		}
@@ -27,40 +28,54 @@ public class HorizontalTree extends Tree {
 	}
 
 	@Override
-	int calculateImageHeight(Context context) {
-		int	minY	= Integer.MAX_VALUE;
-		int	maxY	= Integer.MIN_VALUE;
+	float calculateImageHeight(Context context) {
+		float	minY	= Integer.MAX_VALUE;
+		float	maxY	= Integer.MIN_VALUE;
 		for (Person p : personList) {
-			int y = p.y * (Person.getHeight(context) + Person.getYSpace(context));
+			float y = p.y * (Person.getHeight(context) + Person.getYSpace(context));
 			minY = Math.min(minY, y);
 			maxY = Math.max(maxY, y);
 		}
 		return maxY + Person.getHeight(context);
 	}
 
+//	@Override
+//	void draw(Context context, Graphics2D graphics) {
+//		for (Person p : personList) {
+//			p.drawHorizontal(context, graphics, nameFont, livedFont);
+//		}
+//	}
+
 	@Override
-	void draw(Context context, Graphics2D graphics) {
-		for (Person p : personList) {
-			p.drawHorizontal(context, graphics, nameFont, livedFont);
+	void draw(Context context, PdfDocument pdfDocument, int numberOfRootFathers) throws IOException {
+		{
+			List<Male>	rootFatherList	= findRootFatherList();
+			int			pageIndex		= 0;
+			for (Person rootFather : rootFatherList) {
+				String outputDecorator = context.getParameterOptions().getOutputDecorator();
+				pdfDocument.createPage(pageIndex++, rootFather.getFirstName() + context.getParameterOptions().getOutputDecorator());
+			}
+		}
+		for (int pageIndex = 0; pageIndex < numberOfRootFathers; pageIndex++) {
+//			int i = 10;
+			for (Person p : personList) {
+				if (p.isVisible() && pageIndex == p.getPageIndex())
+					p.drawHorizontal(context, pdfDocument, pdfNameFont, pdfNameOLFont, pdfDateFont);
+			}
 		}
 	}
 
 	@Override
-	void draw(Context context, PdfDocument pdfDocument) throws IOException {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	int position(Context context, Person person) {
+	float position(Context context, Person person) {
 		person.setVisible(true);
-		int pX = person.x;
+		float pX = person.x;
 		if (!person.hasChildren())
 			pX = person.x + 1;
 		PersonList spouseList = person.getSpouseList();
 		for (Person spouse : spouseList) {
 			spouse.y = person.y + 1;
 			spouse.x = pX;
+			spouse.setPageIndex(person.getPageIndex());
 			// children
 			PersonList childrenList = person.getChildrenList(spouse);
 			for (Person child : childrenList) {
@@ -71,6 +86,7 @@ public class HorizontalTree extends Tree {
 					child.y = person.y + 1;
 				}
 				child.x = pX;
+				child.setPageIndex(person.getPageIndex());
 				pX = position(context, child);
 			}
 		}

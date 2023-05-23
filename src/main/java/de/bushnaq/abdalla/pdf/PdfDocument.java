@@ -4,6 +4,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.transform.TransformerException;
 
@@ -11,6 +13,8 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDMetadata;
+import org.apache.pdfbox.pdmodel.common.PDPageLabelRange;
+import org.apache.pdfbox.pdmodel.common.PDPageLabels;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
@@ -22,17 +26,18 @@ import org.apache.xmpbox.type.BadFieldValueException;
 import org.apache.xmpbox.xml.XmpSerializer;
 
 public class PdfDocument implements Closeable {
-	private PDRectangle			bBox;
-	private PDPageContentStream	contentStream;
-	private PDDocument			document;
-	private String				fileName;
-	private PDPage				page;
+	private PDDocument					document;
+	private String						fileName;
+	private PDRectangle					mediaBox;
+	Map<Integer, PDPageContentStream>	pageContentStreamMap	= new HashMap<>();
+	PDPageLabels						pageLabels;
+	Map<Integer, PDPage>				pageMap					= new HashMap<>();
 
 	public PdfDocument(PDRectangle mediaBox) throws IOException, TransformerException {
 		startDocument(mediaBox);
 	}
 
-	public PdfDocument(String fileName, int imageWidth, int imageHeight) throws IOException, TransformerException {
+	public PdfDocument(String fileName, float imageWidth, float imageHeight) throws IOException, TransformerException {
 		this.fileName = fileName;
 		PDRectangle mediaBox = new PDRectangle(imageWidth, imageHeight);
 		startDocument(mediaBox);
@@ -63,23 +68,50 @@ public class PdfDocument implements Closeable {
 		}
 	}
 
-	public void endDocument() throws IOException {
-		contentStream.close();
+	public PDPage createPage(int pageIndex, String label) throws IOException {
+		PDPage page = new PDPage(mediaBox);
+		pageMap.put(pageIndex, page);
+		document.addPage(page);
+		createPageLabel(pageIndex, label);
+		PDPageContentStream contentStream = new PDPageContentStream(document, page);
+		pageContentStreamMap.put(pageIndex, contentStream);
+		return page;
+	}
 
+	private void createPageLabel(int pageIndex, String label) {
+		PDPageLabelRange pageLabelRange1 = new PDPageLabelRange();
+		pageLabelRange1.setPrefix(label);
+		pageLabels.setLabelItem(pageIndex, pageLabelRange1);
+		document.getDocumentCatalog().setPageLabels(pageLabels);
+
+	}
+
+	public void endDocument() throws IOException {
+		for (Integer pageIndex : pageContentStreamMap.keySet()) {
+			PDPageContentStream contentStream = pageContentStreamMap.get(pageIndex);
+			contentStream.close();
+		}
 		document.save(fileName);
 		document.close();
 	}
 
-	public PDPageContentStream getContentStream() {
-		return contentStream;
+	public PDPageContentStream getContentStream(int pageIndex) {
+		return pageContentStreamMap.get(pageIndex);
 	}
 
-	public PDPage getPage() {
-		return page;
+	public int getNumberOfPages() {
+		return pageMap.keySet().size();
 	}
 
-	public float getPageHeight() {
-		return bBox.getHeight();
+	public PDPage getPage(int pageIndex) throws IOException {
+		PDPage pdPage = pageMap.get(pageIndex);
+//		if (pdPage == null)
+//			pdPage = createPage(pageIndex);
+		return pdPage;
+	}
+
+	public float getPageHeight(int pageIndex) throws IOException {
+		return getPage(pageIndex).getBBox().getHeight();
 	}
 
 	private void includeColorProfile() throws IOException {
@@ -100,13 +132,12 @@ public class PdfDocument implements Closeable {
 	}
 
 	private void startDocument(PDRectangle mediaBox) throws IOException, TransformerException {
+		this.mediaBox = mediaBox;
 		document = new PDDocument();
 		createMetaDate();
 		includeColorProfile();
-		page = new PDPage(mediaBox);
-		document.addPage(page);
-		bBox = page.getBBox();
-		contentStream = new PDPageContentStream(document, page);
+//		createPage(0);
+		pageLabels = new PDPageLabels(document);
 	}
 
 }

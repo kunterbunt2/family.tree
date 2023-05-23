@@ -30,10 +30,10 @@ public class CloseableGraphicsState implements Closeable {
 
 	private Color					strokingColor;
 
-	public CloseableGraphicsState(PdfDocument pdfDocument) throws IOException {
+	public CloseableGraphicsState(PdfDocument pdfDocument, int pageIndex) throws IOException {
 		this.pdfDocument = pdfDocument;
-		this.page = pdfDocument.getPage();
-		this.contentStream = pdfDocument.getContentStream();
+		this.page = pdfDocument.getPage(pageIndex);
+		this.contentStream = pdfDocument.getContentStream(pageIndex);
 		pageBBox = page.getBBox();
 		pageWidth = pageBBox.getWidth();
 		pageHeight = pageBBox.getHeight();
@@ -52,7 +52,6 @@ public class CloseableGraphicsState implements Closeable {
 	public void drawLine(float x1, float y1, float x2, float y2) throws IOException {
 		contentStream.moveTo(x1, pageHeight - y1);
 		contentStream.lineTo(x2, pageHeight - y2);
-//		contentStream.addRect(x1, pageHeight - y1 - (y2 - y1 + 1), x2 - x1 + 1, y2 - y1 + 1);
 	}
 
 	public void drawRect(float x, float y, float width, float height) throws IOException {
@@ -76,12 +75,8 @@ public class CloseableGraphicsState implements Closeable {
 		return font;
 	}
 
-	public PdfFont getFontFittingWidth(PdfFont font, Integer boxWidth, String text) throws IOException {
+	public PdfFont getFontFittingWidth(PdfFont font, Float boxWidth, String text) throws IOException {
 
-//			graphics.setFont(nameFont);
-//			FontRenderContext	frc				= graphics.getFontRenderContext();
-//			Font				font			= graphics.getFont();
-//			Rectangle2D			stringBounds	= font.getStringBounds(text, frc);
 		float	size	= font.getSize();
 		float	width	= getStringWidth(font, text);
 		if (width > boxWidth - 4) {
@@ -89,8 +84,6 @@ public class CloseableGraphicsState implements Closeable {
 			do {
 				size -= 1f;
 				font = new PdfFont(font.getFont(), size);
-//				graphics.setFont(deriveFont);
-//				frc = graphics.getFontRenderContext();
 				width = getStringWidth(font, text);
 			} while (width > boxWidth - 4);
 		}

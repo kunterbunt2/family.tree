@@ -18,10 +18,11 @@ public class Base {
 	Main	main;
 
 	public void generate(String[] args) throws Exception {
-		BufferedImage	image			= main.start(args);
-		String			inputName		= context.getParameterOptions().getInput();
-		String			outputDecorator	= context.getParameterOptions().getOutputDecorator();
-		String			outputName		= inputName + outputDecorator;
+//		BufferedImage	image			=
+		main.start(args);
+		String	inputName		= context.getParameterOptions().getInput();
+		String	outputDecorator	= context.getParameterOptions().getOutputDecorator();
+		String	outputName		= inputName + outputDecorator;
 //		if (TestUtil.isRunningInEclipse())
 //			showImage(image, outputName);
 

@@ -1,7 +1,5 @@
 package de.bushnaq.abdalla.family;
 
-import java.awt.image.BufferedImage;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +25,7 @@ public class Main {
 
 	}
 
-	public BufferedImage start(String[] args) throws Exception {
+	public void start(String[] args) throws Exception {
 
 		context.getParameterOptions().start(args);
 
@@ -55,6 +53,7 @@ public class Main {
 			if (context.getParameterOptions().isOriginalLanguage()) {
 				outputDecorator += "-ol";
 			}
+			context.getParameterOptions().setOutputDecorator(outputDecorator);
 		}
 		Tree tree;
 		if (context.getParameterOptions().isH()) {
@@ -64,7 +63,7 @@ public class Main {
 		}
 		tree.readExcel(inputName);
 		String outputName = FileUtil.removeExtension(inputName) + outputDecorator;
-		return tree.generate(context, outputName);
+		tree.generate(context, outputName);
 
 	}
 

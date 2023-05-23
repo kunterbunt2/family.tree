@@ -240,11 +240,12 @@ public class Launcher {
 						arguments.add("-ol");
 					String[] args = arguments.toArray(new String[0]);
 					try {
-						BufferedImage	image			= main.start(args);
-						String			inputName		= context.getParameterOptions().getInput();
-						String			outputDecorator	= context.getParameterOptions().getOutputDecorator();
-						String			outputName		= inputName + outputDecorator;
-						showImage(image, outputName);
+//						BufferedImage	image			=
+						main.start(args);
+						String	inputName		= context.getParameterOptions().getInput();
+						String	outputDecorator	= context.getParameterOptions().getOutputDecorator();
+						String	outputName		= inputName + outputDecorator;
+//						showImage(image, outputName);
 					} catch (Exception e) {
 						logger.error(e.getMessage(), e);
 						String message = String.format("%s", e.getMessage());

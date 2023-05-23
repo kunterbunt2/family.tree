@@ -27,26 +27,27 @@ import de.bushnaq.abdalla.pdf.PdfDocument;
 import de.bushnaq.abdalla.pdf.PdfFont;
 
 public abstract class Tree {
-	protected Context	context;
-	public List<String>	errors		= new ArrayList<>();
-	int					iteration	= 0;
-	Font				livedFont;												// used for date text
-	final Logger		logger		= LoggerFactory.getLogger(this.getClass());
-	Font				nameFont;												// used for name text
-	PdfFont				pdfDateFont;											// used for date text
-	PdfFont				pdfNameFont;											// used for name text
-	PdfFont				pdfNameOLFont;
-	PersonList			personList;
+	protected Context		context;
+	public List<PageError>	errors		= new ArrayList<>();
+	int						iteration	= 0;
+	Font					livedFont;												// used for date text
+	final Logger			logger		= LoggerFactory.getLogger(this.getClass());
+	Font					nameFont;												// used for name text
+	private int				numberOfRootFathers;
+	PdfFont					pdfDateFont;											// used for date text
+	PdfFont					pdfNameFont;											// used for name text
+	PdfFont					pdfNameOLFont;
+	PersonList				personList;
 
 	public Tree(Context context) {
 		this.context = context;
 	}
 
-	abstract int calclateImageWidth();
+	abstract float calclateImageWidth();
 
 	private void calculateGenrationMaxWidth() {
 		for (Person p : personList) {
-			Integer integerMaxWidth = context.generationToMaxWidthMap.get(p.generation);
+			Float integerMaxWidth = context.generationToMaxWidthMap.get(p.generation);
 			if (integerMaxWidth == null) {
 				context.generationToMaxWidthMap.put(p.generation, Person.getWidth(context));
 			} else {
@@ -56,7 +57,7 @@ public abstract class Tree {
 		}
 	}
 
-	abstract int calculateImageHeight(Context context);
+	abstract float calculateImageHeight(Context context);
 
 	protected void calculateWidths() {
 		BufferedImage	image		= new BufferedImage(50, 50, BufferedImage.TYPE_INT_ARGB);
@@ -65,35 +66,37 @@ public abstract class Tree {
 		personList.calculateWidths(graphics, nameFont, livedFont);
 	}
 
-	abstract void draw(Context context, Graphics2D graphics);
+//	abstract void draw(Context context, Graphics2D graphics);
 
-	abstract void draw(Context context, PdfDocument pdfDocument) throws IOException;
+	abstract void draw(Context context, PdfDocument pdfDocument, int numberOfRootFathers) throws IOException;
 
 	private void drawErrors(Graphics2D graphics, int imageWidth, int imageHeight) {
 		graphics.setFont(nameFont);
 		graphics.setColor(Color.red);
 		int y = imageHeight - 2;
-		for (String s : errors) {
+		for (PageError s : errors) {
 			Font				font			= graphics.getFont();
 			FontRenderContext	frc				= graphics.getFontRenderContext();
-			Rectangle2D			stringBounds	= font.getStringBounds(s, frc);
-			graphics.drawString(s, 2, y);
+			Rectangle2D			stringBounds	= font.getStringBounds(s.getError(), frc);
+			graphics.drawString(s.getError(), 2, y);
 			y -= stringBounds.getHeight();
 		}
 	}
 
-	private void drawErrors(PdfDocument pdfDocument, int imageWidth, int imageHeight) throws IOException {
-		try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument)) {
-			p.setNonStrokingColor(Color.red);
-			p.setFont(pdfNameFont);
+	private void drawErrors(PdfDocument pdfDocument, float imageWidth, float imageHeight) throws IOException {
+		for (int pageIndex = 0; pageIndex < pdfDocument.getNumberOfPages(); pageIndex++) {
+			try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
+				p.setNonStrokingColor(Color.red);
+				p.setFont(pdfNameFont);
 
-			int y = imageHeight - 2;
-			for (String s : errors) {
-				p.beginText();
-				p.newLineAtOffset(2, y);
-				p.showText(s);
-				p.endText();
-				y -= p.getStringHeight(s);
+				float y = imageHeight - 2;
+				for (PageError s : errors) {
+					p.beginText();
+					p.newLineAtOffset(2, y);
+					p.showText(s.getError());
+					p.endText();
+					y -= p.getStringHeight(s.getError());
+				}
 			}
 		}
 	}
@@ -112,27 +115,7 @@ public abstract class Tree {
 //		}
 	}
 
-	private void drawPdf(String familyName) throws IOException, TransformerException {
-		String		imageFilenName	= familyName + ".pdf";
-		int			imageWidth		= calclateImageWidth();
-		int			imageHeight		= calculateImageHeight(context);
-		PdfDocument	pdfDocument		= new PdfDocument(imageFilenName, imageWidth, imageHeight);
-
-		pdfDateFont = new PdfFont(pdfDocument.loadFont("NotoSans-Regular.ttf"), (Person.PERSON_HEIGHT - Person.PERSON_BORDER + 2 - Person.PERSON_MARGINE * 2) / 5);
-		if (context.getParameterOptions().isCompact()) {
-			pdfNameFont = new PdfFont(pdfDocument.loadFont("NotoSans-Regular.ttf"), (Person.PERSON_HEIGHT - Person.PERSON_BORDER + 2 - Person.PERSON_MARGINE * 2) / 4);
-			pdfNameOLFont = new PdfFont(pdfDocument.loadFont("Amiri-Regular.ttf"), (Person.PERSON_HEIGHT - Person.PERSON_BORDER + 2 - Person.PERSON_MARGINE * 2) / 4);
-		} else {
-			pdfNameFont = new PdfFont(pdfDocument.loadFont("NotoSans-Bold.ttf"), (Person.PERSON_HEIGHT - Person.PERSON_BORDER + 2 - Person.PERSON_MARGINE * 2) / 4);
-			pdfNameOLFont = new PdfFont(pdfDocument.loadFont("Amiri-bold.ttf"), (Person.PERSON_HEIGHT - Person.PERSON_BORDER + 2 - Person.PERSON_MARGINE * 2) / 4);
-		}
-
-		drawErrors(pdfDocument, imageWidth, imageHeight);
-		draw(context, pdfDocument);
-		pdfDocument.endDocument();
-	}
-
-	private List<Male> findFirstFathers() {
+	protected List<Male> findRootFatherList() {
 		List<Male> fathers = new ArrayList<>();
 		for (Person p : personList) {
 			if (p.isRootFather(context)) {
@@ -142,32 +125,26 @@ public abstract class Tree {
 		return fathers;
 	}
 
-	public BufferedImage generate(Context context, String familyName) throws Exception {
-//		String imageFilenName = familyName + ".png";
+	public void generate(Context context, String familyName) throws Exception {
 		initializePersonList(context);
-		int				imageWidth	= calclateImageWidth();
-		int				imageHeight	= calculateImageHeight(context);
-		BufferedImage	aImage		= new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_ARGB);
-//		Graphics2D		graphics	= aImage.createGraphics();
-//		graphics.setFont(nameFont);
-//		personList.printPersonList(context);
-//		graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-//		graphics.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
-//		graphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-//		graphics.setColor(Color.white);
-//		graphics.fillRect(0, 0, imageWidth, imageHeight);
-//		drawGrid(graphics, imageWidth, imageHeight);
-//		drawErrors(graphics, imageWidth, imageHeight);
-//		draw(context, graphics);
-//		try {
-//			File outputfile = new File(imageFilenName);
-//			ImageIO.write(aImage, "png", outputfile);
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-		drawPdf(familyName);
+		String		outputFilenName	= familyName + ".pdf";
+		float		pageWidth		= calclateImageWidth();
+		float		pageHeight		= calculateImageHeight(context);
+		PdfDocument	pdfDocument		= new PdfDocument(outputFilenName, pageWidth, pageHeight);
 
-		return aImage;
+		float		zoom			= context.getParameterOptions().getZoom();
+		pdfDateFont = new PdfFont(pdfDocument.loadFont("NotoSans-Regular.ttf"), (Person.PERSON_HEIGHT * zoom - Person.PERSON_BORDER * zoom + 2 - Person.PERSON_MARGINE * zoom * 2) / 5);
+		if (context.getParameterOptions().isCompact()) {
+			pdfNameFont = new PdfFont(pdfDocument.loadFont("NotoSans-Regular.ttf"), (Person.PERSON_HEIGHT * zoom - Person.PERSON_BORDER * zoom + 2 - Person.PERSON_MARGINE * zoom * 2) / 4);
+			pdfNameOLFont = new PdfFont(pdfDocument.loadFont("Amiri-Regular.ttf"), (Person.PERSON_HEIGHT * zoom - Person.PERSON_BORDER * zoom + 2 - Person.PERSON_MARGINE * zoom * 2) / 4);
+		} else {
+			pdfNameFont = new PdfFont(pdfDocument.loadFont("NotoSans-Bold.ttf"), (Person.PERSON_HEIGHT * zoom - Person.PERSON_BORDER * zoom + 2 - Person.PERSON_MARGINE * zoom * 2) / 4);
+			pdfNameOLFont = new PdfFont(pdfDocument.loadFont("Amiri-bold.ttf"), (Person.PERSON_HEIGHT * zoom - Person.PERSON_BORDER * zoom + 2 - Person.PERSON_MARGINE * zoom * 2) / 4);
+		}
+
+		drawErrors(pdfDocument, pageWidth, pageHeight);
+		draw(context, pdfDocument, numberOfRootFathers);
+		pdfDocument.endDocument();
 	}
 
 	private void initAttribute(Person person) {
@@ -228,14 +205,11 @@ public abstract class Tree {
 	}
 
 	private void initAttributes() {
-		List<Male> firstFathers = findFirstFathers();
+		List<Male> firstFathers = findRootFatherList();
 		for (Person firstFather : firstFathers) {
 			firstFather.setFirstFather(true);
 			firstFather.generation = 0;
 			initAttribute(firstFather);
-		}
-		for (Person p : personList) {
-			p.validate(context);
 		}
 	}
 
@@ -245,28 +219,32 @@ public abstract class Tree {
 		calculateGenrationMaxWidth();
 		position(context);
 		for (Person p : personList) {
+			p.validate(context);
+		}
+		for (Person p : personList) {
 			if (!p.isVisible())
-				errors.add(String.format("Error #001: [%d]%s %s is not visible. A person is visible if he is member of the family or has children with someone from the family.", p.getId(), p.getFirstName(),
-						p.getLastName()));
+				errors.add(new PageError(p.getPageIndex(), String.format("Error #001: [%d]%s %s is not visible. A person is visible if he is member of the family or has children with someone from the family.", p.getId(),
+						p.getFirstName(), p.getLastName())));
 		}
 	}
 
 	private void position(Context context) {
-		List<Male>	firstFathers	= findFirstFathers();
-		int			rootFatherIndex	= 0;
+		List<Male> firstFathers = findRootFatherList();
+		numberOfRootFathers = 0;
 		for (Person firstFather : firstFathers) {
+			firstFather.setPageIndex(numberOfRootFathers++);
 			if (context.getParameterOptions().isV()) {
-				firstFather.x = rootFatherIndex++ * 10;
+				firstFather.x = 0/* rootFatherIndex++ * 10 */;
 				firstFather.y = 0;
 			} else {
 				firstFather.x = 0;
-				firstFather.y = rootFatherIndex++ * 10;
+				firstFather.y = 0/* rootFatherIndex++ * 10 */;
 			}
 			position(context, firstFather);
 		}
 	}
 
-	abstract int position(Context context, Person person);
+	abstract float position(Context context, Person person);
 
 	public void readExcel(String fileName) throws Exception {
 		TreeExcelReader excelReader = new TreeExcelReader();

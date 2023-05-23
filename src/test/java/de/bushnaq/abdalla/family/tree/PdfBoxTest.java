@@ -18,7 +18,7 @@ class PdfBoxTest {
 	PdfDocument	pdfDocument;
 
 	private void createText(float x, float y, Color color, String string) throws IOException {
-		try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument)) {
+		try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, 0)) {
 			p.setNonStrokingColor(color);
 			p.setFont(font);
 
@@ -36,7 +36,7 @@ class PdfBoxTest {
 	}
 
 	private void drawLine(float x1, float y1, float x2, float y2) throws IOException {
-		try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument)) {
+		try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, 0)) {
 			p.setLineWidth(1f);
 //			p.setLineDashPattern(new float[] { 3 }, 0);
 			p.setStrokingColor(new Color(0x2d, 0xb1, 0xff, 32));
@@ -46,7 +46,7 @@ class PdfBoxTest {
 	}
 
 	private void drawRect(float x, float y, float w, float h) throws IOException {
-		try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument)) {
+		try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, 0)) {
 			p.setLineWidth(3.1f);
 			p.setLineDashPattern(new float[] { 3 }, 0);
 			p.setStrokingColor(new Color(0x2d, 0xb1, 0xff, 32));
@@ -56,7 +56,7 @@ class PdfBoxTest {
 	}
 
 	private void fillRect(float x, float y, float w, float h) throws IOException {
-		try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument)) {
+		try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, 0)) {
 			p.setNonStrokingColor(new Color(196, 196, 196));
 			p.fillRect(x, y, w, h);
 			p.fill();

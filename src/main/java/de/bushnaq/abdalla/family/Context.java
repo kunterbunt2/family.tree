@@ -9,10 +9,11 @@ import org.springframework.stereotype.Component;
 @Component
 @Scope("singleton")
 public class Context {
-	public Map<Integer, Integer>	generationToMaxWidthMap	= new HashMap<>();
-	private ParameterOptions		ParameterOptions		= new ParameterOptions();
+	public Map<Integer, Float>	generationToMaxWidthMap	= new HashMap<>();
+	private ParameterOptions	ParameterOptions		= new ParameterOptions();
 
 	public ParameterOptions getParameterOptions() {
 		return ParameterOptions;
 	}
+
 }

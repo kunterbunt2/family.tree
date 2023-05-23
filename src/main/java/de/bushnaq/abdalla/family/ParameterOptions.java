@@ -32,7 +32,9 @@ public class ParameterOptions {
 	private final Logger		logger								= LoggerFactory.getLogger(this.getClass());
 	private boolean				originalLanguage					= false;									// use original language fields for fist name and last name
 	private String				outputDecorator						= "";										// additional decorations for the output file name
+
 	private boolean				v									= true;										// vertical tree mode
+	private float				zoom								= 0.5f;
 
 	public String getFamilyName() {
 		return familyName;
@@ -44,6 +46,10 @@ public class ParameterOptions {
 
 	public String getOutputDecorator() {
 		return outputDecorator;
+	}
+
+	public float getZoom() {
+		return zoom;
 	}
 
 	public boolean isCompact() {
@@ -85,6 +91,10 @@ public class ParameterOptions {
 		originalLanguage = false;
 		outputDecorator = "";
 		v = true;
+	}
+
+	public void setOutputDecorator(String outputDecorator) {
+		this.outputDecorator = outputDecorator;
 	}
 
 	public void start(String[] args) throws Exception {
