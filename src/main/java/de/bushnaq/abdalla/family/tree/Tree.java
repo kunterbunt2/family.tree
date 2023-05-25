@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,20 +58,6 @@ public abstract class Tree {
 		return maxX;
 	}
 
-	private void calculateGenrationMaxWidth() {
-		for (Person p : personList) {
-			Float integerMaxWidth = context.generationToMaxWidthMap.get(p.generation);
-			if (integerMaxWidth == null) {
-				context.generationToMaxWidthMap.put(p.generation, Person.getWidth(context));
-			} else {
-				if (Person.getWidth(context) > integerMaxWidth)
-					context.generationToMaxWidthMap.put(p.generation, Person.getWidth(context));
-			}
-		}
-	}
-
-//	abstract void draw(Context context, Graphics2D graphics);
-
 	float calculatePageHeight(Context context, int pageIndex) {
 		float	minY	= Integer.MAX_VALUE;
 		float	maxY	= Integer.MIN_VALUE;
@@ -84,12 +71,10 @@ public abstract class Tree {
 		return maxY + Person.getHeight(context);
 	}
 
-//	protected void calculateWidths() {
-//		BufferedImage	image		= new BufferedImage(50, 50, BufferedImage.TYPE_INT_ARGB);
-//		Graphics2D		graphics	= image.createGraphics();
-//		graphics.setFont(nameFont);
-//		personList.calculateWidths(graphics, nameFont, livedFont);
-//	}
+	private PdfFont createFont(PdfDocument pdfDocument, String fontName, float fontSize) throws IOException {
+		PDFont pdFont = pdfDocument.loadFont(fontName);
+		return new PdfFont(pdFont, fontSize / getFontSize(pdFont));
+	}
 
 	private void createPages(Context context, PdfDocument pdfDocument) throws IOException {
 		List<Male> rootFatherList = findRootFatherList();
@@ -170,15 +155,19 @@ public abstract class Tree {
 		}
 	}
 
+	private float getFontSize(PDFont font) {
+		return (-font.getFontDescriptor().getDescent() + font.getFontDescriptor().getCapHeight() + (font.getFontDescriptor().getAscent() - font.getFontDescriptor().getCapHeight())) / 1000;
+	}
+
 	private void init(Context context, PdfDocument pdfDocument) throws IOException {
-		float zoom = context.getParameterOptions().getZoom();
-		pdfDateFont = new PdfFont(pdfDocument.loadFont("NotoSans-Regular.ttf"), (Person.PERSON_HEIGHT * zoom - Person.PERSON_BORDER * zoom + 2 - Person.PERSON_MARGINE * zoom * 2) / 5);
+		pdfDateFont = createFont(pdfDocument, "NotoSans-Regular.ttf", (Person.getHeight(context) - Person.getBorder(context) * 2 - Person.getMargine(context) * 2) / 5);
+//		pdfDateFont = new PdfFont(pdfDocument.loadFont("NotoSans-Regular.ttf"), (Person.getHeight(context) - Person.getBorder(context) * 2 - Person.getMargine(context) * 2) / 5);
 		if (context.getParameterOptions().isCompact()) {
-			pdfNameFont = new PdfFont(pdfDocument.loadFont("NotoSans-Regular.ttf"), (Person.PERSON_HEIGHT * zoom - Person.PERSON_BORDER * zoom + 2 - Person.PERSON_MARGINE * zoom * 2) / 4);
-			pdfNameOLFont = new PdfFont(pdfDocument.loadFont("Amiri-Regular.ttf"), (Person.PERSON_HEIGHT * zoom - Person.PERSON_BORDER * zoom + 2 - Person.PERSON_MARGINE * zoom * 2) / 4);
+			pdfNameFont = createFont(pdfDocument, "NotoSans-Regular.ttf", (Person.getHeight(context) - Person.getBorder(context) * 2 - Person.getMargine(context) * 2) / 2);
+			pdfNameOLFont = createFont(pdfDocument, "Amiri-Regular.ttf", (Person.getHeight(context) - Person.getBorder(context) * 2 - Person.getMargine(context) * 2) / 2);
 		} else {
-			pdfNameFont = new PdfFont(pdfDocument.loadFont("NotoSans-Bold.ttf"), (Person.PERSON_HEIGHT * zoom - Person.PERSON_BORDER * zoom + 2 - Person.PERSON_MARGINE * zoom * 2) / 4);
-			pdfNameOLFont = new PdfFont(pdfDocument.loadFont("Amiri-bold.ttf"), (Person.PERSON_HEIGHT * zoom - Person.PERSON_BORDER * zoom + 2 - Person.PERSON_MARGINE * zoom * 2) / 4);
+			pdfNameFont = createFont(pdfDocument, "NotoSans-Bold.ttf", (Person.getHeight(context) - Person.getBorder(context) * 2 - Person.getMargine(context) * 2) / 3);
+			pdfNameOLFont = createFont(pdfDocument, "Amiri-bold.ttf", (Person.getHeight(context) - Person.getBorder(context) * 2 - Person.getMargine(context) * 2) / 3);
 		}
 		initializePersonList(context, pdfDocument);
 	}
@@ -251,8 +240,6 @@ public abstract class Tree {
 
 	private void initializePersonList(Context context, PdfDocument pdfDocument) {
 		initAttributes();
-//		calculateWidths();
-		calculateGenrationMaxWidth();
 		position(context, pdfDocument);
 		for (Person p : personList) {
 			p.validate(context);

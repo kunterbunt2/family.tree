@@ -99,7 +99,7 @@ public class CloseableGraphicsState implements Closeable {
 	}
 
 	public float getStringHeight() {
-		return (-getFont().getFontDescriptor().getDescent() + getFont().getFontDescriptor().getCapHeight()) / 1000 * getFontSize();
+		return (-getFont().getFontDescriptor().getDescent() + getFont().getFontDescriptor().getCapHeight() + (getFont().getFontDescriptor().getAscent() - font.getFontDescriptor().getCapHeight())) / 1000 * getFontSize();
 	}
 
 	public float getStringWidth(PdfFont font, String string) throws IOException {
@@ -120,8 +120,8 @@ public class CloseableGraphicsState implements Closeable {
 	}
 
 	public void newLineAtOffset(float tx, float ty) throws IOException {
-		float stringHeight = getFont().getFontDescriptor().getCapHeight() / 1000 * getFontSize();
-		contentStream.newLineAtOffset(tx, pageHeight - ty);
+		float descent = getFont().getFontDescriptor().getDescent() / 1000 * getFontSize();
+		contentStream.newLineAtOffset(tx, pageHeight - ty - descent);
 	}
 
 	public void setFont(PdfFont font) throws IOException {

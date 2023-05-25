@@ -13,16 +13,16 @@ import de.bushnaq.abdalla.pdf.PdfDocument;
 import de.bushnaq.abdalla.pdf.PdfFont;
 
 public abstract class Person extends BasicFamilyMember {
-	public static final float	PERSON_BORDER			= 1;
-	public static final float	PERSON_COMPACT_HEIGHT	= 32;
-	public static final float	PERSON_COMPACT_WIDTH	= 64;
-	private static final float	PERSON_COMPACT_X_SPACE	= 7;
-	private static final float	PERSON_COMPACT_Y_SPACE	= 5;
-	public static final float	PERSON_HEIGHT			= 64;
-	public static final float	PERSON_MARGINE			= 4;
-	public static final float	PERSON_WIDTH			= 128;
+	private static final float	PERSON_BORDER			= 1;
+	private static final float	PERSON_HEIGHT			= 64;
+	private static final float	PERSON_HEIGHT_COMPACT	= 32;
+	private static final float	PERSON_MARGINE			= 1;
+	private static final float	PERSON_WIDTH			= 128;
+	private static final float	PERSON_WIDTH_COMPACT	= 64;
 	private static final float	PERSON_X_SPACE			= 24;
+	private static final float	PERSON_X_SPACE_COMPACT	= 12;
 	private static final float	PERSON_Y_SPACE			= 12;
+	private static final float	PERSON_Y_SPACE_COMPACT	= 6;
 
 	private static String bidiReorder(String text) {
 		if (text == null)
@@ -36,30 +36,38 @@ public abstract class Person extends BasicFamilyMember {
 		}
 	}
 
+	public static float getBorder(Context context) {
+		return PERSON_BORDER * context.getParameterOptions().getZoom();
+	}
+
 	public static float getHeight(Context context) {
 		if (context.getParameterOptions().isCompact())
-			return PERSON_COMPACT_HEIGHT * context.getParameterOptions().getZoom();
+			return PERSON_HEIGHT_COMPACT * context.getParameterOptions().getZoom();
 		else
 			return PERSON_HEIGHT * context.getParameterOptions().getZoom();
 	}
 
+	public static float getMargine(Context context) {
+		return PERSON_MARGINE * context.getParameterOptions().getZoom();
+	}
+
 	public static float getWidth(Context context) {
 		if (context.getParameterOptions().isCompact())
-			return PERSON_COMPACT_WIDTH * context.getParameterOptions().getZoom();
+			return PERSON_WIDTH_COMPACT * context.getParameterOptions().getZoom();
 		else
 			return PERSON_WIDTH * context.getParameterOptions().getZoom();
 	}
 
 	public static float getXSpace(Context context) {
 		if (context.getParameterOptions().isCompact())
-			return PERSON_COMPACT_X_SPACE * context.getParameterOptions().getZoom();
+			return PERSON_X_SPACE_COMPACT * context.getParameterOptions().getZoom();
 		else
 			return PERSON_X_SPACE * context.getParameterOptions().getZoom();
 	}
 
 	public static float getYSpace(Context context) {
 		if (context.getParameterOptions().isCompact())
-			return PERSON_COMPACT_Y_SPACE * context.getParameterOptions().getZoom();
+			return PERSON_Y_SPACE_COMPACT * context.getParameterOptions().getZoom();
 		else
 			return PERSON_Y_SPACE * context.getParameterOptions().getZoom();
 	}
