@@ -4,12 +4,14 @@ import java.awt.Color;
 
 public class Male extends DrawablePerson {
 
+	private static final Color BACKGROUND_COLOR = new Color(0x2d, 0xb1, 0xff, 32);
+
 	public Male(PersonList personList, Integer id) {
-		super(personList, id, new Color(0x2d, 0xb1, 0xff, 32));
+		super(personList, id, BACKGROUND_COLOR);
 	}
 
 	public Male(PersonList personList, Male male) {
-		super(personList, male, new Color(0x2d, 0xb1, 0xff, 32));
+		super(personList, male, BACKGROUND_COLOR);
 	}
 
 	@Override

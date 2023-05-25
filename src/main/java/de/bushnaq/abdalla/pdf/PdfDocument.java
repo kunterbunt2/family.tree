@@ -27,20 +27,20 @@ import org.apache.xmpbox.xml.XmpSerializer;
 
 public class PdfDocument implements Closeable {
 	private PDDocument					document;
-	private String						fileName;
-	private PDRectangle					mediaBox;
+	private String						documentFileName;
+	public int							lastPageIndex			= 0;
 	Map<Integer, PDPageContentStream>	pageContentStreamMap	= new HashMap<>();
 	PDPageLabels						pageLabels;
 	Map<Integer, PDPage>				pageMap					= new HashMap<>();
 
-	public PdfDocument(PDRectangle mediaBox) throws IOException, TransformerException {
-		startDocument(mediaBox);
+	public PdfDocument(String fileName) throws IOException, TransformerException {
+		this.documentFileName = fileName;
+		startDocument();
 	}
 
-	public PdfDocument(String fileName, float imageWidth, float imageHeight) throws IOException, TransformerException {
-		this.fileName = fileName;
-		PDRectangle mediaBox = new PDRectangle(imageWidth, imageHeight);
-		startDocument(mediaBox);
+	public PdfDocument(String fileName, PDRectangle media) throws IOException, TransformerException {
+		this(fileName);
+		createPage(0, media.getWidth(), media.getHeight(), "");
 	}
 
 	@Override
@@ -68,13 +68,26 @@ public class PdfDocument implements Closeable {
 		}
 	}
 
-	public PDPage createPage(int pageIndex, String label) throws IOException {
-		PDPage page = new PDPage(mediaBox);
+	public PDPage createPage(int pageIndex, float pageWidth, float pageHeight, String label) throws IOException {
+		PDRectangle	mediaBox	= new PDRectangle(pageWidth, pageHeight);
+
+		PDPage		page		= new PDPage(mediaBox);
 		pageMap.put(pageIndex, page);
 		document.addPage(page);
 		createPageLabel(pageIndex, label);
 		PDPageContentStream contentStream = new PDPageContentStream(document, page);
 		pageContentStreamMap.put(pageIndex, contentStream);
+		return page;
+	}
+
+	public PDPage createPage(PDRectangle mediaBox, String label) throws IOException {
+		PDPage page = new PDPage(mediaBox);
+		lastPageIndex = pageMap.keySet().size();
+		pageMap.put(lastPageIndex, page);
+		document.addPage(page);
+		createPageLabel(lastPageIndex, label);
+		PDPageContentStream contentStream = new PDPageContentStream(document, page);
+		pageContentStreamMap.put(lastPageIndex, contentStream);
 		return page;
 	}
 
@@ -91,7 +104,7 @@ public class PdfDocument implements Closeable {
 			PDPageContentStream contentStream = pageContentStreamMap.get(pageIndex);
 			contentStream.close();
 		}
-		document.save(fileName);
+		document.save(documentFileName);
 		document.close();
 	}
 
@@ -105,8 +118,6 @@ public class PdfDocument implements Closeable {
 
 	public PDPage getPage(int pageIndex) throws IOException {
 		PDPage pdPage = pageMap.get(pageIndex);
-//		if (pdPage == null)
-//			pdPage = createPage(pageIndex);
 		return pdPage;
 	}
 
@@ -131,12 +142,10 @@ public class PdfDocument implements Closeable {
 		return font;
 	}
 
-	private void startDocument(PDRectangle mediaBox) throws IOException, TransformerException {
-		this.mediaBox = mediaBox;
+	private void startDocument() throws IOException, TransformerException {
 		document = new PDDocument();
 		createMetaDate();
 		includeColorProfile();
-//		createPage(0);
 		pageLabels = new PDPageLabels(document);
 	}
 

@@ -32,7 +32,7 @@ public abstract class DrawablePerson extends Person {
 	private void drawBorder(CloseableGraphicsState p, float x, float y, String text, Context context) throws IOException {
 		if (context.getParameterOptions().isDrawTextBorders()) {
 			p.setStrokingColor(new Color(p.getNonStrokingColor().getRed(), p.getNonStrokingColor().getGreen(), p.getNonStrokingColor().getBlue(), 100));
-			float	h	= p.getStringHeight(text);
+			float	h	= p.getStringHeight();
 			float	w	= p.getStringWidth(text);
 			p.drawRect(x, y - h, w, h);
 			p.stroke();
@@ -75,7 +75,7 @@ public abstract class DrawablePerson extends Person {
 				else
 					p.setFont(p.getFontFittingWidth(nameFont, width, text));
 				float stringWidth = p.getStringWidth(text);
-				firstNameHeight = p.getStringHeight(text);
+				firstNameHeight = p.getStringHeight();
 				float	w	= (int) stringWidth;
 				float	x2	= x1 + (width) / 2 - w / 2;
 				float	y2	= (int) (y1 + firstNameHeight);
@@ -100,7 +100,7 @@ public abstract class DrawablePerson extends Person {
 				else
 					p.setFont(p.getFontFittingWidth(nameFont, width, text));
 				float	stringWidth		= p.getStringWidth(text);
-				float	lastNameHeight	= p.getStringHeight(text);
+				float	lastNameHeight	= p.getStringHeight();
 				float	w				= (int) stringWidth;
 				float	x2				= x1 + (width) / 2 - w / 2;
 				float	y2				= (int) (y1 + firstNameHeight + lastNameHeight);
@@ -124,7 +124,7 @@ public abstract class DrawablePerson extends Person {
 				if (this instanceof FemaleClone || this instanceof MaleClone) {
 					String	text	= "*";
 					float	x2		= (int) (x1 + width - p.getStringWidth(text));
-					float	y2		= (int) (y1 + p.getStringHeight(text));
+					float	y2		= (int) (y1 + p.getStringHeight());
 					drawBorder(p, x2, y2, text, context);
 					p.beginText();
 					p.newLineAtOffset(x2, y2);
@@ -175,7 +175,7 @@ public abstract class DrawablePerson extends Person {
 					p.setFont(dateFont);
 					String	text	= getBornString();
 					float	w		= p.getStringWidth(text);
-					float	h		= p.getStringHeight(text);
+					float	h		= p.getStringHeight();
 					float	x2		= x1 + (width) / 2 - w / 2;
 					float	y2		= y1 + getHeight(context) - h - 4;
 					drawBorder(p, x2, y2, text, context);
@@ -218,7 +218,7 @@ public abstract class DrawablePerson extends Person {
 						}
 						String	text	= sb.toString();
 //						float	w		= p.getStringWidth(text);
-						float	h		= p.getStringHeight(text);
+						float	h		= p.getStringHeight();
 						float	x2		= x1 + 4;
 						float	y2		= (int) (y1 + getHeight(context) + h - 2);
 						drawBorder(p, x2, y2, text, context);

@@ -1,7 +1,5 @@
 package de.bushnaq.abdalla.family.person;
 
-import java.awt.Font;
-import java.awt.Graphics2D;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -96,8 +94,8 @@ public abstract class Person extends BasicFamilyMember {
 		return getId() < person.getId();
 	}
 
-	public void calculateWidth(Graphics2D graphics, Font nameFont, Font livedFont) {
-		graphics.setFont(livedFont);
+//	public void calculateWidth(Graphics2D graphics, Font nameFont, Font livedFont) {
+//		graphics.setFont(livedFont);
 //		idWidth = graphics.getFontMetrics().stringWidth("" + getId());
 
 //		width = 0;
@@ -109,7 +107,7 @@ public abstract class Person extends BasicFamilyMember {
 //		width = Math.max(width, graphics.getFontMetrics().stringWidth(getDiedString()));
 //		width += Person.PERSON_MARGINE * 2 + Person.PERSON_BORDER * 2 + idWidth;
 //		width = PERSON_WIDTH;
-	}
+//	}
 
 //	public abstract void drawHorizontal(Context context, Graphics2D graphics, Font nameFont, Font livedFont);
 
@@ -313,6 +311,10 @@ public abstract class Person extends BasicFamilyMember {
 
 	public void print(Context context) {
 		System.out.println(toString(context));
+	}
+
+	public void reset() {
+		errors.clear();
 	}
 
 	public void setFirstChild(boolean firstChild) {

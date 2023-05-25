@@ -8,6 +8,7 @@ import javax.xml.transform.TransformerException;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import de.bushnaq.abdalla.pdf.CloseableGraphicsState;
 import de.bushnaq.abdalla.pdf.PdfDocument;
@@ -23,7 +24,7 @@ class PdfBoxTest {
 			p.setFont(font);
 
 			float	stringWidth		= p.getStringWidth(string);
-			float	stringHeight	= p.getStringHeight(string);
+			float	stringHeight	= p.getStringHeight();
 			p.setNonStrokingColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), 50));
 			p.fillRect(x, y, stringWidth, stringHeight);
 			p.fill();
@@ -64,8 +65,8 @@ class PdfBoxTest {
 	}
 
 	@Test
-	void testBoxWithBorder() throws IOException, TransformerException {
-		pdfDocument = new PdfDocument(PDRectangle.A4);
+	void testBoxWithBorder(TestInfo testInfo) throws IOException, TransformerException {
+		pdfDocument = new PdfDocument(testInfo.getDisplayName() + ".pdf", PDRectangle.A4);
 
 		fillRect(100, 200, 100, 100);
 		drawRect(100, 200, 100, 100);
@@ -74,8 +75,8 @@ class PdfBoxTest {
 	}
 
 	@Test
-	void testDrawLine() throws IOException, TransformerException {
-		pdfDocument = new PdfDocument(PDRectangle.A4);
+	void testDrawLine(TestInfo testInfo) throws IOException, TransformerException {
+		pdfDocument = new PdfDocument(testInfo.getDisplayName() + ".pdf", PDRectangle.A4);
 
 		drawLine(0, 0, 100, 100);
 		drawLine(0, 0, 0, 10);
@@ -85,8 +86,8 @@ class PdfBoxTest {
 	}
 
 	@Test
-	void testDrawRect() throws IOException, TransformerException {
-		pdfDocument = new PdfDocument(PDRectangle.A4);
+	void testDrawRect(TestInfo testInfo) throws IOException, TransformerException {
+		pdfDocument = new PdfDocument(testInfo.getDisplayName() + ".pdf", PDRectangle.A4);
 
 		drawRect(0, 0, 100, 100);
 		drawRect(0, 0, 10, 10);
@@ -95,8 +96,8 @@ class PdfBoxTest {
 	}
 
 	@Test
-	void testFillRect() throws IOException, TransformerException {
-		pdfDocument = new PdfDocument(PDRectangle.A4);
+	void testFillRect(TestInfo testInfo) throws IOException, TransformerException {
+		pdfDocument = new PdfDocument(testInfo.getDisplayName() + ".pdf", PDRectangle.A4);
 
 		fillRect(0, 0, 100, 100);
 		fillRect(0, 0, 10, 10);
@@ -105,8 +106,8 @@ class PdfBoxTest {
 	}
 
 	@Test
-	void testText() throws IOException, TransformerException {
-		pdfDocument = new PdfDocument(PDRectangle.A4);
+	void testText(TestInfo testInfo) throws IOException, TransformerException {
+		pdfDocument = new PdfDocument(testInfo.getDisplayName() + ".pdf", PDRectangle.A4);
 
 		createText(0, 0, Color.red, "Hallo 1");
 		createText(0, 10, new Color(200, 250, 100, 100), "Hallo 2");

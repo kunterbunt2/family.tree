@@ -32,7 +32,6 @@ public class ParameterOptions {
 	private final Logger		logger								= LoggerFactory.getLogger(this.getClass());
 	private boolean				originalLanguage					= false;									// use original language fields for fist name and last name
 	private String				outputDecorator						= "";										// additional decorations for the output file name
-
 	private boolean				v									= true;										// vertical tree mode
 	private float				zoom								= 0.5f;
 
@@ -132,18 +131,22 @@ public class ParameterOptions {
 			v = false;
 			logger.info("horizontal tree mode enabled.");
 		} else {
+			h = false;
+			v = true;
 			logger.info("horizontal tree mode disabled.");
 		}
 		if (line.hasOption(CLI_OPTION_COMPACT)) {
 			compact = true;
 			logger.info("compact tree enabled.");
 		} else {
+			compact = false;
 			logger.info("compact tree disabled.");
 		}
 		if (line.hasOption(CLI_OPTION_COORDINATES) && !compact) {
 			coordinates = true;
 			logger.info("coordinates enabled.");
 		} else {
+			coordinates = false;
 			logger.info("coordinates disabled.");
 		}
 
@@ -152,20 +155,24 @@ public class ParameterOptions {
 			h = false;
 			logger.info("vertical tree mode enabled.");
 		} else {
+			v = false;
+			h = true;
 			logger.info("vertical tree mode disabled.");
 		}
 
 		if (line.hasOption(CLI_OPTION_EXCLUDE_SPOUSE)) {
 			excludeSpouse = true;
-			logger.info("include spouse mode enabled.");
-		} else {
 			logger.info("include spouse mode disabled.");
+		} else {
+			excludeSpouse = false;
+			logger.info("include spouse mode enabled.");
 		}
 
 		if (line.hasOption(CLI_OPTION_FOLLOW_FEMALES)) {
 			followFemales = true;
 			logger.info("follow females mode enabled.");
 		} else {
+			followFemales = false;
 			logger.info("follow females mode disabled.");
 		}
 
@@ -173,6 +180,7 @@ public class ParameterOptions {
 			originalLanguage = true;
 			logger.info("original language mode enabled.");
 		} else {
+			originalLanguage = false;
 			logger.info("original language mode disabled.");
 		}
 		if (line.hasOption(CLI_OPTION_FAMILY_NAME)) {

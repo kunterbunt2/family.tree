@@ -98,7 +98,7 @@ public class CloseableGraphicsState implements Closeable {
 		return nonStrokingColor;
 	}
 
-	public float getStringHeight(String string) {
+	public float getStringHeight() {
 		return (-getFont().getFontDescriptor().getDescent() + getFont().getFontDescriptor().getCapHeight()) / 1000 * getFontSize();
 	}
 
