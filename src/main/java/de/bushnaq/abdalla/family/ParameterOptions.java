@@ -21,9 +21,10 @@ public class ParameterOptions {
 	private static final String	CLI_OPTION_OUTPUT_FILE_DECORATIONS	= "output_decorations";
 	private static final String	CLI_OPTION_V						= "v";
 
+	private boolean				colorTrees							= true;
 	private boolean				compact								= false;									// compact tree (no birth, died, ID)
 	private boolean				coordinates							= true;										// enable coordinates
-	private boolean				drawTextBorders						= false;
+	private boolean				drawTextMetric						= false;
 	private boolean				excludeSpouse						= false;									// excluded the spouse in the tree if true otherwise do not include them
 	private String				familyName;
 	private boolean				followFemales						= false;									// children will be shown under the mother if both parents are member of the family
@@ -51,6 +52,10 @@ public class ParameterOptions {
 		return zoom;
 	}
 
+	public boolean isColorTrees() {
+		return colorTrees;
+	}
+
 	public boolean isCompact() {
 		return compact;
 	}
@@ -59,8 +64,8 @@ public class ParameterOptions {
 		return coordinates;
 	}
 
-	public boolean isDrawTextBorders() {
-		return drawTextBorders;
+	public boolean isDrawTextMetric() {
+		return drawTextMetric;
 	}
 
 	public boolean isExcludeSpouse() {

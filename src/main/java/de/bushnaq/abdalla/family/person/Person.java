@@ -11,18 +11,20 @@ import com.ibm.icu.text.Bidi;
 import de.bushnaq.abdalla.family.Context;
 import de.bushnaq.abdalla.pdf.PdfDocument;
 import de.bushnaq.abdalla.pdf.PdfFont;
+import de.bushnaq.abdalla.util.ErrorMessages;
 
 public abstract class Person extends BasicFamilyMember {
 	private static final float	PERSON_BORDER			= 1;
 	private static final float	PERSON_HEIGHT			= 64;
-	private static final float	PERSON_HEIGHT_COMPACT	= 32;
+	private static final float	PERSON_HEIGHT_COMPACT	= 24;
 	private static final float	PERSON_MARGINE			= 1;
+	private static final float	PERSON_MARGINE_COMPACT	= 0;
 	private static final float	PERSON_WIDTH			= 128;
-	private static final float	PERSON_WIDTH_COMPACT	= 64;
+	private static final float	PERSON_WIDTH_COMPACT	= 48;
 	private static final float	PERSON_X_SPACE			= 24;
-	private static final float	PERSON_X_SPACE_COMPACT	= 12;
+	private static final float	PERSON_X_SPACE_COMPACT	= 3;
 	private static final float	PERSON_Y_SPACE			= 12;
-	private static final float	PERSON_Y_SPACE_COMPACT	= 6;
+	private static final float	PERSON_Y_SPACE_COMPACT	= 3;
 
 	private static String bidiReorder(String text) {
 		if (text == null)
@@ -48,7 +50,10 @@ public abstract class Person extends BasicFamilyMember {
 	}
 
 	public static float getMargine(Context context) {
-		return PERSON_MARGINE * context.getParameterOptions().getZoom();
+		if (context.getParameterOptions().isCompact())
+			return PERSON_MARGINE_COMPACT * context.getParameterOptions().getZoom();
+		else
+			return PERSON_MARGINE * context.getParameterOptions().getZoom();
 	}
 
 	public static float getWidth(Context context) {
@@ -75,7 +80,7 @@ public abstract class Person extends BasicFamilyMember {
 	private Attribute	attribute	= new Attribute();
 	public Integer		childIndex	= null;
 	public List<String>	errors		= new ArrayList<>();
-	public Integer		generation	= null;
+	private Integer		generation	= null;
 	public Integer		nextPersonX	= -1;
 	public Integer		nextPersonY	= -1;
 	public Integer		pageIndex	= null;				// index of the pdf page this person is located at
@@ -102,24 +107,6 @@ public abstract class Person extends BasicFamilyMember {
 		return getId() < person.getId();
 	}
 
-//	public void calculateWidth(Graphics2D graphics, Font nameFont, Font livedFont) {
-//		graphics.setFont(livedFont);
-//		idWidth = graphics.getFontMetrics().stringWidth("" + getId());
-
-//		width = 0;
-//		graphics.setFont(nameFont);
-//		width = Math.max(width, graphics.getFontMetrics().stringWidth(getFirstName()));
-//		width = Math.max(width, graphics.getFontMetrics().stringWidth(getLastName()));
-//		graphics.setFont(livedFont);
-//		width = Math.max(width, graphics.getFontMetrics().stringWidth(getBornString()));
-//		width = Math.max(width, graphics.getFontMetrics().stringWidth(getDiedString()));
-//		width += Person.PERSON_MARGINE * 2 + Person.PERSON_BORDER * 2 + idWidth;
-//		width = PERSON_WIDTH;
-//	}
-
-//	public abstract void drawHorizontal(Context context, Graphics2D graphics, Font nameFont, Font livedFont);
-
-//	public abstract void drawVertical(Context context, Graphics2D graphics, Font nameFont, Font livedFont);
 	public abstract void drawHorizontal(Context context, PdfDocument pdfDocument, PdfFont nameFont, PdfFont nameOLFont, PdfFont dateFont) throws IOException;
 
 	public abstract void drawVertical(Context context, PdfDocument pdfDocument, PdfFont nameFont, PdfFont livedFont, PdfFont pdfDateFont) throws IOException;
@@ -186,6 +173,10 @@ public abstract class Person extends BasicFamilyMember {
 		return String.format("%s", name);
 	}
 
+	public Integer getGeneration() {
+		return generation;
+	}
+
 	public String getLastNameAsString(Context context) {
 		String name = getLastName();
 		if (context.getParameterOptions().isOriginalLanguage()) {
@@ -226,11 +217,38 @@ public abstract class Person extends BasicFamilyMember {
 		return spouseList;
 	}
 
+	public Person getSpouseParent() {
+		Person ps = null;
+		if (getFather().isSpouse())
+			ps = getFather();
+		else if (getMother().isSpouse())
+			ps = getMother();
+		return ps;
+	}
+
+	public Rect getTreeRect() {
+		if (!hasChildren())
+			return new Rect(x, y, x, y);
+		Rect		rect			= new Rect(x, y, x, y);
+		PersonList	childrenList	= getChildrenList();
+		for (Person child : childrenList) {
+			Rect cr = child.getTreeRect();
+			rect.expandToInclude(cr);
+		}
+		return rect;
+	}
+
 	public boolean hasChildren() {
 		for (Person p : personList) {
 			if ((p.getFather() != null && p.getFather().equals(this)) || (p.getMother() != null && p.getMother().equals(this)))
 				return true;
 		}
+		return false;
+	}
+
+	protected boolean hasParents() {
+		if (getFather() != null || getMother() != null)
+			return true;
 		return false;
 	}
 
@@ -256,10 +274,6 @@ public abstract class Person extends BasicFamilyMember {
 		return false;
 	}
 
-//	public boolean isFirstFather() {
-//		return attribute.firstFather;
-//	}
-
 	public boolean isLastChild() {
 		return attribute.lastChild;
 	}
@@ -275,15 +289,18 @@ public abstract class Person extends BasicFamilyMember {
 	public abstract boolean isMale();
 
 	public boolean isMember(Context context) {
-		if ((getFather() != null) || (getMother() != null) || (this instanceof FemaleClone) || (this instanceof MaleClone))
+		if ((getFather() != null) || (getMother() != null) || (this instanceof FemaleClone) || (this instanceof MaleClone)) {
+			// has a known father or mother
+			// has a child with a member
 			return true;
+		}
 		// not children with spouse that has parents
 		for (Person spouse : getSpouseList()) {
-			if (spouse.getFather() != null || spouse.getMother() != null || spouse.isRootFather(context))
+			if (spouse.getFather() != null || spouse.getMother() != null || spouse.isRootFather(context)) {
 				return false;
+			}
 		}
 		return true;
-//		return getFather() != null || getMother() != null || isFirstFather() || (this instanceof FemaleClone) || (this instanceof MaleClone);
 	}
 
 	/**
@@ -317,6 +334,25 @@ public abstract class Person extends BasicFamilyMember {
 		return attribute.visible;
 	}
 
+	public void moveTree(float x, float y) {
+		if (x != 0 || y != 0) {
+			this.x += x;
+			this.y += y;
+			if (!isSpouse()) {
+				PersonList spouseList = getSpouseList();
+				for (Person spouse : spouseList) {
+					spouse.moveTree(x, y);
+
+					PersonList childrenList = getChildrenList(spouse);
+					for (Person child : childrenList) {
+						child.moveTree(x, y);
+					}
+				}
+
+			}
+		}
+	}
+
 	public void print(Context context) {
 		System.out.println(toString(context));
 	}
@@ -331,6 +367,10 @@ public abstract class Person extends BasicFamilyMember {
 
 	public void setFirstFather(boolean firstFather) {
 		attribute.firstFather = firstFather;
+	}
+
+	public void setGeneration(Integer generation) {
+		this.generation = generation;
 	}
 
 	public void setIsChild(boolean child) {
@@ -358,17 +398,17 @@ public abstract class Person extends BasicFamilyMember {
 	}
 
 	public void validate(Context context) {
-		if (!isMember(context) && getLastName() != null && getLastName().toLowerCase().contains("bushnaq")) {
-			errors.add("a bushnaq with unknown origins");
+		if (!isMember(context) && getLastName() != null && getLastName().toLowerCase().contains(context.getParameterOptions().getFamilyName().toLowerCase())) {
+			errors.add(String.format(ErrorMessages.ERROR_005_PERSON_UNKNOWN_ORIGINS, context.getParameterOptions().getFamilyName()));
 		}
 		if (getLastName() == null || getLastName().isEmpty()) {
-			errors.add("missing last name");
+			errors.add(ErrorMessages.ERROR_004_PERSON_MISSING_LAST_NAME);
 		}
 		if (getFirstName() == null || getFirstName().isEmpty()) {
-			errors.add("missing first name");
+			errors.add(ErrorMessages.ERROR_003_PERSON_MISSING_FIRST_NAME);
 		}
 		if (getPageIndex() == null) {
-			errors.add("Page index null");
+			errors.add(ErrorMessages.ERROR_002_PAGE_INDEX_NULL);
 		}
 	}
 

@@ -75,7 +75,7 @@ public class ColumnHeaderList {
 
 	public void register(ExcelErrorHandler geh, Row row, int columnIndex, String columnName) {
 		ColumnHeader columnHeader = nameMap.get(columnName);
-		if (geh.isNotNull(String.format("Error #022. Unknown header '%s' at column '%s'.", columnName, ExcelUtil.columnIndexToExcelColumnName(columnIndex)), row, columnIndex, columnHeader)) {
+		if (geh.isNotNull(String.format(ErrorMessages.ERROR_102_UNKNOWN_HEADER, columnName, ExcelUtil.columnIndexToExcelColumnName(columnIndex)), row, columnIndex, columnHeader)) {
 			columnHeader.index = columnIndex;// ---The column index we found the column at
 			indexMap.put(columnIndex, columnHeader);
 		}
@@ -88,7 +88,7 @@ public class ColumnHeaderList {
 	public void testForMissingColumns(ExcelErrorHandler geh, Row row) {
 		for (String columnName : nameMap.keySet()) {
 			if (!nameMap.get(columnName).optional) {
-				if (!geh.isTrue(String.format("Error #023. Column %s is missing.", columnName), row, 0, indexMap.containsValue(nameMap.get(columnName)))) {
+				if (!geh.isTrue(String.format(ErrorMessages.ERROR_101_COLUMN_S_IS_MISSING, columnName), row, 0, indexMap.containsValue(nameMap.get(columnName)))) {
 					break;
 				}
 			}

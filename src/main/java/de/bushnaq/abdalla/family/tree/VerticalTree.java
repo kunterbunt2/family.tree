@@ -14,6 +14,12 @@ public class VerticalTree extends Tree {
 	}
 
 	@Override
+	protected void compact(Context context2, PdfDocument pdfDocument) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
 	void draw(Context context, PdfDocument pdfDocument, int firstPage, int lastPage) throws IOException {
 		for (int pageIndex = firstPage; pageIndex <= lastPage; pageIndex++) {
 			for (Person p : personList) {

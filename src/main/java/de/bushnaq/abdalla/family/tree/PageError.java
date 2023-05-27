@@ -14,7 +14,7 @@ public class PageError {
 		return error;
 	}
 
-	public int getPageIndex() {
+	public Integer getPageIndex() {
 		return pageIndex;
 	}
 }

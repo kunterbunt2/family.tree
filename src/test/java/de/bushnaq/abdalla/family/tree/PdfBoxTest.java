@@ -15,7 +15,6 @@ import de.bushnaq.abdalla.pdf.PdfDocument;
 import de.bushnaq.abdalla.pdf.PdfFont;
 
 class PdfBoxTest {
-//	PdfFont		font	= new PdfFont(PDType1Font.HELVETICA, 12);
 	PdfDocument pdfDocument;
 
 	private void createText(float x, float y, Color color, String string) throws IOException {
@@ -44,75 +43,37 @@ class PdfBoxTest {
 		}
 	}
 
-	private void createTextSizes(float x, float y, String fontName, Color color, String string) throws IOException {
+	private void createTextMetric(float x, float y, String fontName, Color color, String string) throws IOException {
 		try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, 0)) {
-			p.setNonStrokingColor(color);
-			PdfFont font = new PdfFont(pdfDocument.loadFont(fontName), 12);
-			p.setFont(font);
+			{
+				PdfFont font = new PdfFont(pdfDocument.loadFont(fontName), 12);
+				p.setFont(font);
+				float				stringWidth	= p.getStringWidth(string);
+				PDFontDescriptor	fd			= font.getFont().getFontDescriptor();
+				float				ascent		= fd.getAscent() * font.getSize() / 1000;
+				float				capHeight	= fd.getCapHeight() * font.getSize() / 1000;
+				float				descent		= -fd.getDescent() * font.getSize() / 1000;
+				float				baseline	= y + capHeight;
 
-			float				stringWidth		= p.getStringWidth(string);
-			float				stringHeight	= p.getStringHeight();
+				p.setNonStrokingColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), 20));
+				p.fillRect(x, y - (ascent - capHeight), stringWidth, ascent - capHeight);
+				p.fill();
 
-			PDFontDescriptor	fd				= font.getFont().getFontDescriptor();
-			float				ascent			= fd.getAscent() * font.getSize() / 1000;
-			float				capHeight		= fd.getCapHeight() * font.getSize() / 1000;
-			float				descent			= -fd.getDescent() * font.getSize() / 1000;
-//			float				baseline		= y - descent;
+				p.setNonStrokingColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), 60));
+				p.fillRect(x, y, stringWidth, capHeight);
+				p.fill();
 
-			p.setNonStrokingColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), 20));
-			p.fillRect(x + 1, y - (ascent - capHeight), stringWidth, ascent - capHeight);
-			p.fill();
-		}
-		try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, 0)) {
-			p.setNonStrokingColor(color);
-			PdfFont font = new PdfFont(pdfDocument.loadFont(fontName), 12);
-			p.setFont(font);
+				p.setNonStrokingColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), 40));
+				p.fillRect(x, baseline, stringWidth, descent);
+				p.fill();
 
-			float				stringWidth		= p.getStringWidth(string);
-			float				stringHeight	= p.getStringHeight();
+				p.beginText();
+				p.setNonStrokingColor(color);
+				p.newLineAtOffset(x, y + capHeight + descent);
+				p.showText(string);
+				p.endText();
+			}
 
-			PDFontDescriptor	fd				= font.getFont().getFontDescriptor();
-			float				ascent			= fd.getAscent() * font.getSize() / 1000;
-			float				capHeight		= fd.getCapHeight() * font.getSize() / 1000;
-			float				descent			= -fd.getDescent() * font.getSize() / 1000;
-//			float				baseline		= ydescent;
-
-			p.setNonStrokingColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), 60));
-			p.fillRect(x, y, stringWidth, capHeight);
-			p.fill();
-		}
-		try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, 0)) {
-			p.setNonStrokingColor(color);
-			PdfFont font = new PdfFont(pdfDocument.loadFont(fontName), 12);
-			p.setFont(font);
-
-			float				stringWidth		= p.getStringWidth(string);
-			float				stringHeight	= p.getStringHeight();
-
-			PDFontDescriptor	fd				= font.getFont().getFontDescriptor();
-			float				ascent			= fd.getAscent() * font.getSize() / 1000;
-			float				capHeight		= fd.getCapHeight() * font.getSize() / 1000;
-			float				descent			= -fd.getDescent() * font.getSize() / 1000;
-			float				baseline		= y + capHeight;
-
-			p.setNonStrokingColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), 40));
-			p.fillRect(x + 1, baseline, stringWidth, descent);
-			p.fill();
-		}
-
-		try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, 0)) {
-			PdfFont font = new PdfFont(pdfDocument.loadFont(fontName), 12);
-			p.setFont(font);
-			PDFontDescriptor	fd				= font.getFont().getFontDescriptor();
-			float				ascent			= fd.getAscent() * font.getSize() / 1000;
-			float				capHeight		= fd.getCapHeight() * font.getSize() / 1000;
-			float				descent			= -fd.getDescent() * font.getSize() / 1000;
-			float				baseline		= y - descent;
-			float				stringHeight	= p.getStringHeight();
-			p.beginText();
-			p.newLineAtOffset(x, y + capHeight);
-			p.showText(string);
-			p.endText();
 		}
 	}
 
@@ -186,6 +147,31 @@ class PdfBoxTest {
 	}
 
 	@Test
+	void testState(TestInfo testInfo) throws IOException, TransformerException {
+		pdfDocument = new PdfDocument(testInfo.getDisplayName() + ".pdf", PDRectangle.A4);
+
+		try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, 0)) {
+			p.setNonStrokingColor(Color.red);
+			p.fillRect(100, 100, 100, 20);
+			p.fill();
+
+			p.setNonStrokingColor(Color.blue);
+			p.fillRect(100, 120, 100, 20);
+			p.fill();
+
+			p.setNonStrokingColor(Color.red, 0.1f);
+			p.fillRect(100, 140, 100, 20);
+			p.fill();
+
+			p.setNonStrokingColor(Color.blue, 0.1f);
+			p.fillRect(100, 160, 100, 20);
+			p.fill();
+		}
+
+		pdfDocument.endDocument();
+	}
+
+	@Test
 	void testText(TestInfo testInfo) throws IOException, TransformerException {
 		pdfDocument = new PdfDocument(testInfo.getDisplayName() + ".pdf", PDRectangle.A4);
 
@@ -197,11 +183,11 @@ class PdfBoxTest {
 	}
 
 	@Test
-	void testTextSizes(TestInfo testInfo) throws IOException, TransformerException {
+	void testTextMetric(TestInfo testInfo) throws IOException, TransformerException {
 		pdfDocument = new PdfDocument(testInfo.getDisplayName() + ".pdf", PDRectangle.A4);
 
-		createTextSizes(20, 20, "NotoSans-Regular.ttf", Color.black, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-		createTextSizes(20, 40, "Amiri-Regular.ttf", Color.black, "هجايليش بشناق");
+		createTextMetric(20, 20, "NotoSans-Regular.ttf", Color.black, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+		createTextMetric(20, 40, "Amiri-Regular.ttf", Color.black, "هجايليش بشناق");
 
 		pdfDocument.endDocument();
 	}

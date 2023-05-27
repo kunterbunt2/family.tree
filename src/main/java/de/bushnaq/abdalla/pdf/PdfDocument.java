@@ -10,8 +10,10 @@ import java.util.Map;
 import javax.xml.transform.TransformerException;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.PDPageContentStream.AppendMode;
 import org.apache.pdfbox.pdmodel.common.PDMetadata;
 import org.apache.pdfbox.pdmodel.common.PDPageLabelRange;
 import org.apache.pdfbox.pdmodel.common.PDPageLabels;
@@ -28,9 +30,18 @@ import org.apache.xmpbox.xml.XmpSerializer;
 public class PdfDocument implements Closeable {
 	private PDDocument					document;
 	private String						documentFileName;
+	IsoPage[]							isoPageList				= {					//
+			new IsoPage(PDRectangle.A6, "A6"),										//
+			new IsoPage(PDRectangle.A5, "A5"),										//
+			new IsoPage(PDRectangle.A4, "A4"),										//
+			new IsoPage(PDRectangle.A3, "A3"),										//
+			new IsoPage(PDRectangle.A2, "A2"),										//
+			new IsoPage(PDRectangle.A1, "A1"),										//
+			new IsoPage(PDRectangle.A0, "A0") };
 	public int							lastPageIndex			= 0;
 	Map<Integer, PDPageContentStream>	pageContentStreamMap	= new HashMap<>();
 	PDPageLabels						pageLabels;
+
 	Map<Integer, PDPage>				pageMap					= new HashMap<>();
 
 	public PdfDocument(String fileName) throws IOException, TransformerException {
@@ -46,6 +57,13 @@ public class PdfDocument implements Closeable {
 	@Override
 	public void close() throws IOException {
 		endDocument();
+	}
+
+	public void closeOperation(int pageIndex) throws IOException {
+		pageContentStreamMap.get(pageIndex).close();
+		PDPage				page			= pageMap.get(pageIndex);
+		PDPageContentStream	contentStream	= new PDPageContentStream(document, page, AppendMode.APPEND, true, true);
+		pageContentStreamMap.put(pageIndex, contentStream);
 	}
 
 	private void createMetaDate() throws TransformerException, IOException {
@@ -66,12 +84,14 @@ public class PdfDocument implements Closeable {
 			// won't happen here, as the provided value is valid
 			throw new IllegalArgumentException(e);
 		}
+		PDDocumentInformation pdd = document.getDocumentInformation();
+		pdd.setAuthor("family.tree");
 	}
 
 	public PDPage createPage(int pageIndex, float pageWidth, float pageHeight, String label) throws IOException {
-		PDRectangle	mediaBox	= new PDRectangle(pageWidth, pageHeight);
-
-		PDPage		page		= new PDPage(mediaBox);
+//		PDRectangle	mediaBox	= new PDRectangle(pageWidth, pageHeight);
+		PDRectangle	bestFitting	= findBestFittingPageSize(pageWidth, pageHeight).getRect();
+		PDPage		page		= new PDPage(bestFitting);
 		pageMap.put(pageIndex, page);
 		document.addPage(page);
 		createPageLabel(pageIndex, label);
@@ -108,6 +128,24 @@ public class PdfDocument implements Closeable {
 		document.close();
 	}
 
+	private IsoPage findBestFittingPageSize(float w, float h) {
+		if (w >= h) {
+			for (int i = 0; i < isoPageList.length; i++) {
+				IsoPage pageSize = isoPageList[i];
+				if (pageSize.getRect().getWidth() >= h && pageSize.getRect().getHeight() >= w)
+					return new IsoPage(pageSize.getRect().getHeight(), pageSize.getRect().getWidth(), pageSize.getName());
+			}
+		} else {
+			for (int i = 0; i < isoPageList.length; i++) {
+				IsoPage pageSize = isoPageList[i];
+				if (pageSize.getRect().getWidth() >= w && pageSize.getRect().getHeight() >= h)
+					return pageSize;
+			}
+		}
+
+		return new IsoPage(w, h, ">A0");
+	}
+
 	public PDPageContentStream getContentStream(int pageIndex) {
 		return pageContentStreamMap.get(pageIndex);
 	}
@@ -123,6 +161,28 @@ public class PdfDocument implements Closeable {
 
 	public float getPageHeight(int pageIndex) throws IOException {
 		return getPage(pageIndex).getBBox().getHeight();
+	}
+
+	public String getPageSizeName(int pageIndex) throws IOException {
+		PDPage	page	= getPage(pageIndex);
+		float	w		= page.getBBox().getWidth();
+		float	h		= page.getBBox().getHeight();
+
+		if (w >= h) {
+			for (int i = 0; i < isoPageList.length; i++) {
+				IsoPage pageSize = isoPageList[i];
+				if (pageSize.getRect().getWidth() >= h && pageSize.getRect().getHeight() >= w)
+					return pageSize.getName();
+			}
+		} else {
+			for (int i = 0; i < isoPageList.length; i++) {
+				IsoPage pageSize = isoPageList[i];
+				if (pageSize.getRect().getWidth() >= w && pageSize.getRect().getHeight() >= h)
+					return pageSize.getName();
+			}
+		}
+
+		return ">A0";
 	}
 
 	private void includeColorProfile() throws IOException {

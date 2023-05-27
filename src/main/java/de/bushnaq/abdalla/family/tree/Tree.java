@@ -22,6 +22,7 @@ import de.bushnaq.abdalla.family.person.PersonList;
 import de.bushnaq.abdalla.pdf.CloseableGraphicsState;
 import de.bushnaq.abdalla.pdf.PdfDocument;
 import de.bushnaq.abdalla.pdf.PdfFont;
+import de.bushnaq.abdalla.util.ErrorMessages;
 
 public abstract class Tree {
 	private static final Color	GRID_COLOR	= new Color(0x2d, 0xb1, 0xff, 32);
@@ -30,13 +31,20 @@ public abstract class Tree {
 	private int					firstPageIndex;
 	int							iteration	= 0;
 	private int					lastPageIndex;
-	Font						livedFont;												// used for date text
+	Font						livedFont;												// used for date
+																						// text
 	final Logger				logger		= LoggerFactory.getLogger(this.getClass());
-	Font						nameFont;												// used for name text
-	PdfFont						pdfDateFont;											// used for date text
-	PdfFont						pdfNameFont;											// used for name text
+	Font						nameFont;												// used for name
+																						// text
+	PdfFont						pdfDateFont;											// used for date
+																						// text
+	PdfFont						pdfNameFont;											// used for name
+																						// text
 	PdfFont						pdfNameOLFont;
 	PersonList					personList;
+	PdfFont						watermarkFont;											// used for
+																						// watermark on
+																						// page
 
 	public Tree(Context context, PersonList personList) {
 		this.context = context;
@@ -71,6 +79,8 @@ public abstract class Tree {
 		return maxY + Person.getHeight(context);
 	}
 
+	protected abstract void compact(Context context2, PdfDocument pdfDocument);
+
 	private PdfFont createFont(PdfDocument pdfDocument, String fontName, float fontSize) throws IOException {
 		PDFont pdFont = pdfDocument.loadFont(fontName);
 		return new PdfFont(pdFont, fontSize / getFontSize(pdFont));
@@ -81,7 +91,9 @@ public abstract class Tree {
 		for (Person rootFather : rootFatherList) {
 			float	pageWidth	= calclatePageWidth(pdfDocument.lastPageIndex);
 			float	pageHeight	= calculatePageHeight(context, pdfDocument.lastPageIndex);
-			pdfDocument.createPage(pdfDocument.lastPageIndex++, pageWidth, pageHeight, rootFather.getFirstName() + context.getParameterOptions().getOutputDecorator());
+			pdfDocument.createPage(pdfDocument.lastPageIndex, pageWidth, pageHeight, rootFather.getFirstName() + context.getParameterOptions().getOutputDecorator());
+			drawPageSizeWatermark(pdfDocument, pdfDocument.lastPageIndex);
+			pdfDocument.lastPageIndex++;
 		}
 	}
 
@@ -119,6 +131,19 @@ public abstract class Tree {
 		}
 	}
 
+	private void drawPageSizeWatermark(PdfDocument pdfDocument, int pageIndex) throws IOException {
+		try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
+			PDPage page = pdfDocument.getPage(pageIndex);
+			p.setNonStrokingColor(GRID_COLOR);
+			p.setFont(watermarkFont);
+			String text = pdfDocument.getPageSizeName(pageIndex);
+			p.beginText();
+			p.newLineAtOffset(page.getBBox().getWidth() - p.getStringWidth(text), p.getStringHeight());
+			p.showText(text);
+			p.endText();
+		}
+	}
+
 	protected List<Male> findRootFatherList() {
 		List<Male> fathers = new ArrayList<>();
 		for (Person p : personList) {
@@ -148,7 +173,9 @@ public abstract class Tree {
 			for (PageError s : errors) {
 				p.beginText();
 				p.newLineAtOffset(2, y);
-				p.showText(s.getError());
+				p.showText(String.format("Page %02d, %s", s.getPageIndex(), s.getError()));
+
+//				p.showText(s.getError());
 				p.endText();
 				y += p.getStringHeight();
 			}
@@ -161,10 +188,10 @@ public abstract class Tree {
 
 	private void init(Context context, PdfDocument pdfDocument) throws IOException {
 		pdfDateFont = createFont(pdfDocument, "NotoSans-Regular.ttf", (Person.getHeight(context) - Person.getBorder(context) * 2 - Person.getMargine(context) * 2) / 5);
-//		pdfDateFont = new PdfFont(pdfDocument.loadFont("NotoSans-Regular.ttf"), (Person.getHeight(context) - Person.getBorder(context) * 2 - Person.getMargine(context) * 2) / 5);
+		watermarkFont = createFont(pdfDocument, "NotoSans-Bold.ttf", 128);
 		if (context.getParameterOptions().isCompact()) {
-			pdfNameFont = createFont(pdfDocument, "NotoSans-Regular.ttf", (Person.getHeight(context) - Person.getBorder(context) * 2 - Person.getMargine(context) * 2) / 2);
-			pdfNameOLFont = createFont(pdfDocument, "Amiri-Regular.ttf", (Person.getHeight(context) - Person.getBorder(context) * 2 - Person.getMargine(context) * 2) / 2);
+			pdfNameFont = createFont(pdfDocument, "NotoSans-Regular.ttf", (Person.getHeight(context) - Person.getBorder(context) * 2) / 2);
+			pdfNameOLFont = createFont(pdfDocument, "Amiri-Regular.ttf", (Person.getHeight(context) - Person.getBorder(context) * 2) / 2);
 		} else {
 			pdfNameFont = createFont(pdfDocument, "NotoSans-Bold.ttf", (Person.getHeight(context) - Person.getBorder(context) * 2 - Person.getMargine(context) * 2) / 3);
 			pdfNameOLFont = createFont(pdfDocument, "Amiri-bold.ttf", (Person.getHeight(context) - Person.getBorder(context) * 2 - Person.getMargine(context) * 2) / 3);
@@ -214,7 +241,7 @@ public abstract class Tree {
 			boolean		firstChild		= true;
 			PersonList	childrenList	= person.getChildrenList(spouse);
 			for (Person child : childrenList) {
-				child.generation = person.generation + 1;
+				child.setGeneration(person.getGeneration() + 1);
 				child.childIndex = childIndex++;
 				child.setIsChild(true);
 				if (firstChild) {
@@ -233,7 +260,7 @@ public abstract class Tree {
 		List<Male> firstFathers = findRootFatherList();
 		for (Person firstFather : firstFathers) {
 			firstFather.setFirstFather(true);
-			firstFather.generation = 0;
+			firstFather.setGeneration(0);
 			initAttribute(firstFather);
 		}
 	}
@@ -241,14 +268,8 @@ public abstract class Tree {
 	private void initializePersonList(Context context, PdfDocument pdfDocument) {
 		initAttributes();
 		position(context, pdfDocument);
-		for (Person p : personList) {
-			p.validate(context);
-		}
-		for (Person p : personList) {
-			if (!p.isVisible())
-				errors.add(new PageError(firstPageIndex, String.format("Error #001: [%d]%s %s is not visible. A person is visible if he is member of the family or has children with someone from the family.", p.getId(),
-						p.getFirstName(), p.getLastName())));
-		}
+		compact(context, pdfDocument);
+		validate(context);
 	}
 
 	private void position(Context context, PdfDocument pdfDocument) {
@@ -265,5 +286,24 @@ public abstract class Tree {
 	}
 
 	abstract float position(Context context, Person person);
+
+	private void validate(Context context) {
+		for (Person p1 : personList) {
+			for (Person p2 : personList) {
+				if (!p1.equals(p2)) {
+					if (p1.isVisible() && p2.isVisible() && p1.getPageIndex() == p2.getPageIndex() && p1.x == p2.x && p1.y == p2.y) {
+						errors.add(new PageError(p1.getPageIndex(), String.format(ErrorMessages.ERROR_006_OVERLAPPING, p1.getId(), p1.getFirstName(), p1.getLastName(), p2.getId(), p2.getFirstName(), p2.getLastName())));
+					}
+				}
+			}
+		}
+		for (Person p : personList) {
+			p.validate(context);
+		}
+		for (Person p : personList) {
+			if (!p.isVisible())
+				errors.add(new PageError(p.getPageIndex(), String.format(ErrorMessages.ERROR_001_PERSON_IS_NOT_VISIBLE, p.getId(), p.getFirstName(), p.getLastName())));
+		}
+	}
 
 }
