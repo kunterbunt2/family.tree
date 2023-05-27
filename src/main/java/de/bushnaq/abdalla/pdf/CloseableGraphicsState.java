@@ -79,13 +79,13 @@ public class CloseableGraphicsState implements Closeable {
 
 		float	size	= font.getSize();
 		float	width	= getStringWidth(font, text);
-		if (width > boxWidth - 4) {
+		if (width > boxWidth) {
 			// reduce font size
 			do {
-				size -= 1f;
+				size -= 0.1f;
 				font = new PdfFont(font.getFont(), size);
 				width = getStringWidth(font, text);
-			} while (width > boxWidth - 4);
+			} while (width > boxWidth);
 		}
 		return font;
 	}

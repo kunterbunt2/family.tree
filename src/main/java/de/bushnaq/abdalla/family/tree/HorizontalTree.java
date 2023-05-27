@@ -19,12 +19,26 @@ public class HorizontalTree extends Tree {
 
 	@Override
 	protected void compact(Context context2, PdfDocument pdfDocument) {
-		List<Male> firstFathers = findRootFatherList();
-		for (Person firstFather : firstFathers) {
-			compactChildren(firstFather, 1);
+		List<Male>	firstFathers	= findRootFatherList();
+		int			maxgeneration	= findMaxgeneration();
+
+//		for (int g = maxgeneration; g > 0; g--) {
+		for (int g = 3; g > 0; g--) {
+			logger.info(String.format("compacting children of generation %d", g));
+
+			for (Person firstFather : firstFathers) {
+				compactChildren(firstFather, g);
+			}
+//			for (Person firstFather : firstFathers) {
+//				compactGeneration(firstFather, g);
+//			}
 		}
-		for (Person firstFather : firstFathers) {
-			compactGeneration(firstFather, 1);
+		for (int g = 3; g > 0; g--) {
+			logger.info(String.format("compacting parents of generation %d", g));
+			for (Person firstFather : firstFathers) {
+				compactGeneration(firstFather, g);
+			}
+
 		}
 	}
 
@@ -36,17 +50,26 @@ public class HorizontalTree extends Tree {
 				float y = 0;
 				{
 					// iterate over children from last to first
-					Iterator<Person> di = p.getChildrenList().descendingIterator();
+					Person				lastChild	= null;
+					Iterator<Person>	di			= p.getChildrenList().descendingIterator();
 					while (di.hasNext()) {
 						Person c = di.next();
 						if (y != 0) {
 							// move each child tree to be below the next child
-							c.moveTree(0, y - c.y - 1);
+							Rect rect = c.getTreeRect();
+							if ((rect.getX2() - rect.getX1()) > 0) {
+								float delta;
+								if (c.getSpouseList().size() > 1)
+									delta = y - c.y + context.getParameterOptions().getMinYDistanceBetweenTrees();
+								else
+									delta = y - c.y + context.getParameterOptions().getMinYDistanceBetweenTrees() - 1;
+								c.moveTree(0, delta);
+								logger.info(String.format("Move [%d]%s %s y = %d.", c.getId(), c.getFirstName(), c.getLastName(), (int) delta));
+							}
 						}
 						Rect rect = c.getTreeRect();
-						if ((rect.getX2() - rect.getX1()) > 0) {
-							y = rect.getY2() + 1;
-						}
+						y = Math.max(rect.getY2(), y);// we can go more compact, but need to take care of second spouse situation
+						lastChild = c;
 					}
 				}
 				{
@@ -57,15 +80,16 @@ public class HorizontalTree extends Tree {
 						Person c = di.next();
 						if (lastChild != null && (c.x - lastChild.x > 1)) {
 							// move child tree to be one unit right to the previous child
-							float deltaX = c.x - lastChild.x;
-							c.moveTree(-deltaX + 1, 0);
+							float	deltaX	= c.x - lastChild.x;
+							float	delta	= -deltaX + 1;
+							c.moveTree(delta, 0);
+							logger.info(String.format("Move [%d]%s %s x = %d.", c.getId(), c.getFirstName(), c.getLastName(), (int) delta));
 							// if this is the first child of a spouse, the spouse must be moved too
 							if (c.isFirstChild()) {
-								c.getSpouseParent().x += -deltaX + 1;
+								c.getSpouseParent().x += delta;
 							}
 						}
 						lastChild = c;
-
 					}
 				}
 			}
@@ -93,40 +117,52 @@ public class HorizontalTree extends Tree {
 					while (di.hasNext()) {
 						Person c = di.next();
 						// move all children of that generation together
-						if (lastChild != null && (c.x - lastChild.x > 1)) {
-							// move child tree to be one unit right to the previous child
-							Rect	rect	= lastChild.getTreeRect();
-							float	deltaX	= c.x - rect.getX2();
-							c.moveTree(-deltaX + 1, 0);
-							// if this is the first child of a spouse, the spouse must be moved too
-							if (c.isFirstChild()) {
-								c.getSpouseParent().x += -deltaX + 1;
+						if (lastChild != null) {
+							Rect rect = lastChild.getTreeRect();
+							if (c.x - rect.getX2() > 1) {
+								// move child tree to be one unit right to the previous child
+								float deltaX = c.x - rect.getX2();
+								c.moveTree(-deltaX + 1, 0);
+								logger.info(String.format("Move [%d]%s %s x = %d.", c.getId(), c.getFirstName(), c.getLastName(), (int) -deltaX + 1));
+								// if this is the first child of a spouse, the spouse must be moved too
+								if (c.isFirstChild()) {
+									c.getSpouseParent().x += -deltaX + 1;
+								}
 							}
 						}
 						lastChild = c;
-
 					}
 				}
 			}
-		} else if (p.getGeneration() != null && p.getGeneration() < generation) {
+		} else if (p.getGeneration() != null && p.getGeneration() < generation - 1)
+
+		{
 			// generation not found yet
 			Iterator<Person> di = p.getChildrenList().descendingIterator();
 			while (di.hasNext()) {
 				Person c = di.next();
-				compactChildren(c, generation);
+				compactGeneration(c, generation);
 			}
 		}
 
 	}
 
 	@Override
-	void draw(Context context, PdfDocument pdfDocument, int firstPage, int lastPage) throws IOException {
-		for (int pageIndex = firstPage; pageIndex <= lastPage; pageIndex++) {
-			for (Person p : personList) {
-				if (p.isVisible() && pageIndex == p.getPageIndex())
-					p.drawHorizontal(context, pdfDocument, pdfNameFont, pdfNameOLFont, pdfDateFont);
-			}
+	void draw(Context context, PdfDocument pdfDocument, int pageIndex) throws IOException {
+		for (Person p : personList) {
+			if (p.isVisible() && pageIndex == p.getPageIndex())
+				p.drawHorizontal(context, pdfDocument, pdfNameFont, pdfNameOLFont, pdfDateFont);
 		}
+	}
+
+	private int findMaxgeneration() {
+		int maxGenration = -1;
+
+		for (Person p : personList) {
+			if (p.getGeneration() != null)
+				maxGenration = Math.max(maxGenration, p.getGeneration());
+		}
+		return maxGenration;
 	}
 
 	@Override

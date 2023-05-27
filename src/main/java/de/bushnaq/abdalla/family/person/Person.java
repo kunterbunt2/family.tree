@@ -15,6 +15,7 @@ import de.bushnaq.abdalla.util.ErrorMessages;
 
 public abstract class Person extends BasicFamilyMember {
 	private static final float	PERSON_BORDER			= 1;
+	private static final float	PERSON_BORDER_COMPACT	= 0.5f;
 	private static final float	PERSON_HEIGHT			= 64;
 	private static final float	PERSON_HEIGHT_COMPACT	= 24;
 	private static final float	PERSON_MARGINE			= 1;
@@ -39,7 +40,10 @@ public abstract class Person extends BasicFamilyMember {
 	}
 
 	public static float getBorder(Context context) {
-		return PERSON_BORDER * context.getParameterOptions().getZoom();
+		if (context.getParameterOptions().isCompact())
+			return PERSON_BORDER_COMPACT * context.getParameterOptions().getZoom();
+		else
+			return PERSON_BORDER * context.getParameterOptions().getZoom();
 	}
 
 	public static float getHeight(Context context) {

@@ -31,6 +31,7 @@ public class ParameterOptions {
 	private boolean				h									= false;									// draw a horizontal tree if true
 	private String				input;																			// input excel file
 	private final Logger		logger								= LoggerFactory.getLogger(this.getClass());
+	private int					minYDistanceBetweenTrees			= 1;
 	private boolean				originalLanguage					= false;									// use original language fields for fist name and last name
 	private String				outputDecorator						= "";										// additional decorations for the output file name
 	private boolean				v									= true;										// vertical tree mode
@@ -42,6 +43,10 @@ public class ParameterOptions {
 
 	public String getInput() {
 		return input;
+	}
+
+	public int getMinYDistanceBetweenTrees() {
+		return minYDistanceBetweenTrees;
 	}
 
 	public String getOutputDecorator() {
@@ -147,7 +152,7 @@ public class ParameterOptions {
 			compact = false;
 			logger.info("compact tree disabled.");
 		}
-		if (line.hasOption(CLI_OPTION_COORDINATES) && !compact) {
+		if (line.hasOption(CLI_OPTION_COORDINATES) /* && !compact */) {
 			coordinates = true;
 			logger.info("coordinates enabled.");
 		} else {

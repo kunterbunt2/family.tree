@@ -17,7 +17,7 @@ public abstract class DrawablePerson extends Person {
 	private Color				backgroundColor;
 	private Color				borderColor					= new Color(0, 0, 0, 64);
 	private Color				connectorColor				= Color.gray;
-	private Color[]				generationColors			= { Color.red, Color.blue, Color.green };
+	private Color[]				generationColors			= { Color.red, Color.blue, Color.green, Color.orange, Color.gray };
 	private Color				spouseBorderColor;
 
 	private Color				textColor					= new Color(0, 0, 0);
@@ -150,15 +150,22 @@ public abstract class DrawablePerson extends Person {
 				}
 			}
 		}
-		if (!context.getParameterOptions().isCompact()) {
+//		if (!context.getParameterOptions().isCompact())
+		{
 			// ID
 			try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
 				p.setNonStrokingColor(textColor);
-				p.setFont(nameFont);
+				float y2;
+				if (context.getParameterOptions().isCompact()) {
+					p.setFont(dateFont);
+//					y2 = y1 + p.getStringHeight() + getBorder(context);
+				} else {
+					p.setFont(nameFont);
+				}
 				{
 					String	text	= "" + getId();
 					float	x2		= x1 + getBorder(context) + getMargine(context);
-					float	y2		= y1 + getHeight(context) - getBorder(context);
+					y2 = y1 + getHeight(context) - getBorder(context);
 					drawTextMetric(p, x2, y2, text, context);
 					p.beginText();
 					p.newLineAtOffset(x2, y2);
@@ -167,12 +174,18 @@ public abstract class DrawablePerson extends Person {
 				}
 			}
 		}
-		if (!context.getParameterOptions().isCompact()) {
+//		if (!context.getParameterOptions().isCompact())
+		{
 			// Generation
 			try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
 				if (getGeneration() != null) {
 					p.setNonStrokingColor(textColor);
-					p.setFont(dateFont);
+					if (context.getParameterOptions().isCompact()) {
+						p.setFont(dateFont);
+//						y2 = y1 + p.getStringHeight() + getBorder(context);
+					} else {
+						p.setFont(nameFont);
+					}
 					String	text	= "G" + getGeneration();
 					float	x2		= x1 + getBorder(context) + getMargine(context);
 					float	y2		= y1 + getBorder(context) + p.getStringHeight();

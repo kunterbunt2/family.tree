@@ -60,10 +60,10 @@ public class Main {
 //				{ "-v", "-ol" },																														//
 //				{ "-v", "-c" },																															//
 //				{ "-v", "-c", "-ol" },																													//
-				{ "-h", "-coordinates" },																													//
-//				{ "-h", "-ol" },																														//
+				{ "-h" },																																	//
+				{ "-h", "-ol" },																															//
 				{ "-h", "-c" },																																//
-//				{ "-h", "-c", "-ol" },																													//
+				{ "-h", "-c", "-ol" },																														//
 		};
 
 		for (int i = 0; i < parameters.length; i++) {

@@ -20,12 +20,10 @@ public class VerticalTree extends Tree {
 	}
 
 	@Override
-	void draw(Context context, PdfDocument pdfDocument, int firstPage, int lastPage) throws IOException {
-		for (int pageIndex = firstPage; pageIndex <= lastPage; pageIndex++) {
-			for (Person p : personList) {
-				if (p.isVisible() && pageIndex == p.getPageIndex())
-					p.drawVertical(context, pdfDocument, pdfNameFont, pdfNameOLFont, pdfDateFont);
-			}
+	void draw(Context context, PdfDocument pdfDocument, int pageIndex) throws IOException {
+		for (Person p : personList) {
+			if (p.isVisible() && pageIndex == p.getPageIndex())
+				p.drawVertical(context, pdfDocument, pdfNameFont, pdfNameOLFont, pdfDateFont);
 		}
 	}
 

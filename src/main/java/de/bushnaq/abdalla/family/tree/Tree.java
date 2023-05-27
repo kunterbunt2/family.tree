@@ -100,10 +100,35 @@ public abstract class Tree {
 	private void draw(Context context, PdfDocument pdfDocument) throws IOException {
 		createPages(context, pdfDocument);
 //		drawGrid(pdfDocument);
-		draw(context, pdfDocument, firstPageIndex, lastPageIndex);
+		for (int pageIndex = firstPageIndex; pageIndex <= lastPageIndex; pageIndex++) {
+			draw(context, pdfDocument, pageIndex);
+			drawErrors(pdfDocument, pageIndex);
+		}
 	}
 
-	abstract void draw(Context context, PdfDocument pdfDocument, int firstPage, int lastPage) throws IOException;
+	abstract void draw(Context context, PdfDocument pdfDocument, int pageIndex) throws IOException;
+
+	public void drawErrors(PdfDocument pdfDocument, int pageIndex) throws IOException {
+		try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
+			PDPage page = pdfDocument.getPage(pageIndex);
+			p.setNonStrokingColor(Color.red);
+			p.setFont(pdfNameFont);
+
+			float y = page.getMediaBox().getHeight();
+			for (PageError pageError : errors) {
+				if (pageError.getPageIndex() != null && (pageError.getPageIndex() == pageIndex)) {
+					p.beginText();
+					p.newLineAtOffset(2, y);
+					String errorMessage;
+					errorMessage = String.format("%s", pageError.getError());
+					p.showText(errorMessage);
+					logger.error(errorMessage);
+					p.endText();
+					y -= p.getStringHeight();
+				}
+			}
+		}
+	}
 
 	private void drawGrid(PdfDocument pdfDocument) throws IOException {
 		for (int pageIndex = 0; pageIndex < pdfDocument.getNumberOfPages(); pageIndex++) {
@@ -170,14 +195,18 @@ public abstract class Tree {
 			p.setFont(pdfNameFont);
 
 			float y = p.getStringHeight();
-			for (PageError s : errors) {
-				p.beginText();
-				p.newLineAtOffset(2, y);
-				p.showText(String.format("Page %02d, %s", s.getPageIndex(), s.getError()));
-
-//				p.showText(s.getError());
-				p.endText();
-				y += p.getStringHeight();
+			for (int i = errors.size(); i-- > 0;) {
+				PageError error = errors.get(i);
+				if (error.getPageIndex() == null) {
+					p.beginText();
+					p.newLineAtOffset(2, y);
+					String errorMessage;
+					errorMessage = String.format("%s", error.getError());
+					p.showText(errorMessage);
+					logger.error(errorMessage);
+					p.endText();
+					y += p.getStringHeight();
+				}
 			}
 		}
 	}
@@ -187,7 +216,10 @@ public abstract class Tree {
 	}
 
 	private void init(Context context, PdfDocument pdfDocument) throws IOException {
-		pdfDateFont = createFont(pdfDocument, "NotoSans-Regular.ttf", (Person.getHeight(context) - Person.getBorder(context) * 2 - Person.getMargine(context) * 2) / 5);
+		if (context.getParameterOptions().isCompact())
+			pdfDateFont = createFont(pdfDocument, "NotoSans-Regular.ttf", (Person.getHeight(context) - Person.getBorder(context) * 2) / 5);
+		else
+			pdfDateFont = createFont(pdfDocument, "NotoSans-Regular.ttf", (Person.getHeight(context) - Person.getBorder(context) * 2 - Person.getMargine(context) * 2) / 5);
 		watermarkFont = createFont(pdfDocument, "NotoSans-Bold.ttf", 128);
 		if (context.getParameterOptions().isCompact()) {
 			pdfNameFont = createFont(pdfDocument, "NotoSans-Regular.ttf", (Person.getHeight(context) - Person.getBorder(context) * 2) / 2);
