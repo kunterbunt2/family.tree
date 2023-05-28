@@ -72,26 +72,24 @@ public class HorizontalTree extends Tree {
 				}
 				{
 					// iterate over all children from first to last
-					Person				lastChild	= null;
-					Iterator<Person>	di			= p.getChildrenList().iterator();
-					while (di.hasNext()) {
-						Person c = di.next();
-						if (lastChild != null && (c.x - lastChild.x > 1)) {
+					for (int c = 1; c < p.getChildrenList().size(); c++) {
+						Person	child	= p.getChildrenList().get(c);
+						Person	prev	= p.getChildrenList().get(c - 1);
+						float	deltaX	= child.x - prev.x;
+						if (deltaX > 1) {
 							// move child tree to be one unit right to the previous child
-							float	deltaX	= c.x - lastChild.x;
-							float	delta	= -deltaX + 1;
-							c.moveTree(delta, 0);
-							logger.info(String.format("Move [%d]%s %s x = %d.", c.getId(), c.getFirstName(), c.getLastName(), (int) delta));
+							float delta = -deltaX + 1;
+							child.moveTree(delta, 0);
+							logger.info(String.format("Move [%d]%s %s x = %d.", child.getId(), child.getFirstName(), child.getLastName(), (int) delta));
 							// if this is the first child of a spouse, the spouse must be moved too
-							if (c.isFirstChild()) {
-								c.getSpouseParent().x += delta;
+							if (child.isFirstChild()) {
+								child.getSpouseParent().x += delta;
 							}
 						}
-						lastChild = c;
+
 					}
 				}
 			}
-
 		} else if (p.getGeneration() != null && p.getGeneration() < generation) {
 			// generation not found yet
 			Iterator<Person> di = p.getChildrenList().descendingIterator();
@@ -112,35 +110,28 @@ public class HorizontalTree extends Tree {
 	private void compactParents(Person p, int generation) {
 		if (p.getGeneration() != null && p.getGeneration() == generation - 1) {
 			// generation found
-			if (!p.isSpouse() && p.hasChildren()) {
+			if (!p.isSpouse() && p.hasChildren() && p.getChildrenList().size() > 1) {
 				// has a tree below that is worth moving
 				{
 					// iterate over all children from first to last
-					Person				lastChild	= null;
-					Iterator<Person>	di			= p.getChildrenList().iterator();
-					while (di.hasNext()) {
-						Person c = di.next();
-						// move all children of that generation together
-						if (lastChild != null) {
-							Rect rect = lastChild.getTreeRect();
-							if (c.x - rect.getX2() > 1) {
-								// move child tree to be one unit right to the previous child
-								float deltaX = c.x - rect.getX2();
-								c.moveTree(-deltaX + 1, 0);
-								logger.info(String.format("Move [%d]%s %s x = %d.", c.getId(), c.getFirstName(), c.getLastName(), (int) -deltaX + 1));
-								// if this is the first child of a spouse, the spouse must be moved too
-								if (c.isFirstChild()) {
-									c.getSpouseParent().x += -deltaX + 1;
-								}
+					for (int c = 1; c < p.getChildrenList().size(); c++) {
+						Person	child	= p.getChildrenList().get(c);
+						Person	prev	= p.getChildrenList().get(c - 1);
+						Rect	rect	= prev.getTreeRect();
+						float	deltaX	= child.x - rect.getX2();
+						if (deltaX > 1) {
+							// move child tree to be one unit right to the previous child
+							child.moveTree(-deltaX + 1, 0);
+							logger.info(String.format("Move [%d]%s %s x = %d.", child.getId(), child.getFirstName(), child.getLastName(), (int) -deltaX + 1));
+							// if this is the first child of a spouse, the spouse must be moved too
+							if (child.isFirstChild()) {
+								child.getSpouseParent().x += -deltaX + 1;
 							}
 						}
-						lastChild = c;
 					}
 				}
 			}
-		} else if (p.getGeneration() != null && p.getGeneration() < generation - 1)
-
-		{
+		} else if (p.getGeneration() != null && p.getGeneration() < generation - 1) {
 			// generation not found yet
 			Iterator<Person> di = p.getChildrenList().descendingIterator();
 			while (di.hasNext()) {

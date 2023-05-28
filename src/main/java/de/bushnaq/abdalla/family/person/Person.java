@@ -91,7 +91,7 @@ public abstract class Person extends BasicFamilyMember {
 	public Integer						nextPersonX			= -1;
 	public Integer						nextPersonY			= -1;
 	private Person						nextSibling;
-	public Integer						pageIndex;													// index of the pdf page this person is located at
+	public Integer						pageIndex;								// index of the pdf page this person is located at
 	public PersonList					personList;
 	private Person						prevSibling;
 	private Map<Integer, PersonList>	spouseChildrenList	= new HashMap<>();
