@@ -18,58 +18,56 @@ public class HorizontalTree extends Tree {
 	}
 
 	@Override
-	protected void compact(Context context2, PdfDocument pdfDocument) {
+	protected void compact(Context context, PdfDocument pdfDocument) {
 		List<Male>	firstFathers	= findRootFatherList();
-		int			maxgeneration	= findMaxgeneration();
+		int			maxgeneration	= 3/* findMaxgeneration() */;
 
-//		for (int g = maxgeneration; g > 0; g--) {
-		for (int g = 3; g > 0; g--) {
-			logger.info(String.format("compacting children of generation %d", g));
-
-			for (Person firstFather : firstFathers) {
+		for (Person firstFather : firstFathers) {
+			for (int g = maxgeneration - 1; g > 0; g--) {
+				logger.info(String.format("compacting children of generation %d", g));
 				compactChildren(firstFather, g);
 			}
-//			for (Person firstFather : firstFathers) {
-//				compactGeneration(firstFather, g);
-//			}
-		}
-		for (int g = 3; g > 0; g--) {
-			logger.info(String.format("compacting parents of generation %d", g));
-			for (Person firstFather : firstFathers) {
-				compactGeneration(firstFather, g);
+			for (int g = maxgeneration - 1; g > 0; g--) {
+				logger.info(String.format("compacting parents of generation %d", g));
+				compactParents(firstFather, g);
 			}
-
+			Rect	treeRect	= firstFather.getTreeRect();
+			int		w			= (int) (treeRect.getX2() - treeRect.getX1() + 1);
+			int		h			= (int) (treeRect.getY2() - treeRect.getY1() + 1);
+			int		area		= w * h;
+			logger.info(String.format("compacted tree to %d X %d = %d", w, h, area));
 		}
 	}
 
+	/**
+	 * this algorithm will pack children and their subtrees together by moving them below each other.<br>
+	 * The eldest child lowest and the youngest child highest.
+	 *
+	 * @param p
+	 * @param generation
+	 */
 	private void compactChildren(Person p, int generation) {
 		if (p.getGeneration() != null && p.getGeneration() == generation) {
 			// generation found
-			if (!p.isSpouse() && p.hasChildren()) {
-				// has a tree below that is worth moving
+			if (!p.isSpouse() && p.hasChildren() && p.getChildrenList().size() > 1) {
 				float y = 0;
 				{
 					// iterate over children from last to first
-					Person				lastChild	= null;
-					Iterator<Person>	di			= p.getChildrenList().descendingIterator();
-					while (di.hasNext()) {
-						Person c = di.next();
-						if (y != 0) {
-							// move each child tree to be below the next child
-							Rect rect = c.getTreeRect();
-							if ((rect.getX2() - rect.getX1()) > 0) {
-								float delta;
-								if (c.getSpouseList().size() > 1)
-									delta = y - c.y + context.getParameterOptions().getMinYDistanceBetweenTrees();
-								else
-									delta = y - c.y + context.getParameterOptions().getMinYDistanceBetweenTrees() - 1;
-								c.moveTree(0, delta);
-								logger.info(String.format("Move [%d]%s %s y = %d.", c.getId(), c.getFirstName(), c.getLastName(), (int) delta));
-							}
+					for (int c = p.getChildrenList().size() - 2; c > -1; c--) {
+						Person	child	= p.getChildrenList().get(c);
+						Person	next	= p.getChildrenList().get(c + 1);
+						y = Math.max(next.getTreeRect().getY2(), y);
+						Rect rect = child.getTreeRect();
+						if ((rect.getX2() - rect.getX1()) > 0) {
+							// has a tree below that is worth moving
+							float delta;
+							if (child.getSpouseList().size() > 1)
+								delta = y - child.y + context.getParameterOptions().getMinYDistanceBetweenTrees();
+							else
+								delta = y - child.y + context.getParameterOptions().getMinYDistanceBetweenTrees() - 1;
+							child.moveTree(0, delta);
+							logger.info(String.format("Move [%d]%s %s y = %d.", child.getId(), child.getFirstName(), child.getLastName(), (int) delta));
 						}
-						Rect rect = c.getTreeRect();
-						y = Math.max(rect.getY2(), y);// we can go more compact, but need to take care of second spouse situation
-						lastChild = c;
 					}
 				}
 				{
@@ -105,7 +103,13 @@ public class HorizontalTree extends Tree {
 
 	}
 
-	private void compactGeneration(Person p, int generation) {
+	/**
+	 * Parents that have children packed together can be moved nearer to each other
+	 *
+	 * @param p
+	 * @param generation
+	 */
+	private void compactParents(Person p, int generation) {
 		if (p.getGeneration() != null && p.getGeneration() == generation - 1) {
 			// generation found
 			if (!p.isSpouse() && p.hasChildren()) {
@@ -141,7 +145,7 @@ public class HorizontalTree extends Tree {
 			Iterator<Person> di = p.getChildrenList().descendingIterator();
 			while (di.hasNext()) {
 				Person c = di.next();
-				compactGeneration(c, generation);
+				compactParents(c, generation);
 			}
 		}
 

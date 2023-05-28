@@ -137,7 +137,11 @@ public abstract class DrawablePerson extends Person {
 			// clone
 			try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
 				p.setNonStrokingColor(textColor);
-				p.setFont(nameFont);
+				if (context.getParameterOptions().isCompact()) {
+					p.setFont(dateFont);
+				} else {
+					p.setFont(nameFont);
+				}
 				if (this instanceof FemaleClone || this instanceof MaleClone) {
 					String	text	= "*";
 					float	x2		= x1 + getWidth(context) - p.getStringWidth(text) - getBorder(context) - getMargine(context);
@@ -158,7 +162,6 @@ public abstract class DrawablePerson extends Person {
 				float y2;
 				if (context.getParameterOptions().isCompact()) {
 					p.setFont(dateFont);
-//					y2 = y1 + p.getStringHeight() + getBorder(context);
 				} else {
 					p.setFont(nameFont);
 				}

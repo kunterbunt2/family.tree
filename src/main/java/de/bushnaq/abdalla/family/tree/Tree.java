@@ -13,12 +13,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.bushnaq.abdalla.family.Context;
-import de.bushnaq.abdalla.family.person.Female;
-import de.bushnaq.abdalla.family.person.FemaleClone;
 import de.bushnaq.abdalla.family.person.Male;
-import de.bushnaq.abdalla.family.person.MaleClone;
 import de.bushnaq.abdalla.family.person.Person;
 import de.bushnaq.abdalla.family.person.PersonList;
+import de.bushnaq.abdalla.family.person.Rect;
 import de.bushnaq.abdalla.pdf.CloseableGraphicsState;
 import de.bushnaq.abdalla.pdf.PdfDocument;
 import de.bushnaq.abdalla.pdf.PdfFont;
@@ -26,25 +24,24 @@ import de.bushnaq.abdalla.util.ErrorMessages;
 
 public abstract class Tree {
 	private static final Color	GRID_COLOR	= new Color(0x2d, 0xb1, 0xff, 32);
+	PdfFont						bigWatermarkFont;										// used for watermark on page
 	protected Context			context;
 	public List<PageError>		errors		= new ArrayList<>();
 	private int					firstPageIndex;
 	int							iteration	= 0;
 	private int					lastPageIndex;
 	Font						livedFont;												// used for date
-																						// text
+	// text
 	final Logger				logger		= LoggerFactory.getLogger(this.getClass());
 	Font						nameFont;												// used for name
-																						// text
+	// text
 	PdfFont						pdfDateFont;											// used for date
 																						// text
 	PdfFont						pdfNameFont;											// used for name
-																						// text
+	// text
 	PdfFont						pdfNameOLFont;
 	PersonList					personList;
-	PdfFont						watermarkFont;											// used for
-																						// watermark on
-																						// page
+	PdfFont						smallWatermarkFont;										// used for watermark on page
 
 	public Tree(Context context, PersonList personList) {
 		this.context = context;
@@ -91,8 +88,10 @@ public abstract class Tree {
 		for (Person rootFather : rootFatherList) {
 			float	pageWidth	= calclatePageWidth(pdfDocument.lastPageIndex);
 			float	pageHeight	= calculatePageHeight(context, pdfDocument.lastPageIndex);
+//			Rect	treeRect	= rootFather.getTreeRect();
 			pdfDocument.createPage(pdfDocument.lastPageIndex, pageWidth, pageHeight, rootFather.getFirstName() + context.getParameterOptions().getOutputDecorator());
 			drawPageSizeWatermark(pdfDocument, pdfDocument.lastPageIndex);
+			drawPageAreaWatermark(pdfDocument, pdfDocument.lastPageIndex, rootFather.getTreeRect());
 			pdfDocument.lastPageIndex++;
 		}
 	}
@@ -156,11 +155,30 @@ public abstract class Tree {
 		}
 	}
 
+	private void drawPageAreaWatermark(PdfDocument pdfDocument, int pageIndex, Rect rect) throws IOException {
+		try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
+			PDPage page = pdfDocument.getPage(pageIndex);
+			p.setNonStrokingColor(GRID_COLOR);
+			p.setFont(bigWatermarkFont);
+			float h1 = p.getStringHeight();
+			p.setFont(smallWatermarkFont);
+			float	h2		= p.getStringHeight();
+			int		w		= (int) (rect.getX2() - rect.getX1() + 1);
+			int		h		= (int) (rect.getY2() - rect.getY1() + 1);
+			int		area	= w * h;
+			String	text	= String.format("%d X %d = %d", w, h, area);
+			p.beginText();
+			p.newLineAtOffset(page.getBBox().getWidth() - p.getStringWidth(text), h1 + h2);
+			p.showText(text);
+			p.endText();
+		}
+	}
+
 	private void drawPageSizeWatermark(PdfDocument pdfDocument, int pageIndex) throws IOException {
 		try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
 			PDPage page = pdfDocument.getPage(pageIndex);
 			p.setNonStrokingColor(GRID_COLOR);
-			p.setFont(watermarkFont);
+			p.setFont(bigWatermarkFont);
 			String text = pdfDocument.getPageSizeName(pageIndex);
 			p.beginText();
 			p.newLineAtOffset(page.getBBox().getWidth() - p.getStringWidth(text), p.getStringHeight());
@@ -220,7 +238,8 @@ public abstract class Tree {
 			pdfDateFont = createFont(pdfDocument, "NotoSans-Regular.ttf", (Person.getHeight(context) - Person.getBorder(context) * 2) / 5);
 		else
 			pdfDateFont = createFont(pdfDocument, "NotoSans-Regular.ttf", (Person.getHeight(context) - Person.getBorder(context) * 2 - Person.getMargine(context) * 2) / 5);
-		watermarkFont = createFont(pdfDocument, "NotoSans-Bold.ttf", 128);
+		bigWatermarkFont = createFont(pdfDocument, "NotoSans-Bold.ttf", 128);
+		smallWatermarkFont = createFont(pdfDocument, "NotoSans-Bold.ttf", 32);
 		if (context.getParameterOptions().isCompact()) {
 			pdfNameFont = createFont(pdfDocument, "NotoSans-Regular.ttf", (Person.getHeight(context) - Person.getBorder(context) * 2) / 2);
 			pdfNameOLFont = createFont(pdfDocument, "Amiri-Regular.ttf", (Person.getHeight(context) - Person.getBorder(context) * 2) / 2);
@@ -231,69 +250,69 @@ public abstract class Tree {
 		initializePersonList(context, pdfDocument);
 	}
 
-	private void initAttribute(Person person) {
-		PersonList	spouseList	= person.getSpouseList();
-		int			spouseIndex	= 0;
-		for (Person spouse : spouseList) {
-			if (spouse.isMember(context)) {
-				// both parents are member of the family
-				// ignore any clone that we already have converted
-				if (!context.getParameterOptions().isFollowFemales() && person.isMale() && !(spouse instanceof FemaleClone)) {
-					// create a clone of the spouse and shift all child relations to that clone
-					FemaleClone	clone			= new FemaleClone(spouse.personList, (Female) spouse);
-					PersonList	childrenList	= person.getChildrenList(spouse);
-					for (Person child : childrenList) {
-						child.setMother(clone);
-					}
-					personList.add(clone);
-					spouse = clone;
-					spouse.spouseIndex = spouseIndex++;
-					spouse.setSpouse(true);
-				} else if (context.getParameterOptions().isFollowFemales() && person.isFemale() && !(spouse instanceof MaleClone)) {
-					// create a clone of the spouse and shift all child relations to that clone
-					MaleClone	clone			= new MaleClone(spouse.personList, (Male) spouse);
-					PersonList	childrenList	= person.getChildrenList(spouse);
-					for (Person child : childrenList) {
-						child.setFather(clone);
-					}
-					personList.add(clone);
-					spouse = clone;
-					spouse.spouseIndex = spouseIndex++;
-					spouse.setSpouse(true);
-				}
-			} else {
-				spouse.spouseIndex = spouseIndex++;
-				spouse.setSpouse(true);
-			}
-			if (person.isLastChild()) {
-				spouse.setSpouseOfLastChild(true);
-			}
-			// children
-			int			childIndex		= 0;
-			boolean		firstChild		= true;
-			PersonList	childrenList	= person.getChildrenList(spouse);
-			for (Person child : childrenList) {
-				child.setGeneration(person.getGeneration() + 1);
-				child.childIndex = childIndex++;
-				child.setIsChild(true);
-				if (firstChild) {
-					child.setFirstChild(true);
-					firstChild = false;
-				}
-				if (child.equals(childrenList.last())) {
-					child.setLastChild(true);
-				}
-				initAttribute(child);
-			}
-		}
-	}
+//	private void initAttribute(Person person) {
+//		PersonList	spouseList	= person.getSpouseList();
+//		int			spouseIndex	= 0;
+//		for (Person spouse : spouseList) {
+//			if (spouse.isMember(context)) {
+//				// both parents are member of the family
+//				// ignore any clone that we already have converted
+//				if (!context.getParameterOptions().isFollowFemales() && person.isMale() && !(spouse instanceof FemaleClone)) {
+//					// create a clone of the spouse and shift all child relations to that clone
+//					FemaleClone	clone			= new FemaleClone(spouse.personList, (Female) spouse);
+//					PersonList	childrenList	= person.getChildrenList(spouse);
+//					for (Person child : childrenList) {
+//						child.setMother(clone);
+//					}
+//					personList.add(clone);
+//					spouse = clone;
+//					spouse.spouseIndex = spouseIndex++;
+//					spouse.setSpouse(true);
+//				} else if (context.getParameterOptions().isFollowFemales() && person.isFemale() && !(spouse instanceof MaleClone)) {
+//					// create a clone of the spouse and shift all child relations to that clone
+//					MaleClone	clone			= new MaleClone(spouse.personList, (Male) spouse);
+//					PersonList	childrenList	= person.getChildrenList(spouse);
+//					for (Person child : childrenList) {
+//						child.setFather(clone);
+//					}
+//					personList.add(clone);
+//					spouse = clone;
+//					spouse.spouseIndex = spouseIndex++;
+//					spouse.setSpouse(true);
+//				}
+//			} else {
+//				spouse.spouseIndex = spouseIndex++;
+//				spouse.setSpouse(true);
+//			}
+//			if (person.isLastChild()) {
+//				spouse.setSpouseOfLastChild(true);
+//			}
+//			// children
+//			int			childIndex		= 0;
+//			boolean		firstChild		= true;
+//			PersonList	childrenList	= person.getChildrenList(spouse);
+//			for (Person child : childrenList) {
+//				child.setGeneration(person.getGeneration() + 1);
+//				child.childIndex = childIndex++;
+//				child.setIsChild(true);
+//				if (firstChild) {
+//					child.setFirstChild(true);
+//					firstChild = false;
+//				}
+//				if (child.equals(childrenList.last())) {
+//					child.setLastChild(true);
+//				}
+//				initAttribute(child);
+//			}
+//		}
+//	}
 
 	private void initAttributes() {
 		List<Male> firstFathers = findRootFatherList();
 		for (Person firstFather : firstFathers) {
 			firstFather.setFirstFather(true);
 			firstFather.setGeneration(0);
-			initAttribute(firstFather);
+			firstFather.initAttribute(context);
 		}
 	}
 

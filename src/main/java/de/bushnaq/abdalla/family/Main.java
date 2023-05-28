@@ -55,15 +55,15 @@ public class Main {
 		PdfDocument	pdfDocument	= new PdfDocument(FileUtil.removeExtension(inputFileName) + ".pdf");
 
 		String[]	base		= { "-input", context.getParameterOptions().getInput(), "-family_name", context.getParameterOptions().getFamilyName() };
-		String[][]	parameters	= {																															//
+		String[][]	parameters	= {																																//
 //				{ "-v" },																																//
 //				{ "-v", "-ol" },																														//
 //				{ "-v", "-c" },																															//
 //				{ "-v", "-c", "-ol" },																													//
-				{ "-h" },																																	//
-				{ "-h", "-ol" },																															//
-				{ "-h", "-c" },																																//
-				{ "-h", "-c", "-ol" },																														//
+//				{ "-h" },																																	//
+//				{ "-h", "-ol" },																															//
+				{ "-h", "-c", "-coordinates" },																													//
+//				{ "-h", "-c", "-ol" },																														//
 		};
 
 		for (int i = 0; i < parameters.length; i++) {
