@@ -66,7 +66,7 @@ public class PdfDocument implements Closeable {
 		pageContentStreamMap.put(pageIndex, contentStream);
 	}
 
-	private void createMetaDate() throws TransformerException, IOException {
+	private void createMetaData() throws TransformerException, IOException {
 		XMPMetadata xmp = XMPMetadata.createXMPMetadata();
 		try {
 			DublinCoreSchema dc = xmp.createAndAddDublinCoreSchema();
@@ -203,7 +203,7 @@ public class PdfDocument implements Closeable {
 
 	private void startDocument() throws IOException, TransformerException {
 		document = new PDDocument();
-		createMetaDate();
+		createMetaData();
 		includeColorProfile();
 		pageLabels = new PDPageLabels(document);
 	}

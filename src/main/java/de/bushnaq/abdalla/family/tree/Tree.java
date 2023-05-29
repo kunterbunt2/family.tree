@@ -60,7 +60,7 @@ public abstract class Tree {
 				maxX = Math.max(maxX, x + Person.getWidth(context));
 			}
 		}
-		return maxX;
+		return maxX + context.getParameterOptions().getPageMargin() * 2;
 	}
 
 	float calculatePageHeight(Context context, int pageIndex) {
@@ -73,7 +73,7 @@ public abstract class Tree {
 				maxY = Math.max(maxY, y);
 			}
 		}
-		return maxY + Person.getHeight(context);
+		return maxY + Person.getHeight(context) + context.getParameterOptions().getPageMargin() * 2;
 	}
 
 	protected abstract void compact(Context context2, PdfDocument pdfDocument);
@@ -241,8 +241,8 @@ public abstract class Tree {
 		bigWatermarkFont = createFont(pdfDocument, "NotoSans-Bold.ttf", 128);
 		smallWatermarkFont = createFont(pdfDocument, "NotoSans-Bold.ttf", 32);
 		if (context.getParameterOptions().isCompact()) {
-			pdfNameFont = createFont(pdfDocument, "NotoSans-Regular.ttf", (Person.getHeight(context) - Person.getBorder(context) * 2) / 2);
-			pdfNameOLFont = createFont(pdfDocument, "Amiri-Regular.ttf", (Person.getHeight(context) - Person.getBorder(context) * 2) / 2);
+			pdfNameFont = createFont(pdfDocument, "NotoSans-Regular.ttf", (Person.getHeight(context)) / 2);
+			pdfNameOLFont = createFont(pdfDocument, "Amiri-Regular.ttf", (Person.getHeight(context)) / 2);
 		} else {
 			pdfNameFont = createFont(pdfDocument, "NotoSans-Bold.ttf", (Person.getHeight(context) - Person.getBorder(context) * 2 - Person.getMargine(context) * 2) / 3);
 			pdfNameOLFont = createFont(pdfDocument, "Amiri-bold.ttf", (Person.getHeight(context) - Person.getBorder(context) * 2 - Person.getMargine(context) * 2) / 3);

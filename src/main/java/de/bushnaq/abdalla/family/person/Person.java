@@ -19,7 +19,7 @@ public abstract class Person extends BasicFamilyMember {
 	private static final float	PERSON_BORDER			= 1;
 	private static final float	PERSON_BORDER_COMPACT	= 0.5f;
 	private static final float	PERSON_HEIGHT			= 64;
-	private static final float	PERSON_HEIGHT_COMPACT	= 32;
+	private static final float	PERSON_HEIGHT_COMPACT	= 30;
 	private static final float	PERSON_MARGINE			= 1;
 	private static final float	PERSON_MARGINE_COMPACT	= 0;
 	private static final float	PERSON_WIDTH			= 128;
@@ -27,7 +27,7 @@ public abstract class Person extends BasicFamilyMember {
 	private static final float	PERSON_X_SPACE			= 24;
 	private static final float	PERSON_X_SPACE_COMPACT	= 3;
 	private static final float	PERSON_Y_SPACE			= 12;
-	private static final float	PERSON_Y_SPACE_COMPACT	= 3;
+	private static final float	PERSON_Y_SPACE_COMPACT	= 4;
 
 	private static String bidiReorder(String text) {
 		if (text == null)

@@ -62,9 +62,9 @@ public class HorizontalTree extends Tree {
 							// has a tree below that is worth moving
 							float delta;
 							if (child.getSpouseList().size() > 1)
-								delta = y - child.y + context.getParameterOptions().getMinYDistanceBetweenTrees();
+								delta = Math.max(y - child.y + context.getParameterOptions().getMinYDistanceBetweenTrees(), 0);
 							else
-								delta = y - child.y + context.getParameterOptions().getMinYDistanceBetweenTrees() - 1;
+								delta = Math.max(y - child.y + context.getParameterOptions().getMinYDistanceBetweenTrees() - 1, 0f);
 							child.moveTree(0, delta);
 							logger.info(String.format("Move [%d]%s %s y = %d.", child.getId(), child.getFirstName(), child.getLastName(), (int) delta));
 						}

@@ -1,5 +1,49 @@
 # family.tree
-family.tree is a command promp tool that generates a genealogy as a png image using an excel file as input.
+family.tree is a command prompt tool that generates a genealogy as a pdf file using an excel file as input.
+Unrelated parts of the tree will be displayed on seperate pages.
+
+Every pdf document consists of 
+1. a readme page
+1. every page has the ISO page size as a watermark in the upper right corner.
+1. every page has the calculated tree area as a watermark in the upper right corner.
+1. an error page, in case there are any errors. Possble errors are:<br>
+   Error #001: [%d]%s %s is not visible. A person is visible if he is member of the family or has children with someone from the family.<br>
+   Error #002. Page index null<br>
+   Error #003. Person missing first name.<br>
+   Error #004. Person missing last name.<br>
+   Error #005. A %s member with unknown origins.<br>
+   Error #006. [%d]%s %s is overlapping with [%d]%s %s.<br>
+   Error #101. Column %s is missing.<br>
+   Error #102. Unknown header '%s' at column '%s'.<br>
+
+
+There are several options that impact the overall visualization of a family tree.
+1. you can display the tree in horizontal mode, where children are displayed in order of birth from left to right below their parents.
+1. you can display the tree in vertical mode, where children are displayed in order of birth from to to down to the right of their parents.
+1. you can use first and last names from the english column of the excel sheet or the original langauge column.
+1. you can display the tree in compact mode, where birth and death dates are omitted to reduce the area needed for the trees.
+1. You can display children right to their father or mother, if both are applicable.
+1. You can chose to exclude the spouse to reduce the area needed for the trees.
+1. By default family.tree will try to optimize the needed area for a tree by shifting subtrees below (horizontal mode) each other.
+
+
+Every person is displayes with
+1. A box in blue color for males and pink color for women.
+1. The person box border will be dotted to visualize that this is a copy of the original person. Copies are created for women that are diplayed under their parents and additionally below their husbands and above their children. (configurable)
+1. In the middle of the person box the first name, last name born date and death date are shown.
+1. in case original language option is used, the first name and last name are taken from teh OL columns.
+1. in the upper left corner, the Genration is displayed, starting with G0 for the root parents and incremented for every child genration.
+1. In the upper right corner an asterix \* is shown to show that thsi person box is a copy.
+1. In the lower right corner the unique ID is displayed.
+1. In the lower right corner the coordinates are displyed. Helpfull to find a specific person box.
+
+Relations between persons are displyed using line connections.
+1. Children have a line to their parents.
+1. By default women are displayed below (horizontal mode) their male spouse connected to him with a dotted line.
+
+
+Remark: you can search in the pdf for any of the text information to find a specific person.
+
 
 # Installation
 ## How to install family.tree on Windows
@@ -26,11 +70,12 @@ family.tree consists of only one screen
 ![alt tag](https://github.com/kunterbunt2/family.tree/blob/main/media/family.tree-01.png)  
 
 You can configure the tree
-1. to be a horizontal tree (work in progress)
-2. to be a vertical tree
+1. to be a horizontal tree (children are displayed in order of birth from left to right below their parents)
+2. to be a vertical tree (children are displayed in order of birth from to to down to the right of their parents)
 3. children to be displayed right to their father or mother, if both are applicable
-4. exclude spouse (to make hte tree smaller)
+4. exclude spouse (to make the tree smaller)
 5. include the name in original language if existing
+6. compact mode (birth and death birth dates are omitted to allow smaller trees)
 
 Then select your excel file by pushing the 'Select Excel File' button
 

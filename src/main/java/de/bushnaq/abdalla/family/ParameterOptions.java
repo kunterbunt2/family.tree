@@ -21,7 +21,7 @@ public class ParameterOptions {
 	private static final String	CLI_OPTION_OUTPUT_FILE_DECORATIONS	= "output_decorations";
 	private static final String	CLI_OPTION_V						= "v";
 
-	private boolean				colorTrees							= true;
+	private boolean				colorTrees							= false;
 	private boolean				compact								= false;									// compact tree (no birth, died, ID)
 	private boolean				coordinates							= true;										// enable coordinates
 	private boolean				drawTextMetric						= false;
@@ -31,9 +31,10 @@ public class ParameterOptions {
 	private boolean				h									= false;									// draw a horizontal tree if true
 	private String				input;																			// input excel file
 	private final Logger		logger								= LoggerFactory.getLogger(this.getClass());
-	private int					minYDistanceBetweenTrees			= 1;
+	private int					minYDistanceBetweenTrees			= 0;
 	private boolean				originalLanguage					= false;									// use original language fields for fist name and last name
 	private String				outputDecorator						= "";										// additional decorations for the output file name
+	private float				pageMargin							= 32f;										// unprintable margin
 	private boolean				v									= true;										// vertical tree mode
 	private float				zoom								= 0.5f;
 
@@ -51,6 +52,10 @@ public class ParameterOptions {
 
 	public String getOutputDecorator() {
 		return outputDecorator;
+	}
+
+	public float getPageMargin() {
+		return pageMargin;
 	}
 
 	public float getZoom() {

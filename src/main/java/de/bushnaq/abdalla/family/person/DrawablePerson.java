@@ -96,8 +96,11 @@ public abstract class DrawablePerson extends Person {
 				firstNameHeight = p.getStringHeight();
 				float	w	= stringWidth;
 				float	x2	= x1 + (getWidth(context)) / 2 - w / 2;
-				float	y2	= y1 + getBorder(context) + firstNameHeight;
-
+				float	y2;
+				if (context.getParameterOptions().isCompact())
+					y2 = y1 + getBorder(context) + firstNameHeight;
+				else
+					y2 = y1 + getBorder(context) + firstNameHeight;
 				p.setNonStrokingColor(textColor);
 				if (text.contains("?"))
 					p.setNonStrokingColor(Color.red);
@@ -120,7 +123,11 @@ public abstract class DrawablePerson extends Person {
 				float	lastNameHeight	= p.getStringHeight();
 				float	w				= stringWidth;
 				float	x2				= x1 + (getWidth(context)) / 2 - w / 2;
-				float	y2				= y1 + getBorder(context) + firstNameHeight + lastNameHeight;
+				float	y2;
+				if (context.getParameterOptions().isCompact())
+					y2 = y1 + firstNameHeight + lastNameHeight;
+				else
+					y2 = y1 + getBorder(context) + firstNameHeight + lastNameHeight;
 
 				p.setNonStrokingColor(textColor);
 				if (text.contains("?"))
@@ -397,12 +404,13 @@ public abstract class DrawablePerson extends Person {
 		float	y1	= yIndexToCoordinate(context, y);
 
 		// child Connector horizontal to parent direction
-		if (isMember(context) && !isSpouse()) {
+		if (hasParents()/* isMember(context) && !isSpouse() */) {
 			try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
 				p.setStrokingColor(connectorColor);
 				p.setLineWidth(getConnectorWidth(context));
+				Person sp = getSpouseParent();
 				p.setLineDashPattern(new float[] {}, 0);
-				p.drawLine(x1 - getXSpace(context) / 2, y1 + getHeight(context) / 2, x1, y1 + getHeight(context) / 2);
+				p.drawLine(xIndexToCoordinate(context, sp.x) + getWidth(context) + getXSpace(context) / 2, y1 + getHeight(context) / 2, x1, y1 + getHeight(context) / 2);
 				p.stroke();
 			}
 		}
@@ -473,6 +481,10 @@ public abstract class DrawablePerson extends Person {
 		return generationColors[generation % generationColors.length];
 	}
 
+	protected float getPageMargin(Context context) {
+		return context.getParameterOptions().getPageMargin() * context.getParameterOptions().getZoom();
+	}
+
 	protected float getSpecialBorderWidth(Context context) {
 		return FAT_LINE_STROKE_WIDTH * context.getParameterOptions().getZoom();
 	}
@@ -483,11 +495,11 @@ public abstract class DrawablePerson extends Person {
 	}
 
 	private float xIndexToCoordinate(Context context, float x) {
-		return x * (getWidth(context) + getXSpace(context));
+		return getPageMargin(context) + x * (getWidth(context) + getXSpace(context));
 	}
 
 	private float yIndexToCoordinate(Context context, float y) {
-		return y * (getHeight(context) + Person.getYSpace(context));
+		return getPageMargin(context) + y * (getHeight(context) + Person.getYSpace(context));
 	}
 
 }
