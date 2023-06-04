@@ -11,6 +11,7 @@ import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.pdmodel.graphics.state.PDExtendedGraphicsState;
 
 public class CloseableGraphicsState implements Closeable {
@@ -43,8 +44,34 @@ public class CloseableGraphicsState implements Closeable {
 		contentStream.beginText();
 	}
 
+	private void clip(float x, float y, float w, float h) throws IOException {
+		contentStream.moveTo(x, pageHeight - y - h);
+		contentStream.lineTo(x + w, pageHeight - y - h);
+		contentStream.lineTo(x + w, pageHeight - y - h + h);
+		contentStream.lineTo(x, pageHeight - y - h + h);
+		contentStream.closePath();
+		contentStream.clip();
+	}
+
 	@Override
 	public void close() throws IOException {
+	}
+
+	public void drawImage(String imageFileName, float x, float y, float w, float h) throws IOException {
+		contentStream.setGraphicsStateParameters(graphicsState);
+		PDImageXObject	pdImage	= pdfDocument.getImage(imageFileName);
+		float			iw		= pdImage.getWidth();
+		float			ih		= pdImage.getHeight();
+
+		contentStream.saveGraphicsState();
+		clip(x, y, w, h);
+		if (iw / ih > w / h) {
+			contentStream.drawImage(pdImage, x, pageHeight - y - h, h * iw / ih, h);
+		} else {
+			contentStream.drawImage(pdImage, x, pageHeight - y - h, w, w * ih / iw);
+		}
+		contentStream.restoreGraphicsState();
+
 	}
 
 	public void drawLine(float x1, float y1, float x2, float y2) throws IOException {

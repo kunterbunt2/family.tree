@@ -9,6 +9,8 @@ import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.bushnaq.abdalla.util.FileUtil;
+
 public class ParameterOptions {
 	private static final String	CLI_OPTION_COMPACT					= "c";
 	private static final String	CLI_OPTION_COORDINATES				= "coordinates";
@@ -27,14 +29,17 @@ public class ParameterOptions {
 	private boolean				drawTextMetric						= false;
 	private boolean				excludeSpouse						= false;									// excluded the spouse in the tree if true otherwise do not include them
 	private String				familyName;
-	private boolean				followFemales						= false;									// children will be shown under the mother if both parents are member of the family
+	private boolean				followFemales						= false;									// children will be shown under the mother if both parents are member of the
+																												// family
 	private boolean				h									= false;									// draw a horizontal tree if true
 	private String				input;																			// input excel file
+	String						inputFolder;
 	private final Logger		logger								= LoggerFactory.getLogger(this.getClass());
 	private int					minYDistanceBetweenTrees			= 0;
 	private boolean				originalLanguage					= false;									// use original language fields for fist name and last name
 	private String				outputDecorator						= "";										// additional decorations for the output file name
 	private float				pageMargin							= 32f;										// unprintable margin
+	private boolean				showImage							= true;
 	private boolean				v									= true;										// vertical tree mode
 	private float				zoom								= 0.5f;
 
@@ -44,6 +49,10 @@ public class ParameterOptions {
 
 	public String getInput() {
 		return input;
+	}
+
+	public String getInputFolder() {
+		return inputFolder;
 	}
 
 	public int getMinYDistanceBetweenTrees() {
@@ -92,6 +101,10 @@ public class ParameterOptions {
 
 	public boolean isOriginalLanguage() {
 		return originalLanguage;
+	}
+
+	public boolean isShowImage() {
+		return showImage;
 	}
 
 	public boolean isV() {
@@ -202,6 +215,7 @@ public class ParameterOptions {
 			familyName = line.getOptionValue(CLI_OPTION_FAMILY_NAME);
 		} else {
 		}
+		inputFolder = FileUtil.extractFolderNamePart(input);
 	}
 
 }

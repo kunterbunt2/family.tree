@@ -21,6 +21,7 @@ import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.apache.pdfbox.pdmodel.graphics.color.PDOutputIntent;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.xmpbox.XMPMetadata;
 import org.apache.xmpbox.schema.DublinCoreSchema;
 import org.apache.xmpbox.schema.PDFAIdentificationSchema;
@@ -30,6 +31,8 @@ import org.apache.xmpbox.xml.XmpSerializer;
 public class PdfDocument implements Closeable {
 	private PDDocument					document;
 	private String						documentFileName;
+
+	Map<String, PDImageXObject>			imageMap				= new HashMap<>();
 	IsoPage[]							isoPageList				= {					//
 			new IsoPage(PDRectangle.A6, "A6"),										//
 			new IsoPage(PDRectangle.A5, "A5"),										//
@@ -147,6 +150,19 @@ public class PdfDocument implements Closeable {
 
 	public PDPageContentStream getContentStream(int pageIndex) {
 		return pageContentStreamMap.get(pageIndex);
+	}
+
+	public PDDocument getDocument() {
+		return document;
+	}
+
+	public PDImageXObject getImage(String imageFileName) throws IOException {
+		PDImageXObject pdImage = imageMap.get(imageFileName);
+		if (pdImage == null) {
+			pdImage = PDImageXObject.createFromFile(imageFileName, getDocument());
+			imageMap.put(imageFileName, pdImage);
+		}
+		return pdImage;
 	}
 
 	public int getNumberOfPages() {

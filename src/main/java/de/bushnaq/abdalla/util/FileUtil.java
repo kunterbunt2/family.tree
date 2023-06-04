@@ -10,6 +10,15 @@ public class FileUtil {
 		}
 	}
 
+	public static String extractFolderNamePart(String originalName) {
+		int slash = originalName.lastIndexOf('/');
+		if (slash != -1) {
+			return originalName.substring(0, slash);
+		} else {
+			return originalName;
+		}
+	}
+
 	public static String removeExtension(String originalName) {
 		int lastDot = originalName.lastIndexOf(".");
 		if (lastDot != -1) {

@@ -20,6 +20,8 @@ public abstract class Person extends BasicFamilyMember {
 	private static final float	PERSON_BORDER_COMPACT	= 0.5f;
 	private static final float	PERSON_HEIGHT			= 64;
 	private static final float	PERSON_HEIGHT_COMPACT	= 30;
+	private static final float	PERSON_IMAGE_HEIGHT		= 64;
+	private static final float	PERSON_IMAGE_WIDTH		= 54;
 	private static final float	PERSON_MARGINE			= 1;
 	private static final float	PERSON_MARGINE_COMPACT	= 0;
 	private static final float	PERSON_WIDTH			= 128;
@@ -55,6 +57,14 @@ public abstract class Person extends BasicFamilyMember {
 			return PERSON_HEIGHT * context.getParameterOptions().getZoom();
 	}
 
+	public static float getImageHeight(Context context) {
+		return PERSON_IMAGE_HEIGHT * context.getParameterOptions().getZoom();
+	}
+
+	public static float getImageWidth(Context context) {
+		return PERSON_IMAGE_WIDTH * context.getParameterOptions().getZoom();
+	}
+
 	public static float getMargine(Context context) {
 		if (context.getParameterOptions().isCompact())
 			return PERSON_MARGINE_COMPACT * context.getParameterOptions().getZoom();
@@ -65,6 +75,8 @@ public abstract class Person extends BasicFamilyMember {
 	public static float getWidth(Context context) {
 		if (context.getParameterOptions().isCompact())
 			return PERSON_WIDTH_COMPACT * context.getParameterOptions().getZoom();
+//		else if (context.getParameterOptions().isShowImage())
+//			return (PERSON_IMAGE_WIDTH + PERSON_WIDTH) * context.getParameterOptions().getZoom();
 		else
 			return PERSON_WIDTH * context.getParameterOptions().getZoom();
 	}

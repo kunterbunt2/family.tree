@@ -51,19 +51,19 @@ public class Main {
 	}
 
 	private void generate(String inputFileName) throws Exception, IOException, TransformerException {
-		PersonList	personList	= readExcel(inputFileName);
+		PersonList	personList	= importPersonList(inputFileName);
 		PdfDocument	pdfDocument	= new PdfDocument(FileUtil.removeExtension(inputFileName) + ".pdf");
 
 		String[]	base		= { "-input", context.getParameterOptions().getInput(), "-family_name", context.getParameterOptions().getFamilyName() };
-		String[][]	parameters	= {																																			//
+		String[][]	parameters	= {																																				//
 //				{ "-v", "-coordinates" },																																//
 //				{ "-v", "-ol", "-coordinates" },																														//
 //				{ "-v", "-c", "-coordinates" },																															//
 //				{ "-v", "-c", "-ol", "-coordinates" },																													//
-				{ "-h", "-coordinates" },																																	//
-				{ "-h", "-ol", "-coordinates" },																															//
-				{ "-h", "-c", "-coordinates" },																																//
-				{ "-h", "-c", "-ol", "-coordinates" },																														//
+				{ "-h", "-coordinates" },																																		//
+//				{ "-h", "-ol", "-coordinates" },																															//
+//				{ "-h", "-c", "-coordinates" },																																//
+//				{ "-h", "-c", "-ol", "-coordinates" },																														//
 		};
 
 		for (int i = 0; i < parameters.length; i++) {
@@ -102,9 +102,12 @@ public class Main {
 		return outputDecorator;
 	}
 
-	public PersonList readExcel(String fileName) throws Exception {
-		TreeExcelReader excelReader = new TreeExcelReader();
-		return excelReader.readExcel(fileName);
+	public PersonList importPersonList(String fileName) throws Exception {
+
+		TreeExcelReader	excelReader	= new TreeExcelReader();
+		PersonList		personList	= excelReader.importPersonList(fileName);
+		return personList;
+
 	}
 
 	public void start(String[] args) throws Exception {

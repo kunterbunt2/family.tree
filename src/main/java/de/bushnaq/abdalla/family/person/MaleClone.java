@@ -23,6 +23,10 @@ public class MaleClone extends Male {
 		return original.getGeneration();
 	}
 
+	public Person getOriginalFather() {
+		return original.getFather();
+	}
+
 	@Override
 	public void setGeneration(Integer generation) {
 		original.setGeneration(generation);

@@ -1,6 +1,7 @@
 package de.bushnaq.abdalla.family.person;
 
 import java.awt.Color;
+import java.io.File;
 import java.io.IOException;
 
 import org.apache.pdfbox.pdmodel.font.PDFont;
@@ -55,12 +56,11 @@ public abstract class DrawablePerson extends Person {
 			}
 		}
 
-//		if (!context.getParameterOptions().isCompact())
-		{
+		if (!context.getParameterOptions().isCompact()) {
 			try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
 				// interior
 				p.setNonStrokingColor(backgroundColor);
-				p.fillRect(x1, y1, getWidth(context), getHeight(context));
+				p.fillRect(x1 + getImageWidth(context), y1, getWidth(context), getHeight(context));
 				p.fill();
 			}
 			if (isSpouse() && !isMember(context)) {
@@ -69,7 +69,7 @@ public abstract class DrawablePerson extends Person {
 					p.setStrokingColor(borderColor);
 					p.setLineWidth(getBorder(context));
 					p.setLineDashPattern(new float[] { 1 }, 0);
-					p.drawRect(x1, y1, getWidth(context), getHeight(context));
+					p.drawRect(x1 + getImageWidth(context), y1, getWidth(context), getHeight(context));
 					p.stroke();
 				}
 			} else {
@@ -78,9 +78,42 @@ public abstract class DrawablePerson extends Person {
 					p.setStrokingColor(borderColor);
 					p.setLineWidth(getBorder(context));
 					p.setLineDashPattern(new float[] {}, 0);
-					p.drawRect(x1, y1, getWidth(context), getHeight(context));
+					p.drawRect(x1 + getImageWidth(context), y1, getWidth(context), getHeight(context));
 					p.stroke();
 				}
+			}
+		}
+		if (!context.getParameterOptions().isCompact()) {
+			String	imageFileName;
+			Person	father	= getFather();
+			if (isClone()) {
+				if (isMale()) {
+					MaleClone c = (MaleClone) this;
+					father = c.getOriginalFather();
+				} else {
+					FemaleClone c = (FemaleClone) this;
+					father = c.getOriginalFather();
+				}
+			}
+
+			if (father != null)
+				imageFileName = String.format("%s/images/%s.%s.%s.jpg", context.getParameterOptions().getInputFolder(), father.getFirstName().toLowerCase(), getFirstName().toLowerCase(), getLastName().toLowerCase());
+			else
+				imageFileName = String.format("%s/images/%s.%s.jpg", context.getParameterOptions().getInputFolder(), getFirstName().toLowerCase(), getLastName().toLowerCase());
+			if (!new File(imageFileName).exists()) {
+				imageFileName = String.format("%s/images/default.jpg", context.getParameterOptions().getInputFolder());
+			} else {
+				logger.info(String.format("Found image %s.", imageFileName));
+			}
+			try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
+				float	x2	= x1;
+				float	y2	= y1;
+				float	h	= getImageHeight(context);
+				float	w	= getImageWidth(context);
+				p.setNonStrokingColor(Color.white);
+				p.setStrokingColor(Color.white);
+				p.drawImage(imageFileName, x2, y2, w, h);
+
 			}
 		}
 		float firstNameHeight;
@@ -95,8 +128,12 @@ public abstract class DrawablePerson extends Person {
 				float stringWidth = p.getStringWidth(text);
 				firstNameHeight = p.getStringHeight();
 				float	w	= stringWidth;
-				float	x2	= x1 + (getWidth(context)) / 2 - w / 2;
-				float	y2;
+				float	x2;
+				if (context.getParameterOptions().isShowImage())
+					x2 = x1 + +getImageWidth(context) + (getWidth(context)) / 2 - w / 2;
+				else
+					x2 = x1 + (getWidth(context)) / 2 - w / 2;
+				float y2;
 				if (context.getParameterOptions().isCompact())
 					y2 = y1 + getBorder(context) + firstNameHeight;
 				else
@@ -122,8 +159,13 @@ public abstract class DrawablePerson extends Person {
 				float	stringWidth		= p.getStringWidth(text);
 				float	lastNameHeight	= p.getStringHeight();
 				float	w				= stringWidth;
-				float	x2				= x1 + (getWidth(context)) / 2 - w / 2;
-				float	y2;
+
+				float	x2;
+				if (context.getParameterOptions().isShowImage())
+					x2 = x1 + getImageWidth(context) + (getWidth(context)) / 2 - w / 2;
+				else
+					x2 = x1 + (getWidth(context)) / 2 - w / 2;
+				float y2;
 				if (context.getParameterOptions().isCompact())
 					y2 = y1 + firstNameHeight + lastNameHeight;
 				else
@@ -151,7 +193,7 @@ public abstract class DrawablePerson extends Person {
 				}
 				if (this instanceof FemaleClone || this instanceof MaleClone) {
 					String	text	= "*";
-					float	x2		= x1 + getWidth(context) - p.getStringWidth(text) - getBorder(context) - getMargine(context);
+					float	x2		= x1 + getImageWidth(context) + getWidth(context) - p.getStringWidth(text) - getBorder(context) - getMargine(context);
 					float	y2		= y1 + getBorder(context) + p.getStringHeight();
 					drawTextMetric(p, x2, y2, text, context);
 					p.beginText();
@@ -174,7 +216,7 @@ public abstract class DrawablePerson extends Person {
 				}
 				{
 					String	text	= "" + getId();
-					float	x2		= x1 + getBorder(context) + getMargine(context);
+					float	x2		= x1 + getImageWidth(context) + getBorder(context) + getMargine(context);
 					y2 = y1 + getHeight(context) - getBorder(context);
 					drawTextMetric(p, x2, y2, text, context);
 					p.beginText();
@@ -197,7 +239,7 @@ public abstract class DrawablePerson extends Person {
 						p.setFont(nameFont);
 					}
 					String	text	= "G" + getGeneration();
-					float	x2		= x1 + getBorder(context) + getMargine(context);
+					float	x2		= x1 + getImageWidth(context) + getBorder(context) + getMargine(context);
 					float	y2		= y1 + getBorder(context) + p.getStringHeight();
 					drawTextMetric(p, x2, y2, text, context);
 					p.beginText();
@@ -214,7 +256,7 @@ public abstract class DrawablePerson extends Person {
 				p.setFont(dateFont);
 				{
 					String	text	= String.format("%d,%d", (int) x, (int) y);
-					float	x2		= x1 + getWidth(context) - p.getStringWidth(text) - getMargine(context) - getBorder(context);
+					float	x2		= x1 + getImageWidth(context) + getWidth(context) - p.getStringWidth(text) - getMargine(context) - getBorder(context);
 					float	y2		= y1 + getHeight(context) - getBorder(context);
 					drawTextMetric(p, x2, y2, text, context);
 					p.beginText();
@@ -233,7 +275,7 @@ public abstract class DrawablePerson extends Person {
 					String	text	= getBornString();
 					float	w		= p.getStringWidth(text);
 					float	h		= p.getStringHeight();
-					float	x2		= x1 + (getWidth(context)) / 2 - w / 2;
+					float	x2		= x1 + getImageWidth(context) + (getWidth(context)) / 2 - w / 2;
 					float	y2		= y1 + getHeight(context) - h - getBorder(context);
 					drawTextMetric(p, x2, y2, text, context);
 					p.beginText();
@@ -250,7 +292,7 @@ public abstract class DrawablePerson extends Person {
 				p.setFont(dateFont);
 				String	text	= getDiedString();
 				float	w		= p.getStringWidth(text);
-				float	x2		= x1 + (getWidth(context)) / 2 - w / 2;
+				float	x2		= x1 + getImageWidth(context) + (getWidth(context)) / 2 - w / 2;
 				float	y2		= y1 + getHeight(context) - getBorder(context);
 				drawTextMetric(p, x2, y2, text, context);
 				p.beginText();
@@ -495,7 +537,10 @@ public abstract class DrawablePerson extends Person {
 	}
 
 	private float xIndexToCoordinate(Context context, float x) {
-		return getPageMargin(context) + x * (getWidth(context) + getXSpace(context));
+		if (context.getParameterOptions().isShowImage())
+			return getPageMargin(context) + x * (getImageWidth(context) + getWidth(context) + getXSpace(context));
+		else
+			return getPageMargin(context) + x * (getWidth(context) + getXSpace(context));
 	}
 
 	private float yIndexToCoordinate(Context context, float y) {

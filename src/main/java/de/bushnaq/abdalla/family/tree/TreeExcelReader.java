@@ -172,15 +172,15 @@ public class TreeExcelReader extends BasicExcelReader {
 		return null;
 	}
 
-	public PersonList readExcel(String fileName) throws Exception {
+	public PersonList importPersonList(String fileName) throws Exception {
 		readExcelFile(fileName);
 		return personList;
 	}
 
-	public PersonList readPersonList(String fileName) throws Exception {
-		readExcel(fileName);
-		return personList;
-	}
+//	public PersonList readPersonList(String fileName) throws Exception {
+//		readExcel(fileName);
+//		return personList;
+//	}
 
 	@Override
 	protected void readRow(Workbook workbook, Row row) throws Exception {
