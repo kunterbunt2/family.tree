@@ -48,6 +48,7 @@ public abstract class Person extends BasicFamilyMember {
     private Person nextSibling;
     private Person prevSibling;
     private PersonList spouseList;
+
     public Person(PersonList personList, Integer id) {
         super(id);
         this.personList = personList;
@@ -588,6 +589,12 @@ public abstract class Person extends BasicFamilyMember {
     public void resetChildrenList() {
         childrenList = null;
         spouseChildrenList.clear();
+        for (Person spouse : getSpouseList()) {
+            spouse.resetSpouseList();
+
+        }
+
+        spouseList = null;
     }
 
     public Person findPaginationClone() {

@@ -124,8 +124,8 @@ public abstract class Tree {
 //			logger.info(String.format("maxx %d %f", person.maxx.getId(), person.maxx.x));
 //			logger.info(String.format("miny %d %f", person.miny.getId(), person.miny.y));
 //			logger.info(String.format("maxy %d %f", person.maxy.getId(), person.maxy.y));
-            if (person.getId() == 38)
-                drawDebugTree(context, person, pdfDocument.lastPageIndex);
+            //if (person.getId() == 38)
+            //drawDebugTree(context, person, pdfDocument.lastPageIndex);
 
             page = pdfDocument.findBestFittingPageSize(context, treeRect);
             pageMaxGeneration--;
@@ -207,7 +207,7 @@ public abstract class Tree {
                         child.setMother(clone);
                     }
                     person.resetChildrenList();
-                    PersonList childrenList2 = person.getChildrenList();
+                    //PersonList childrenList2 = person.getChildrenList();
                     personList.add(clone);
                 } else if (person.isMale()) {
                     // create a clone of the spouse and shift all child relations to that clone

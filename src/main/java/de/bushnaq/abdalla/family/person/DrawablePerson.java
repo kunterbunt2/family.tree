@@ -366,64 +366,15 @@ public abstract class DrawablePerson extends Person {
         float y1 = yIndexToCoordinate(context, y);
 
         Person clone = findPaginationClone();
-        if (clone instanceof MalePaginationClone) {
-            try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
-                int targetPageNumber = clone.getPageIndex() + 1;
-                float annotationSize = 24f;
-                String text = "P" + targetPageNumber;
-                p.setFont(pdfDocument.getFont(NAME_FONT));
-                float stringWidth = p.getStringWidth(text);
-                float stringHeight = p.getStringHeight();
-                float w = stringWidth;
-                float textX;
-                float annotationX;
-                if (context.getParameterOptions().isShowImage()) {
-                    annotationX = x1 + +getImageWidth(context) + (getWidth(context)) / 2;
-                    textX = annotationX - w / 2;
-                } else {
-                    annotationX = x1 + (getWidth(context)) / 2;
-                    textX = annotationX - w / 2;
-                }
-                float textY = y1 + Person.getHeight(context) + annotationSize / 2 + stringHeight / 2;
-                float annotationY = y1 + Person.getHeight(context) + annotationSize / 2;
-
-                {
-                    //add background
-                    p.setNonStrokingColor(Color.red);
-                    p.drawCircle(annotationX, annotationY, annotationSize / 2);
-                    p.fill();
-                }
-                {
-                    //add text
-                    p.setNonStrokingColor(Color.white);
-                    drawTextMetric(p, textX, textY, text, context);
-                    p.beginText();
-                    p.newLineAtOffset(textX, textY);
-                    p.showText(text);
-                    p.endText();
-                }
-                {
-                    //add link
-                    PDPage sourcePage = pdfDocument.getPage(getPageIndex());
-                    PDPage targetPage = pdfDocument.getPage(clone.getPageIndex());
-                    //PDPage page = document.getPage(1);
-
-                    PDAnnotationLink link = new PDAnnotationLink();
-                    link.setBorderStyle(null);
-                    link.setBorder(new COSArray());
-                    PDPageDestination destination = new PDPageFitWidthDestination();
-                    PDActionGoTo action = new PDActionGoTo();
-
-                    destination.setPage(targetPage);
-                    action.setDestination(destination);
-                    link.setAction(action);
-                    link.setPage(sourcePage);
-
-                    link.setRectangle(new PDRectangle(annotationX - annotationSize / 2, sourcePage.getBBox().getHeight() - annotationY + annotationSize / 2 - annotationSize, annotationSize, annotationSize));
-                    sourcePage.getAnnotations().add(link);
-                }
-            }
-
+        if (clone instanceof MalePaginationClone || clone instanceof FemalePaginationClone) {
+            drawLabelBelow(context, pdfDocument, x1, y1, this, clone);
+        }
+        if (this instanceof MalePaginationClone) {
+            MalePaginationClone c = (MalePaginationClone) this;
+            drawLabelAbove(context, pdfDocument, x1, y1, this, c.getOriginal());
+        } else if (this instanceof FemalePaginationClone) {
+            FemalePaginationClone c = (FemalePaginationClone) this;
+            drawLabelAbove(context, pdfDocument, x1, y1, this, c.getOriginal());
         }
 
         // child Connector vertical to horizontal connector from parent spouse
@@ -489,6 +440,76 @@ public abstract class DrawablePerson extends Person {
                 p.setLineDashPattern(new float[]{}, 0);
                 p.drawLine(cx1, y1 + getHeight(context) + getYSpace(context) / 2, cx2, y1 + getHeight(context) + getYSpace(context) / 2);
                 p.stroke();
+            }
+        }
+    }
+
+    private void drawLabelBelow(Context context, PdfDocument pdfDocument, float x1, float y1, DrawablePerson person, Person clone) throws IOException {
+        float annotationSize = 16f;
+        float annotationX;
+        if (context.getParameterOptions().isShowImage()) {
+            annotationX = x1 + +getImageWidth(context) + (getWidth(context)) / 2;
+        } else {
+            annotationX = x1 + (getWidth(context)) / 2;
+        }
+        drawLabel(context, pdfDocument, annotationX, y1 + Person.getHeight(context) + annotationSize / 2, annotationSize, person, clone);
+    }
+
+    private void drawLabelAbove(Context context, PdfDocument pdfDocument, float x1, float y1, DrawablePerson person, Person clone) throws IOException {
+        float annotationSize = 16f;
+        float annotationX;
+        if (context.getParameterOptions().isShowImage()) {
+            annotationX = x1 + +getImageWidth(context) + (getWidth(context)) / 2;
+        } else {
+            annotationX = x1 + (getWidth(context)) / 2;
+        }
+        drawLabel(context, pdfDocument, annotationX, y1 - annotationSize / 2, annotationSize, person, clone);
+    }
+
+    private void drawLabel(Context context, PdfDocument pdfDocument, float x1, float y1, float labelSize, Person person, Person clone) throws IOException {
+        try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, person.getPageIndex())) {
+            int targetPageNumber = clone.getPageIndex() + 1;
+            //float annotationSize = 24f;
+            String text = "P" + targetPageNumber;
+            p.setFont(pdfDocument.getFont(NAME_FONT));
+            float stringWidth = p.getStringWidth(text);
+            float stringHeight = p.getStringHeight();
+            float w = stringWidth;
+            float annotationX = x1;
+            float annotationY = y1;
+            float textX = annotationX - w / 2;
+            float textY = y1 + stringHeight / 2;
+
+            {
+                //add background
+                p.setNonStrokingColor(Color.red);
+                p.drawCircle(annotationX, annotationY, labelSize / 2);
+                p.fill();
+            }
+            {
+                //add text
+                p.setNonStrokingColor(Color.white);
+                drawTextMetric(p, textX, textY, text, context);
+                p.beginText();
+                p.newLineAtOffset(textX, textY);
+                p.showText(text);
+                p.endText();
+            }
+            {
+                //add link
+                PDPage sourcePage = pdfDocument.getPage(getPageIndex());
+                PDPage targetPage = pdfDocument.getPage(clone.getPageIndex());
+                PDAnnotationLink link = new PDAnnotationLink();
+                link.setBorderStyle(null);
+                link.setBorder(new COSArray());
+                PDPageDestination destination = new PDPageFitWidthDestination();
+                PDActionGoTo action = new PDActionGoTo();
+                destination.setPage(targetPage);
+                action.setDestination(destination);
+                link.setAction(action);
+                link.setPage(sourcePage);
+                link.setRectangle(new PDRectangle(annotationX - labelSize / 2, sourcePage.getBBox().getHeight() - annotationY + labelSize / 2 - labelSize, labelSize, labelSize));
+                sourcePage.getAnnotations().add(link);
             }
         }
     }

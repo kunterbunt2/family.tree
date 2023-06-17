@@ -27,6 +27,7 @@ public class Application implements CommandLineRunner {
     Launcher launcher;
     @Autowired
     Main main;
+
     public Application() {
     }
 

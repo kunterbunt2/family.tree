@@ -26,7 +26,7 @@ public class ParameterOptions {
     private final int minYDistanceBetweenTrees = 0;
     private final float pageMargin = 32f;                                        // unprintable margin
     private final boolean showImage = true;
-    private final IsoPage targetPaperSize = new IsoPage(PDRectangle.A3, "A3");
+    private final IsoPage targetPaperSize = new IsoPage(PDRectangle.A4, "A4");
     private final float zoom = 0.5f;
     String inputFolder;
     private boolean compact = false;                                    // compact tree (no birth, died, ID)
