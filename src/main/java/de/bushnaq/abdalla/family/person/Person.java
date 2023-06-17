@@ -122,6 +122,7 @@ public abstract class Person extends BasicFamilyMember {
 
 	public Person(PersonList personList, Person person) {
 		super(person);
+		this.pageIndex = person.pageIndex;
 		this.personList = personList;
 		person.errors = errors;
 	}
@@ -162,13 +163,6 @@ public abstract class Person extends BasicFamilyMember {
 			PersonList spouseList = getSpouseList();
 			for (Person spouse : spouseList) {
 				childrenList.addAll(getChildrenList(spouse));
-//				for (Person child : personList) {
-//					if (child.getFather() != null && child.getMother() != null) {
-//						if ((child.getFather().equals(this) && child.getMother().equals(spouse)) || (child.getFather().equals(spouse) && child.getMother().equals(this))) {
-//							childrenList.add(child);
-//						}
-//					}
-//				}
 			}
 			Person last = null;
 			for (Person child : childrenList) {
@@ -202,6 +196,24 @@ public abstract class Person extends BasicFamilyMember {
 			spouseChildrenList.put(spouse.getId(), childrenList);
 		}
 		return spouseChildrenList.get(spouse.getId());
+	}
+
+	/**
+	 * return all descendants, that is children of children of a specific generation
+	 *
+	 * @param maxgeneration
+	 * @return
+	 */
+	public PersonList getDescendantList(int targetGeneration) {
+		PersonList decendantList = new PersonList();
+		for (Person person : getChildrenList()) {
+			if (person.getGeneration() == targetGeneration)
+				decendantList.add(person);
+			else if (person.getGeneration() < targetGeneration)
+				decendantList.addAll(person.getDescendantList(targetGeneration));
+		}
+
+		return decendantList;
 	}
 
 	protected String getDiedString() {
@@ -259,7 +271,7 @@ public abstract class Person extends BasicFamilyMember {
 		return prevSibling;
 	}
 
-	public abstract String getSexCharacter();
+//	public abstract String getSexCharacter();
 
 	public PersonList getSpouseList() {
 		if (spouseList == null) {
@@ -295,12 +307,59 @@ public abstract class Person extends BasicFamilyMember {
 		return rect;
 	}
 
-	public boolean hasChildren() {
-		for (Person p : personList) {
-			if ((p.getFather() != null && p.getFather().equals(this)) || (p.getMother() != null && p.getMother().equals(this)))
-				return true;
+	public Person	minx	= null;
+	public Person	maxx	= null;
+	public Person	miny	= null;
+	public Person	maxy	= null;
+
+	public Rect getLogTreeRect(int maxGeneration) {
+		if (minx == null)
+			minx = this;
+		if (maxx == null)
+			maxx = this;
+		if (miny == null)
+			miny = this;
+		if (maxy == null)
+			maxy = this;
+
+		if (!hasChildren() || getGeneration() >= maxGeneration)
+			return new Rect(x, y, x, y);
+		Rect		rect			= new Rect(x, y, x, y);
+		PersonList	childrenList	= getChildrenList();
+		for (Person child : childrenList) {
+			Rect cr = child.getTreeRect(maxGeneration);
+			if (child.x < minx.x)
+				minx = child;
+			if (child.x > maxx.x)
+				maxx = child;
+			if (child.y < miny.y)
+				miny = child;
+			if (child.y > maxy.y)
+				maxy = child;
+			rect.expandToInclude(cr);
 		}
-		return false;
+		return rect;
+	}
+
+	public Rect getTreeRect(int includeGeneration) {
+		if (!hasChildren() || getGeneration() >= includeGeneration)
+			return new Rect(x, y, x, y);
+		Rect		rect			= new Rect(x, y, x, y);
+		PersonList	childrenList	= getChildrenList();
+		for (Person child : childrenList) {
+			Rect cr = child.getTreeRect(includeGeneration);
+			rect.expandToInclude(cr);
+		}
+		return rect;
+	}
+
+	public boolean hasChildren() {
+//		for (Person p : personList) {
+//			if ((p.getFather() != null && p.getFather().equals(this)) || (p.getMother() != null && p.getMother().equals(this)))
+//				return true;
+//		}
+//		return false;
+		return getChildrenList() != null && !getChildrenList().isEmpty();
 	}
 
 	protected boolean hasParents() {
@@ -309,32 +368,34 @@ public abstract class Person extends BasicFamilyMember {
 		return false;
 	}
 
-	public void initAttribute(Context context) {
+	public void analyzeTree(Context context) {
 		PersonList	spouseList	= getSpouseList();
 		int			spouseIndex	= 0;
 		for (Person spouse : spouseList) {
 			if (spouse.isMember(context)) {
 				// both parents are member of the family
 				// ignore any clone that we already have converted
-				if (!context.getParameterOptions().isFollowFemales() && isMale() && !(spouse instanceof FemaleClone)) {
+				if (!context.getParameterOptions().isFollowFemales() && isMale() && !(spouse instanceof FemaleSpouseClone)) {
 					// create a clone of the spouse and shift all child relations to that clone
-					FemaleClone	clone			= new FemaleClone(spouse.personList, (Female) spouse);
-					PersonList	childrenList	= getChildrenList(spouse);
+					FemaleSpouseClone	clone			= new FemaleSpouseClone(spouse.personList, (Female) spouse);
+					PersonList			childrenList	= getChildrenList(spouse);
 					for (Person child : childrenList) {
 						child.setMother(clone);
 					}
 					personList.add(clone);
+					spouse.resetChildrenList();
 					spouse = clone;
 					spouse.spouseIndex = spouseIndex++;
 					spouse.setSpouse(true);
-				} else if (context.getParameterOptions().isFollowFemales() && isFemale() && !(spouse instanceof MaleClone)) {
+				} else if (context.getParameterOptions().isFollowFemales() && isFemale() && !(spouse instanceof MaleSpouseClone)) {
 					// create a clone of the spouse and shift all child relations to that clone
-					MaleClone	clone			= new MaleClone(spouse.personList, (Male) spouse);
-					PersonList	childrenList	= getChildrenList(spouse);
+					MaleSpouseClone	clone			= new MaleSpouseClone(spouse.personList, (Male) spouse);
+					PersonList		childrenList	= getChildrenList(spouse);
 					for (Person child : childrenList) {
 						child.setFather(clone);
 					}
 					personList.add(clone);
+					spouse.resetChildrenList();
 					spouse = clone;
 					spouse.spouseIndex = spouseIndex++;
 					spouse.setSpouse(true);
@@ -361,7 +422,7 @@ public abstract class Person extends BasicFamilyMember {
 				if (child.equals(childrenList.last())) {
 					child.setLastChild(true);
 				}
-				child.initAttribute(context);
+				child.analyzeTree(context);
 			}
 			resetSpouseList();
 		}
@@ -372,7 +433,7 @@ public abstract class Person extends BasicFamilyMember {
 	}
 
 	public boolean isClone() {
-		return (this instanceof FemaleClone) || (this instanceof MaleClone);
+		return (this instanceof FemaleSpouseClone) || (this instanceof MaleSpouseClone || this instanceof FemalePaginationClone) || (this instanceof MalePaginationClone);
 	}
 
 	public abstract boolean isFemale();
@@ -404,9 +465,9 @@ public abstract class Person extends BasicFamilyMember {
 	public abstract boolean isMale();
 
 	public boolean isMember(Context context) {
-		if ((getFather() != null) || (getMother() != null) || (this instanceof FemaleClone) || (this instanceof MaleClone)) {
+		if ((getFather() != null) || (getMother() != null) || (this instanceof FemaleSpouseClone) || (this instanceof MaleSpouseClone)) {
 			// has a known father or mother
-			// has a child with a member
+			// has a child with a member and had to be cloned
 			return true;
 		}
 		// not children with spouse that has parents
@@ -446,6 +507,10 @@ public abstract class Person extends BasicFamilyMember {
 		return attribute.spouse;
 	}
 
+	public boolean isPaginationClone() {
+		return false;
+	}
+
 	public boolean isSpouseOfLastChild() {
 		return attribute.spouseOfLastChild;
 	}
@@ -461,7 +526,7 @@ public abstract class Person extends BasicFamilyMember {
 			if (!isSpouse()) {
 				PersonList spouseList = getSpouseList();
 				for (Person spouse : spouseList) {
-					logger.info(String.format("Moving [%d]%s %s x= %d, y = %d.", getId(), getFirstName(), getLastName(), (int) x, (int) y));
+//					logger.info(String.format("Moving [%d]%s %s x= %d, y = %d.", getId(), getFirstName(), getLastName(), (int) x, (int) y));
 					spouse.moveTree(x, y);
 					PersonList childrenList = getChildrenList(spouse);
 					for (Person child : childrenList) {
@@ -534,6 +599,27 @@ public abstract class Person extends BasicFamilyMember {
 		if (getPageIndex() == null) {
 			errors.add(ErrorMessages.ERROR_002_PAGE_INDEX_NULL);
 		}
+	}
+
+	public void resetChildrenList() {
+		childrenList = null;
+		spouseChildrenList.clear();
+	}
+
+	public Person findPaginationClone() {
+		for (Person clone : personList) {
+			if (clone instanceof MalePaginationClone) {
+				Person original = ((MalePaginationClone) clone).getOriginal();
+				if (this.equals(original))
+					return clone;
+
+			} else if (clone instanceof FemalePaginationClone) {
+				Person original = ((FemalePaginationClone) clone).getOriginal();
+				if (this.equals(original))
+					return clone;
+			}
+		}
+		return null;
 	}
 
 }

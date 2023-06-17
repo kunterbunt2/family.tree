@@ -14,10 +14,10 @@ public class Male extends DrawablePerson {
 		super(personList, male, BACKGROUND_COLOR);
 	}
 
-	@Override
-	public String getSexCharacter() {
-		return "\u2642 ";
-	}
+//	@Override
+//	public String getSexCharacter() {
+//		return "\u2642 ";
+//	}
 
 	@Override
 	public boolean isFemale() {

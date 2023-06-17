@@ -6,9 +6,11 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.bushnaq.abdalla.pdf.IsoPage;
 import de.bushnaq.abdalla.util.FileUtil;
 
 public class ParameterOptions {
@@ -26,11 +28,12 @@ public class ParameterOptions {
 	private boolean				colorTrees							= false;
 	private boolean				compact								= false;									// compact tree (no birth, died, ID)
 	private boolean				coordinates							= true;										// enable coordinates
+	private boolean				drawGrid							= false;
 	private boolean				drawTextMetric						= false;
 	private boolean				excludeSpouse						= false;									// excluded the spouse in the tree if true otherwise do not include them
 	private String				familyName;
 	private boolean				followFemales						= false;									// children will be shown under the mother if both parents are member of the
-																												// family
+	// family
 	private boolean				h									= false;									// draw a horizontal tree if true
 	private String				input;																			// input excel file
 	String						inputFolder;
@@ -40,6 +43,7 @@ public class ParameterOptions {
 	private String				outputDecorator						= "";										// additional decorations for the output file name
 	private float				pageMargin							= 32f;										// unprintable margin
 	private boolean				showImage							= true;
+	private IsoPage				targetPaperSize						= new IsoPage(PDRectangle.A3, "A3");
 	private boolean				v									= true;										// vertical tree mode
 	private float				zoom								= 0.5f;
 
@@ -67,6 +71,10 @@ public class ParameterOptions {
 		return pageMargin;
 	}
 
+	public IsoPage getTargetPaperSize() {
+		return targetPaperSize;
+	}
+
 	public float getZoom() {
 		return zoom;
 	}
@@ -81,6 +89,10 @@ public class ParameterOptions {
 
 	public boolean isCoordinates() {
 		return coordinates;
+	}
+
+	public boolean isDrawGrid() {
+		return drawGrid;
 	}
 
 	public boolean isDrawTextMetric() {

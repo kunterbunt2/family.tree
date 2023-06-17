@@ -1,0 +1,8 @@
+intellij
+will ignore maven compiler options for java version and ask for sdk
+build happens when you wnat to run, slow
+line comment has no key assigned
+
+
+shift + F6	rename
+ctrl + alt	format

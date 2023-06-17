@@ -2,7 +2,7 @@ package de.bushnaq.abdalla.pdf;
 
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 
-public class IsoPage {
+public class IsoPage implements Comparable<IsoPage> {
 
 	private final String		name;
 	private final PDRectangle	rect;
@@ -13,9 +13,20 @@ public class IsoPage {
 
 	}
 
-	IsoPage(PDRectangle rect, String name) {
+	public IsoPage(PDRectangle rect, String name) {
 		this.rect = new PDRectangle(rect.getWidth(), rect.getHeight());
 		this.name = name;
+	}
+
+	@Override
+	public int compareTo(IsoPage o) {
+		if (this.rect.getWidth() * this.rect.getHeight() < o.rect.getWidth() * o.rect.getHeight()) {
+			return -1;
+		} else if (this.rect.getWidth() * this.rect.getHeight() == o.rect.getWidth() * o.rect.getHeight()) {
+			return 0;
+		} else {
+			return 1;
+		}
 	}
 
 	public String getName() {
@@ -25,5 +36,4 @@ public class IsoPage {
 	public PDRectangle getRect() {
 		return rect;
 	}
-
 }

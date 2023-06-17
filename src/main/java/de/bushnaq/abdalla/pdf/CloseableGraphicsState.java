@@ -79,6 +79,20 @@ public class CloseableGraphicsState implements Closeable {
 		contentStream.lineTo(x2, pageHeight - y2);
 	}
 
+	public void drawCircle(float cx, float cy, float r) throws IOException {
+		final float k = 0.552284749831f;
+//		final float k = 1f;
+//	    contentStream.setNonStrokingColor(red, green, blue);
+		float tcy = pageHeight - cy;
+
+		contentStream.moveTo(cx - r, tcy);
+		contentStream.curveTo(cx - r, tcy + k * r, cx - k * r, tcy + r, cx, tcy + r);
+		contentStream.curveTo(cx + k * r, tcy + r, cx + r, tcy + k * r, cx + r, tcy);
+		contentStream.curveTo(cx + r, tcy - k * r, cx + k * r, tcy - r, cx, tcy - r);
+		contentStream.curveTo(cx - k * r, tcy - r, cx - r, tcy - k * r, cx - r, tcy);
+		//contentStream.fill();
+	}
+
 	public void drawRect(float x, float y, float width, float height) throws IOException {
 		contentStream.addRect(x + lineWidth / 2, pageHeight - y - height + lineWidth / 2, width - lineWidth, (height - lineWidth));
 	}

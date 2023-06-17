@@ -1,21 +1,21 @@
 package de.bushnaq.abdalla.family.person;
 
 /**
- * Used to represent a female person in the tree beside her sexual partner.<br>
+ * Used to represent a male person in the tree beside his sexual partner.<br>
  * All clones are marked with * as such in the tree.<br>
- * The original person is still displayed as sibling of her parents.
+ * The original person is still displayed as sibling of his parents.
  *
  * @author abdalla
  *
  */
-public class FemaleClone extends Female {
-	Female original;
+public class MaleSpouseClone extends Male {
+	Male original;
 
-	public FemaleClone(PersonList personList, Female female) {
-		super(personList, female);
+	public MaleSpouseClone(PersonList personList, Male male) {
+		super(personList, male);
 		setFather(null);// we are just a clone
 		setMother(null);// we are just a clone
-		original = female;
+		original = male;
 	}
 
 	@Override

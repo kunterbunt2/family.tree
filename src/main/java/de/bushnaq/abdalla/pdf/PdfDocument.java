@@ -28,6 +28,11 @@ import org.apache.xmpbox.schema.PDFAIdentificationSchema;
 import org.apache.xmpbox.type.BadFieldValueException;
 import org.apache.xmpbox.xml.XmpSerializer;
 
+import de.bushnaq.abdalla.family.Context;
+import de.bushnaq.abdalla.family.person.DrawablePerson;
+import de.bushnaq.abdalla.family.person.Person;
+import de.bushnaq.abdalla.family.person.Rect;
+
 public class PdfDocument implements Closeable {
 	private PDDocument					document;
 	private String						documentFileName;
@@ -128,6 +133,12 @@ public class PdfDocument implements Closeable {
 		}
 		document.save(documentFileName);
 		document.close();
+	}
+
+	public IsoPage findBestFittingPageSize(Context context, Rect treeRect) {
+		float	w	= (treeRect.getX2() - treeRect.getX1() + 1);
+		float	h	= (treeRect.getY2() - treeRect.getY1() + 1);
+		return findBestFittingPageSize(w * DrawablePerson.getPersonWidth(context) + DrawablePerson.getPageMargin(context) * 2, h * DrawablePerson.getPersonHeight(context) + DrawablePerson.getPageMargin(context) * 2);
 	}
 
 	private IsoPage findBestFittingPageSize(float w, float h) {

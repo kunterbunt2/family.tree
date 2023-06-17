@@ -18,6 +18,12 @@ public class VerticalTree extends Tree {
 	}
 
 	@Override
+	protected void compact(Context context2, PdfDocument pdfDocument, Person rootFather, int clipGeneration) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
 	protected void compact(Context context2, PdfDocument pdfDocument) {
 		List<Male>	firstFathers	= findRootFatherList();
 		int			maxgeneration	= 2/* findMaxgeneration() */;
@@ -25,18 +31,18 @@ public class VerticalTree extends Tree {
 		for (Person firstFather : firstFathers) {
 //			int g = 2;
 			for (int g = maxgeneration - 1; g > 0; g--) {
-				logger.info(String.format("compacting children of generation %d", g));
+//				logger.info(String.format("compacting children of generation %d", g));
 				compactChildren(firstFather, g);
 			}
 			for (int g = maxgeneration - 1; g > 0; g--) {
-				logger.info(String.format("compacting parents of generation %d", g));
+//				logger.info(String.format("compacting parents of generation %d", g));
 				compactParents(firstFather, g);
 			}
 			Rect	treeRect	= firstFather.getTreeRect();
 			int		w			= (int) (treeRect.getX2() - treeRect.getX1() + 1);
 			int		h			= (int) (treeRect.getY2() - treeRect.getY1() + 1);
 			int		area		= w * h;
-			logger.info(String.format("compacted tree to %d X %d = %d", w, h, area));
+//			logger.info(String.format("compacted tree to %d X %d = %d", w, h, area));
 		}
 	}
 
@@ -67,7 +73,7 @@ public class VerticalTree extends Tree {
 							else
 								deltaX = x - child.x + context.getParameterOptions().getMinYDistanceBetweenTrees() - 1;
 							child.moveTree(deltaX, 0);
-							logger.info(String.format("Move [%d]%s %s x = %d.", child.getId(), child.getFirstName(), child.getLastName(), (int) deltaX));
+//							logger.info(String.format("Move [%d]%s %s x = %d.", child.getId(), child.getFirstName(), child.getLastName(), (int) deltaX));
 						}
 					}
 				}
@@ -81,7 +87,7 @@ public class VerticalTree extends Tree {
 							// move child tree to be one unit right to the previous child
 							float delta = -deltaY + 1;
 							child.moveTree(0, delta);
-							logger.info(String.format("Move [%d]%s %s y = %d.", child.getId(), child.getFirstName(), child.getLastName(), (int) delta));
+//							logger.info(String.format("Move [%d]%s %s y = %d.", child.getId(), child.getFirstName(), child.getLastName(), (int) delta));
 							// if this is the first child of a spouse, the spouse must be moved too
 							if (child.isFirstChild()) {
 								child.getSpouseParent().y += delta;
@@ -123,7 +129,7 @@ public class VerticalTree extends Tree {
 						if (deltaY > 1) {
 							// move child tree to be one unit right to the previous child
 							child.moveTree(0, -deltaY + 1);
-							logger.info(String.format("Move [%d]%s %s y = %d.", child.getId(), child.getFirstName(), child.getLastName(), (int) -deltaY + 1));
+//							logger.info(String.format("Move [%d]%s %s y = %d.", child.getId(), child.getFirstName(), child.getLastName(), (int) -deltaY + 1));
 							// if this is the first child of a spouse, the spouse must be moved too
 							if (child.isFirstChild()) {
 								child.getSpouseParent().y += -deltaY + 1;
@@ -152,7 +158,7 @@ public class VerticalTree extends Tree {
 	}
 
 	@Override
-	float position(Context context, Person person) {
+	float position(Context context, Person person, int treeMaxGeneration) {
 		person.setVisible(true);
 		float pY = person.y;
 		if (!person.hasChildren())
@@ -173,7 +179,7 @@ public class VerticalTree extends Tree {
 				}
 				child.y = pY;
 				child.setPageIndex(person.getPageIndex());
-				pY = position(context, child);
+				pY = position(context, child, treeMaxGeneration);
 			}
 		}
 		return pY;
