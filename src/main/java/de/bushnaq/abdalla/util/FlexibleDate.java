@@ -5,57 +5,57 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 public class FlexibleDate {
-	private Date	date	= null;
-	private Integer	day;
-	private Integer	month;
-	private long	time;
-	private Integer	year;
+    private final long time;
+    private Date date = null;
+    private Integer day;
+    private Integer month;
+    private Integer year;
 
-	public FlexibleDate(Date date) {
-		this.date = date;
-		time = date.getTime();
-	}
+    public FlexibleDate(Date date) {
+        this.date = date;
+        time = date.getTime();
+    }
 
-	public FlexibleDate(int year) {
-		this.year = year;
-		time = new GregorianCalendar(year, 0, 1).getTime().getTime();
-	}
+    public FlexibleDate(int year) {
+        this.year = year;
+        time = new GregorianCalendar(year, 0, 1).getTime().getTime();
+    }
 
-	public boolean before(FlexibleDate other) {
-		return time < other.getTime();
-	}
+    public boolean before(FlexibleDate other) {
+        return time < other.getTime();
+    }
 
-	public int compareTo(FlexibleDate other) {
-		return (time < other.getTime() ? -1 : (time == other.getTime() ? 0 : 1));
-	}
+    public int compareTo(FlexibleDate other) {
+        return (time < other.getTime() ? -1 : (time == other.getTime() ? 0 : 1));
+    }
 
-	public Date getDate() {
-		return date;
-	}
+    public Date getDate() {
+        return date;
+    }
 
-	public Integer getDay() {
-		return day;
-	}
+    public Integer getDay() {
+        return day;
+    }
 
-	public Integer getMonth() {
-		return month;
-	}
+    public Integer getMonth() {
+        return month;
+    }
 
-	public String getString() {
-		if (getDate() != null) {
-			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-			return simpleDateFormat.format(getDate());
-		} else {
-			return "" + year;
-		}
-	}
+    public String getString() {
+        if (getDate() != null) {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            return simpleDateFormat.format(getDate());
+        } else {
+            return String.valueOf(year);
+        }
+    }
 
-	public long getTime() {
-		return time;
-	}
+    public long getTime() {
+        return time;
+    }
 
-	public Integer getYear() {
-		return year;
-	}
+    public Integer getYear() {
+        return year;
+    }
 
 }

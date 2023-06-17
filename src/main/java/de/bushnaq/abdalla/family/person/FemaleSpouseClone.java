@@ -6,30 +6,29 @@ package de.bushnaq.abdalla.family.person;
  * The original person is still displayed as sibling of her parents.
  *
  * @author abdalla
- *
  */
 public class FemaleSpouseClone extends Female {
-	Female original;
+    Female original;
 
-	public FemaleSpouseClone(PersonList personList, Female female) {
-		super(personList, female);
-		setFather(null);// we are just a clone
-		setMother(null);// we are just a clone
-		original = female;
-	}
+    public FemaleSpouseClone(PersonList personList, Female female) {
+        super(personList, female);
+        setFather(null);// we are just a clone
+        setMother(null);// we are just a clone
+        original = female;
+    }
 
-	@Override
-	public Integer getGeneration() {
-		return original.getGeneration();
-	}
+    @Override
+    public Integer getGeneration() {
+        return original.getGeneration();
+    }
 
-	public Person getOriginalFather() {
-		return original.getFather();
-	}
+    @Override
+    public void setGeneration(Integer generation) {
+        original.setGeneration(generation);
+    }
 
-	@Override
-	public void setGeneration(Integer generation) {
-		original.setGeneration(generation);
-	}
+    public Person getOriginalFather() {
+        return original.getFather();
+    }
 
 }

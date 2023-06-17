@@ -3,7 +3,6 @@ package de.bushnaq.abdalla.family.person;
 import de.bushnaq.abdalla.family.Context;
 import de.bushnaq.abdalla.pdf.CloseableGraphicsState;
 import de.bushnaq.abdalla.pdf.PdfDocument;
-import de.bushnaq.abdalla.pdf.PdfFont;
 import org.apache.pdfbox.cos.COSArray;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
@@ -19,15 +18,20 @@ import java.io.File;
 import java.io.IOException;
 
 public abstract class DrawablePerson extends Person {
+    public static final String NAME_FONT = "NAME_FONT";
+    public static final String DATE_FONT = "DATE_FONT";
+    public static final String BIG_WATERMARK_FONT = "BIG_WATERMARK_FONT";
+    public static final String SMALL_WATERMARK_FONT = "SMALL_WATERMARK_FONT";
+    public static final String NAME_OL_FONT = "NAME_OL_FONT";
     private static final float FAT_LINE_STROKE_WIDTH = 2f;
     private static final float MEDIUM_LINE_STROKE_WIDTH = 1f;
-    private Color backgroundColor;
-    private Color borderColor = new Color(0, 0, 0, 64);
-    private Color connectorColor = Color.gray;
-    private Color[] generationColors = {Color.red, Color.blue, Color.green, Color.orange, Color.gray};
-    private Color spouseBorderColor;
+    private final Color backgroundColor;
+    private final Color borderColor = new Color(0, 0, 0, 64);
+    private final Color connectorColor = Color.gray;
+    private final Color[] generationColors = {Color.red, Color.blue, Color.green, Color.orange, Color.gray};
+    private final Color spouseBorderColor;
 
-    private Color textColor = new Color(0, 0, 0);
+    private final Color textColor = new Color(0, 0, 0);
 
     public DrawablePerson(PersonList personList, DrawablePerson person, Color backgroundColor) {
         super(personList, person);
@@ -41,7 +45,22 @@ public abstract class DrawablePerson extends Person {
         this.spouseBorderColor = new Color(backgroundColor.getRGB());
     }
 
-    private void drawBox(Context context, PdfDocument pdfDocument, PdfFont nameFont, PdfFont nameOLFont, PdfFont dateFont) throws IOException {
+    public static float getPageMargin(Context context) {
+        return context.getParameterOptions().getPageMargin() * context.getParameterOptions().getZoom();
+    }
+
+    public static float getPersonWidth(Context context) {
+        if (context.getParameterOptions().isShowImage())
+            return getImageWidth(context) + getWidth(context) + getXSpace(context);
+        else
+            return getWidth(context) + getXSpace(context);
+    }
+
+    public static float getPersonHeight(Context context) {
+        return getHeight(context) + Person.getYSpace(context);
+    }
+
+    private void drawBox(Context context, PdfDocument pdfDocument) throws IOException {
         float x1 = xIndexToCoordinate(context, x);    // x * (width + getXSpace(context));
         float y1 = yIndexToCoordinate(context, y);    // y * (getHeight(context) + Person.getYSpace(context));
 
@@ -128,9 +147,9 @@ public abstract class DrawablePerson extends Person {
             try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
                 String text = getFirstNameAsString(context);
                 if (isFirstNameOl(context))
-                    p.setFont(p.getFontFittingWidth(nameOLFont, getWidth(context), text));
+                    p.setFont(p.getFontFittingWidth(pdfDocument.getFont(NAME_OL_FONT), getWidth(context), text));
                 else
-                    p.setFont(p.getFontFittingWidth(nameFont, getWidth(context), text));
+                    p.setFont(p.getFontFittingWidth(pdfDocument.getFont(NAME_FONT), getWidth(context), text));
                 float stringWidth = p.getStringWidth(text);
                 firstNameHeight = p.getStringHeight();
                 float w = stringWidth;
@@ -159,9 +178,9 @@ public abstract class DrawablePerson extends Person {
             try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
                 String text = getLastNameAsString(context);
                 if (isLastNameOl(context))
-                    p.setFont(p.getFontFittingWidth(nameOLFont, getWidth(context), text));
+                    p.setFont(p.getFontFittingWidth(pdfDocument.getFont(NAME_OL_FONT), getWidth(context), text));
                 else
-                    p.setFont(p.getFontFittingWidth(nameFont, getWidth(context), text));
+                    p.setFont(p.getFontFittingWidth(pdfDocument.getFont(NAME_FONT), getWidth(context), text));
                 float stringWidth = p.getStringWidth(text);
                 float lastNameHeight = p.getStringHeight();
                 float w = stringWidth;
@@ -193,9 +212,9 @@ public abstract class DrawablePerson extends Person {
             try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
                 p.setNonStrokingColor(textColor);
                 if (context.getParameterOptions().isCompact()) {
-                    p.setFont(dateFont);
+                    p.setFont(pdfDocument.getFont(DATE_FONT));
                 } else {
-                    p.setFont(nameFont);
+                    p.setFont(pdfDocument.getFont(NAME_FONT));
                 }
                 if (this instanceof FemaleSpouseClone || this instanceof MaleSpouseClone) {
                     String text = "*";
@@ -215,12 +234,12 @@ public abstract class DrawablePerson extends Person {
             try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
                 p.setNonStrokingColor(textColor);
                 if (context.getParameterOptions().isCompact()) {
-                    p.setFont(dateFont);
+                    p.setFont(pdfDocument.getFont(DATE_FONT));
                 } else {
-                    p.setFont(nameFont);
+                    p.setFont(pdfDocument.getFont(NAME_FONT));
                 }
                 {
-                    String text = "" + getId();
+                    String text = String.valueOf(getId());
                     float x2 = x1 + getImageWidth(context) + getBorder(context) + getMargine(context);
                     float y2 = y1 + getHeight(context) - getBorder(context);
                     drawTextMetric(p, x2, y2, text, context);
@@ -238,10 +257,10 @@ public abstract class DrawablePerson extends Person {
                 if (getGeneration() != null) {
                     p.setNonStrokingColor(textColor);
                     if (context.getParameterOptions().isCompact()) {
-                        p.setFont(dateFont);
+                        p.setFont(pdfDocument.getFont(DATE_FONT));
 //						y2 = y1 + p.getStringHeight() + getBorder(context);
                     } else {
-                        p.setFont(nameFont);
+                        p.setFont(pdfDocument.getFont(NAME_FONT));
                     }
                     String text = "G" + getGeneration();
                     float x2 = x1 + getImageWidth(context) + getBorder(context) + getMargine(context);
@@ -258,7 +277,7 @@ public abstract class DrawablePerson extends Person {
             // Coordinates
             try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
                 p.setNonStrokingColor(Color.darkGray);
-                p.setFont(dateFont);
+                p.setFont(pdfDocument.getFont(DATE_FONT));
                 {
                     String text = String.format("%d,%d", (int) x, (int) y);
                     float x2 = x1 + getImageWidth(context) + getWidth(context) - p.getStringWidth(text) - getMargine(context) - getBorder(context);
@@ -276,7 +295,7 @@ public abstract class DrawablePerson extends Person {
             if (!context.getParameterOptions().isCompact()) {
                 try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
                     p.setNonStrokingColor(textColor);
-                    p.setFont(dateFont);
+                    p.setFont(pdfDocument.getFont(DATE_FONT));
                     String text = getBornString();
                     float w = p.getStringWidth(text);
                     float h = p.getStringHeight();
@@ -294,7 +313,7 @@ public abstract class DrawablePerson extends Person {
             // died
             try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
                 p.setNonStrokingColor(textColor);
-                p.setFont(dateFont);
+                p.setFont(pdfDocument.getFont(DATE_FONT));
                 String text = getDiedString();
                 float w = p.getStringWidth(text);
                 float x2 = x1 + getImageWidth(context) + (getWidth(context)) / 2 - w / 2;
@@ -311,7 +330,7 @@ public abstract class DrawablePerson extends Person {
             // errors
             try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
                 p.setNonStrokingColor(Color.red);
-                p.setFont(dateFont);
+                p.setFont(pdfDocument.getFont(DATE_FONT));
                 {
                     if (errors.size() != 0) {
                         StringBuffer sb = new StringBuffer();
@@ -335,14 +354,14 @@ public abstract class DrawablePerson extends Person {
     }
 
     @Override
-    public void drawHorizontal(Context context, PdfDocument pdfDocument, PdfFont nameFont, PdfFont nameOLFont, PdfFont dateFont) throws IOException {
+    public void drawHorizontal(Context context, PdfDocument pdfDocument) throws IOException {
         if (isVisible()) {
-            drawBox(context, pdfDocument, nameFont, nameOLFont, dateFont);
-            drawHorizontalConnectors(context, pdfDocument, nameFont, nameOLFont, dateFont);
+            drawBox(context, pdfDocument);
+            drawHorizontalConnectors(context, pdfDocument);
         }
     }
 
-    private void drawHorizontalConnectors(Context context, PdfDocument pdfDocument, PdfFont nameFont, PdfFont nameOLFont, PdfFont dateFont) throws IOException {
+    private void drawHorizontalConnectors(Context context, PdfDocument pdfDocument) throws IOException {
         float x1 = xIndexToCoordinate(context, x);
         float y1 = yIndexToCoordinate(context, y);
 
@@ -352,9 +371,9 @@ public abstract class DrawablePerson extends Person {
                 int targetPageNumber = clone.getPageIndex() + 1;
                 float annotationSize = 24f;
                 String text = "P" + targetPageNumber;
-                p.setFont(nameFont);
+                p.setFont(pdfDocument.getFont(NAME_FONT));
                 float stringWidth = p.getStringWidth(text);
-				float stringHeight = p.getStringHeight();
+                float stringHeight = p.getStringHeight();
                 float w = stringWidth;
                 float textX;
                 float annotationX;
@@ -365,8 +384,8 @@ public abstract class DrawablePerson extends Person {
                     annotationX = x1 + (getWidth(context)) / 2;
                     textX = annotationX - w / 2;
                 }
-                float textY = y1 + Person.getHeight(context) +annotationSize/2+ stringHeight/2;
-                float annotationY = y1 + Person.getHeight(context)+annotationSize/2 ;
+                float textY = y1 + Person.getHeight(context) + annotationSize / 2 + stringHeight / 2;
+                float annotationY = y1 + Person.getHeight(context) + annotationSize / 2;
 
                 {
                     //add background
@@ -400,7 +419,7 @@ public abstract class DrawablePerson extends Person {
                     link.setAction(action);
                     link.setPage(sourcePage);
 
-                    link.setRectangle(new PDRectangle(annotationX-annotationSize/2,sourcePage.getBBox().getHeight() - annotationY+annotationSize/2-annotationSize,annotationSize,annotationSize));
+                    link.setRectangle(new PDRectangle(annotationX - annotationSize / 2, sourcePage.getBBox().getHeight() - annotationY + annotationSize / 2 - annotationSize, annotationSize, annotationSize));
                     sourcePage.getAnnotations().add(link);
                 }
             }
@@ -502,9 +521,9 @@ public abstract class DrawablePerson extends Person {
     }
 
     @Override
-    public void drawVertical(Context context, PdfDocument pdfDocument, PdfFont nameFont, PdfFont nameOLFont, PdfFont dateFont) throws IOException {
+    public void drawVertical(Context context, PdfDocument pdfDocument) throws IOException {
         if (isVisible()) {
-            drawBox(context, pdfDocument, nameFont, nameOLFont, dateFont);
+            drawBox(context, pdfDocument);
             drawVerticalConnectors(context, pdfDocument);
         }
     }
@@ -591,10 +610,6 @@ public abstract class DrawablePerson extends Person {
         return generationColors[generation % generationColors.length];
     }
 
-    public static float getPageMargin(Context context) {
-        return context.getParameterOptions().getPageMargin() * context.getParameterOptions().getZoom();
-    }
-
     protected float getSpecialBorderWidth(Context context) {
         return FAT_LINE_STROKE_WIDTH * context.getParameterOptions().getZoom();
     }
@@ -604,19 +619,8 @@ public abstract class DrawablePerson extends Person {
         return String.format("[%d] %s (%s) x=%d y=%d", getId(), getName(context), getLivedString(), x, y);
     }
 
-    public static float getPersonWidth(Context context) {
-        if (context.getParameterOptions().isShowImage())
-            return getImageWidth(context) + getWidth(context) + getXSpace(context);
-        else
-            return getWidth(context) + getXSpace(context);
-    }
-
     private float xIndexToCoordinate(Context context, float x) {
         return getPageMargin(context) + x * getPersonWidth(context);
-    }
-
-    public static float getPersonHeight(Context context) {
-        return getHeight(context) + Person.getYSpace(context);
     }
 
     private float yIndexToCoordinate(Context context, float y) {

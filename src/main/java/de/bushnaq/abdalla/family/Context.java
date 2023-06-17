@@ -6,10 +6,10 @@ import org.springframework.stereotype.Component;
 @Component
 @Scope("singleton")
 public class Context {
-	private ParameterOptions ParameterOptions = new ParameterOptions();
+    private final ParameterOptions ParameterOptions = new ParameterOptions();
 
-	public ParameterOptions getParameterOptions() {
-		return ParameterOptions;
-	}
+    public ParameterOptions getParameterOptions() {
+        return ParameterOptions;
+    }
 
 }

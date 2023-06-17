@@ -1,114 +1,113 @@
 package de.bushnaq.abdalla.family.person;
 
+import de.bushnaq.abdalla.family.Context;
+import de.bushnaq.abdalla.util.FlexibleDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.bushnaq.abdalla.family.Context;
-import de.bushnaq.abdalla.util.FlexibleDate;
-
 public class BasicFamilyMember {
-	private FlexibleDate	born;
-	private FlexibleDate	died;
-	private Male			father;
-	private String			firstName;
-	private String			firstNameOriginalLanguage;
-	private int				id;
-	private String			lastName;
-	private String			lastNameOriginalLanguage;
-	final Logger			logger	= LoggerFactory.getLogger(this.getClass());
-	private Female			mother;
+    final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private FlexibleDate born;
+    private FlexibleDate died;
+    private Male father;
+    private String firstName;
+    private String firstNameOriginalLanguage;
+    private int id;
+    private String lastName;
+    private String lastNameOriginalLanguage;
+    private Female mother;
 
-	public BasicFamilyMember(BasicFamilyMember member) {
-		this.id = member.id;
-		this.setFirstName(member.firstName);
-		this.setFirstNameOriginalLanguage(member.firstNameOriginalLanguage);
-		this.setLastName(member.lastName);
-		this.setLastNameOriginalLanguage(member.lastNameOriginalLanguage);
-		this.setBorn(member.born);
-		this.setDied(member.died);
-		this.setFather(member.father);
-		this.setMother(member.mother);
-	}
+    public BasicFamilyMember(BasicFamilyMember member) {
+        this.id = member.id;
+        this.setFirstName(member.firstName);
+        this.setFirstNameOriginalLanguage(member.firstNameOriginalLanguage);
+        this.setLastName(member.lastName);
+        this.setLastNameOriginalLanguage(member.lastNameOriginalLanguage);
+        this.setBorn(member.born);
+        this.setDied(member.died);
+        this.setFather(member.father);
+        this.setMother(member.mother);
+    }
 
-	public BasicFamilyMember(Integer id) {
-		this.id = id;
-	}
+    public BasicFamilyMember(Integer id) {
+        this.id = id;
+    }
 
-	public FlexibleDate getBorn() {
-		return born;
-	}
+    public FlexibleDate getBorn() {
+        return born;
+    }
 
-	public FlexibleDate getDied() {
-		return died;
-	}
+    public void setBorn(FlexibleDate born) {
+        this.born = born;
+    }
 
-	public Male getFather() {
-		return father;
-	}
+    public FlexibleDate getDied() {
+        return died;
+    }
 
-	public String getFirstName() {
-		return firstName;
-	}
+    public void setDied(FlexibleDate died) {
+        this.died = died;
+    }
 
-	public String getFirstNameOriginalLanguage() {
-		return firstNameOriginalLanguage;
-	}
+    public Male getFather() {
+        return father;
+    }
 
-	public int getId() {
-		return id;
-	}
+    public void setFather(Male father) {
+        this.father = father;
+    }
 
-	public String getLastName() {
-		return lastName;
-	}
+    public String getFirstName() {
+        return firstName;
+    }
 
-	public String getLastNameOriginalLanguage() {
-		return lastNameOriginalLanguage;
-	}
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
 
-	public Female getMother() {
-		return mother;
-	}
+    public String getFirstNameOriginalLanguage() {
+        return firstNameOriginalLanguage;
+    }
 
-	public void setBorn(FlexibleDate born) {
-		this.born = born;
-	}
+    public void setFirstNameOriginalLanguage(String firstNameOriginalLanguage) {
+        this.firstNameOriginalLanguage = firstNameOriginalLanguage;
+    }
 
-	public void setDied(FlexibleDate died) {
-		this.died = died;
-	}
+    public int getId() {
+        return id;
+    }
 
-	public void setFather(Male father) {
-		this.father = father;
-	}
+    public void setId(int id) {
+        this.id = id;
+    }
 
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
+    public String getLastName() {
+        return lastName;
+    }
 
-	public void setFirstNameOriginalLanguage(String firstNameOriginalLanguage) {
-		this.firstNameOriginalLanguage = firstNameOriginalLanguage;
-	}
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
 
-	public void setId(int id) {
-		this.id = id;
-	}
+    public String getLastNameOriginalLanguage() {
+        return lastNameOriginalLanguage;
+    }
 
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
+    public void setLastNameOriginalLanguage(String lastNameOriginalLanguage) {
 
-	public void setLastNameOriginalLanguage(String lastNameOriginalLanguage) {
+        this.lastNameOriginalLanguage = lastNameOriginalLanguage;
+    }
 
-		this.lastNameOriginalLanguage = lastNameOriginalLanguage;
-	}
+    public Female getMother() {
+        return mother;
+    }
 
-	public void setMother(Female mother) {
-		this.mother = mother;
-	}
+    public void setMother(Female mother) {
+        this.mother = mother;
+    }
 
-	public String toString(Context context) {
-		return toString();
-	}
+    public String toString(Context context) {
+        return toString();
+    }
 
 }

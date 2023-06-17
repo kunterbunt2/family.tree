@@ -16,184 +16,176 @@
 
 package de.bushnaq.abdalla.theme;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.swing.UIManager;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.FlatPropertiesLaf;
 import com.formdev.flatlaf.IntelliJTheme;
 import com.formdev.flatlaf.extras.FlatAnimatedLafChange;
 import com.formdev.flatlaf.json.Json;
 import com.formdev.flatlaf.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import javax.swing.*;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Karl Tauber
  */
 @Component
 public class IJThemesManager {
-	private static boolean		dark;
-	private static final String	THEMES_PACKAGE	= "/com/formdev/flatlaf/intellijthemes/themes/";
+    private static final String THEMES_PACKAGE = "/com/formdev/flatlaf/intellijthemes/themes/";
+    private static boolean dark;
+    public final List<IJThemeInfo> bundledThemes = new ArrayList<>();
+    private final Map<File, Long> lastModifiedMap = new HashMap<>();
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final List<IJThemeInfo> moreThemes = new ArrayList<>();
 
-	public static boolean isDark() {
-		return dark;
-	}
+    public static boolean isDark() {
+        return dark;
+    }
 
-	public final List<IJThemeInfo>	bundledThemes	= new ArrayList<>();
-	private final Map<File, Long>	lastModifiedMap	= new HashMap<>();
-	private Logger					logger			= LoggerFactory.getLogger(this.getClass());
-	private final List<IJThemeInfo>	moreThemes		= new ArrayList<>();
+    // private boolean hasThemesFromDirectoryChanged() {
+    // for (Map.Entry<File, Long> e : lastModifiedMap.entrySet()) {
+    // if (e.getKey().lastModified() != e.getValue().longValue()) {
+    // return true;
+    // }
+    // }
+    // return false;
+    // }
 
-	// private boolean hasThemesFromDirectoryChanged() {
-	// for (Map.Entry<File, Long> e : lastModifiedMap.entrySet()) {
-	// if (e.getKey().lastModified() != e.getValue().longValue()) {
-	// return true;
-	// }
-	// }
-	// return false;
-	// }
+    @SuppressWarnings("unchecked")
+    public void loadBundledThemes(String themePath) throws Exception {
+        bundledThemes.clear();
 
-	@SuppressWarnings("unchecked")
-	public void loadBundledThemes(String themePath) throws Exception {
-		bundledThemes.clear();
+        // load themes.json
+        Map<String, Object> json;
+        try (Reader reader = new InputStreamReader(this.getClass().getResourceAsStream(themePath), StandardCharsets.UTF_8)) {
+            json = (Map<String, Object>) Json.parse(reader);
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+            throw new Exception(e);
+        }
 
-		// load themes.json
-		Map<String, Object> json;
-		try (Reader reader = new InputStreamReader(this.getClass().getResourceAsStream(themePath), StandardCharsets.UTF_8)) {
-			json = (Map<String, Object>) Json.parse(reader);
-		} catch (IOException e) {
-			logger.error(e.getMessage(), e);
-			throw new Exception(e);
-		}
+        // add info about bundled themes
+        for (Map.Entry<String, Object> e : json.entrySet()) {
+            String resourceName = e.getKey();
+            Map<String, String> value = (Map<String, String>) e.getValue();
+            String name = value.get("name");
+            boolean dark = Boolean.parseBoolean(value.get("dark"));
+            String license = value.get("license");
+            String licenseFile = value.get("licenseFile");
+            String sourceCodeUrl = value.get("sourceCodeUrl");
+            String sourceCodePath = value.get("sourceCodePath");
 
-		// add info about bundled themes
-		for (Map.Entry<String, Object> e : json.entrySet()) {
-			String				resourceName	= e.getKey();
-			Map<String, String>	value			= (Map<String, String>) e.getValue();
-			String				name			= value.get("name");
-			boolean				dark			= Boolean.parseBoolean(value.get("dark"));
-			String				license			= value.get("license");
-			String				licenseFile		= value.get("licenseFile");
-			String				sourceCodeUrl	= value.get("sourceCodeUrl");
-			String				sourceCodePath	= value.get("sourceCodePath");
+            bundledThemes.add(new IJThemeInfo(name, resourceName, dark, license, licenseFile, sourceCodeUrl, sourceCodePath, null, null));
+        }
+    }
 
-			bundledThemes.add(new IJThemeInfo(name, resourceName, dark, license, licenseFile, sourceCodeUrl, sourceCodePath, null, null));
-		}
-	}
+    private void loadThemesFromDirectory() {
+        // get current working directory
+        File directory = new File("").getAbsoluteFile();
 
-	private void loadThemesFromDirectory() {
-		// get current working directory
-		File	directory	= new File("").getAbsoluteFile();
+        File[] themeFiles = directory.listFiles((dir, name) -> {
+            return name.endsWith(".theme.json") || name.endsWith(".properties");
+        });
+        if (themeFiles == null) {
+            return;
+        }
 
-		File[]	themeFiles	= directory.listFiles((dir, name) -> {
-								return name.endsWith(".theme.json") || name.endsWith(".properties");
-							});
-		if (themeFiles == null) {
-			return;
-		}
+        lastModifiedMap.clear();
+        lastModifiedMap.put(directory, directory.lastModified());
 
-		lastModifiedMap.clear();
-		lastModifiedMap.put(directory, directory.lastModified());
+        moreThemes.clear();
+        for (File f : themeFiles) {
+            String fname = f.getName();
+            String name = fname.endsWith(".properties") ? StringUtils.removeTrailing(fname, ".properties") : StringUtils.removeTrailing(fname, ".theme.json");
+            moreThemes.add(new IJThemeInfo(name, null, false, null, null, null, null, f, null));
+            lastModifiedMap.put(f, f.lastModified());
+        }
+    }
 
-		moreThemes.clear();
-		for (File f : themeFiles) {
-			String	fname	= f.getName();
-			String	name	= fname.endsWith(".properties") ? StringUtils.removeTrailing(fname, ".properties") : StringUtils.removeTrailing(fname, ".theme.json");
-			moreThemes.add(new IJThemeInfo(name, null, false, null, null, null, null, f, null));
-			lastModifiedMap.put(f, f.lastModified());
-		}
-	}
+    // @PostConstruct
+    public void setCurrentTheme(String intellijThemeFileName, boolean enableTableGrid) {
+        InputStream resourceAsStream = getClass().getResourceAsStream(THEMES_PACKAGE + intellijThemeFileName);
+        try {
+            FlatLaf createLaf = IntelliJTheme.createLaf(resourceAsStream);
+            FlatLaf.install(createLaf);
+            dark = createLaf.isDark();
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+        }
+        setCustomizedValues(enableTableGrid);
+        FlatLaf.updateUI();
+        FlatAnimatedLafChange.hideSnapshotWithAnimation();
+    }
 
-	// @PostConstruct
-	public void setCurrentTheme(String intellijThemeFileName, boolean enableTableGrid) {
-		InputStream resourceAsStream = getClass().getResourceAsStream(THEMES_PACKAGE + intellijThemeFileName);
-		try {
-			FlatLaf createLaf = IntelliJTheme.createLaf(resourceAsStream);
-			FlatLaf.install(createLaf);
-			dark = createLaf.isDark();
-		} catch (IOException e) {
-			logger.error(e.getMessage(), e);
-		}
-		setCustomizedValues(enableTableGrid);
-		FlatLaf.updateUI();
-		FlatAnimatedLafChange.hideSnapshotWithAnimation();
-	}
+    private void setCustomizedValues(boolean enableTableGrid) {
+        UIManager.put("Table.showHorizontalLines", enableTableGrid);
+        UIManager.put("Table.showVerticalLines", enableTableGrid);
 
-	private void setCustomizedValues(boolean enableTableGrid) {
-		UIManager.put("Table.showHorizontalLines", enableTableGrid);
-		UIManager.put("Table.showVerticalLines", enableTableGrid);
+        // {
+        // Font font = UIManager.getFont("defaultFont");
+        // Font newFont = font.deriveFont(16);
+        // UIManager.put("defaultFont", newFont);
+        // }
+        // {
+        // Font font = UIManager.getFont("Label.font");
+        // Font newFont = font.deriveFont(16);
+        // UIManager.put("Label.font", newFont);
+        // }
+        // System.setProperty("sun.java2d.uiScale", "2.5");
+    }
 
-		// {
-		// Font font = UIManager.getFont("defaultFont");
-		// Font newFont = font.deriveFont(16);
-		// UIManager.put("defaultFont", newFont);
-		// }
-		// {
-		// Font font = UIManager.getFont("Label.font");
-		// Font newFont = font.deriveFont(16);
-		// UIManager.put("Label.font", newFont);
-		// }
-		// System.setProperty("sun.java2d.uiScale", "2.5");
-	}
+    public void setTheme(IJThemeInfo themeInfo, boolean enableTableGrid) {
+        if (themeInfo == null) {
+            return;
+        }
 
-	public void setTheme(IJThemeInfo themeInfo, boolean enableTableGrid) {
-		if (themeInfo == null) {
-			return;
-		}
+        // change look and feel
+        if (themeInfo.lafClassName != null) {
+            if (themeInfo.lafClassName.equals(UIManager.getLookAndFeel().getClass().getName())) {
+                return;
+            }
 
-		// change look and feel
-		if (themeInfo.lafClassName != null) {
-			if (themeInfo.lafClassName.equals(UIManager.getLookAndFeel().getClass().getName())) {
-				return;
-			}
+            FlatAnimatedLafChange.showSnapshot();
 
-			FlatAnimatedLafChange.showSnapshot();
+            try {
+                UIManager.setLookAndFeel(themeInfo.lafClassName);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                // showInformationDialog("Failed to create '" + themeInfo.lafClassName + "'.", ex);
+            }
+        } else if (themeInfo.themeFile != null) {
+            FlatAnimatedLafChange.showSnapshot();
 
-			try {
-				UIManager.setLookAndFeel(themeInfo.lafClassName);
-			} catch (Exception ex) {
-				ex.printStackTrace();
-				// showInformationDialog("Failed to create '" + themeInfo.lafClassName + "'.", ex);
-			}
-		} else if (themeInfo.themeFile != null) {
-			FlatAnimatedLafChange.showSnapshot();
+            try {
+                if (themeInfo.themeFile.getName().endsWith(".properties")) {
+                    FlatLaf.install(new FlatPropertiesLaf(themeInfo.name, themeInfo.themeFile));
+                } else {
+                    FlatLaf.install(IntelliJTheme.createLaf(new FileInputStream(themeInfo.themeFile)));
+                }
 
-			try {
-				if (themeInfo.themeFile.getName().endsWith(".properties")) {
-					FlatLaf.install(new FlatPropertiesLaf(themeInfo.name, themeInfo.themeFile));
-				} else {
-					FlatLaf.install(IntelliJTheme.createLaf(new FileInputStream(themeInfo.themeFile)));
-				}
-
-				// DemoPrefs.getState().put(DemoPrefs.KEY_LAF_THEME, DemoPrefs.FILE_PREFIX + themeInfo.themeFile);
-			} catch (Exception ex) {
-				ex.printStackTrace();
-				// showInformationDialog("Failed to load '" + themeInfo.themeFile + "'.", ex);
-			}
-		} else {
-			FlatAnimatedLafChange.showSnapshot();
-			dark = themeInfo.dark;
-			InputStream resourceAsStream = getClass().getResourceAsStream(THEMES_PACKAGE + themeInfo.resourceName);
-			IntelliJTheme.install(resourceAsStream);
-		}
-		setCustomizedValues(enableTableGrid);
-		// update all components
-		FlatLaf.updateUI();
-		FlatAnimatedLafChange.hideSnapshotWithAnimation();
-	}
+                // DemoPrefs.getState().put(DemoPrefs.KEY_LAF_THEME, DemoPrefs.FILE_PREFIX + themeInfo.themeFile);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                // showInformationDialog("Failed to load '" + themeInfo.themeFile + "'.", ex);
+            }
+        } else {
+            FlatAnimatedLafChange.showSnapshot();
+            dark = themeInfo.dark;
+            InputStream resourceAsStream = getClass().getResourceAsStream(THEMES_PACKAGE + themeInfo.resourceName);
+            IntelliJTheme.install(resourceAsStream);
+        }
+        setCustomizedValues(enableTableGrid);
+        // update all components
+        FlatLaf.updateUI();
+        FlatAnimatedLafChange.hideSnapshotWithAnimation();
+    }
 
 }

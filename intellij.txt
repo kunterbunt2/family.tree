@@ -2,7 +2,10 @@ intellij
 will ignore maven compiler options for java version and ask for sdk
 build happens when you wnat to run, slow
 line comment has no key assigned
+optimize impots crashes
 
 
-shift + F6	rename
-ctrl + alt	format
+
+shift + F6		rename
+ctrl + alt		format
+ctrl + Alt + O	optimize imports

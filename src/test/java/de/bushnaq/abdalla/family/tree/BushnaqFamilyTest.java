@@ -1,30 +1,29 @@
 package de.bushnaq.abdalla.family.tree;
 
+import de.bushnaq.abdalla.family.Application;
+import de.bushnaq.abdalla.family.tree.util.Base;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
-
-import de.bushnaq.abdalla.family.Application;
-import de.bushnaq.abdalla.family.tree.util.Base;
 
 @SpringBootTest
 @ContextConfiguration(classes = Application.class)
 //@TestPropertySource
 public class BushnaqFamilyTest extends Base {
-	String familyName;
+    String familyName;
 
-	public BushnaqFamilyTest() throws Exception {
-		familyName = "bushnaq";
-	}
+    public BushnaqFamilyTest() throws Exception {
+        familyName = "bushnaq";
+    }
 
-	private String buildFileName() {
-		return "bushnaq/" + familyName + ".xlsx";
-	}
+    private String buildFileName() {
+        return "bushnaq/" + familyName + ".xlsx";
+    }
 
-	@Test
-	public void generate() throws Exception {
-		generate(new String[] { "-input", buildFileName(), "-family_name", "bushnaq" });
-	}
+    @Test
+    public void generate() throws Exception {
+        generate(new String[]{"-input", buildFileName(), "-family_name", "bushnaq"});
+    }
 
 //	@Test
 //	public void generateHorizontal() throws Exception {
