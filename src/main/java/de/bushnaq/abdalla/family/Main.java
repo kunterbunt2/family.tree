@@ -49,23 +49,24 @@ public class Main {
         PersonList personList = importPersonList(inputFileName);
         PdfDocument pdfDocument = new PdfDocument(FileUtil.removeExtension(inputFileName) + ".pdf");
 
-        String[] base = {"-input", context.getParameterOptions().getInput(), "-family_name", context.getParameterOptions().getFamilyName()};
-        String[][] parameters = {                                                                                                                                                //
+        //String[] base = {"-input", context.getParameterOptions().getInput(), "-family_name", context.getParameterOptions().getFamilyName()};
+        //String[][] parameters = {                                                                                                                                                //
 //				{ "-v", "-coordinates" },																																//
 //				{ "-v", "-ol", "-coordinates" },																														//
 //				{ "-v", "-c", "-coordinates" },																															//
 //				{ "-v", "-c", "-ol", "-coordinates" },																													//
-                {"-h", "-coordinates"},                                                                                                                                        //
+//                {"-h", "-coordinates"},                                                                                                                                        //
 //				{ "-h", "-ol", "-coordinates" },																															//
 //				{ "-h", "-c", "-coordinates" },																																//
 //				{ "-h", "-c", "-ol", "-coordinates" },																														//
-        };
+//        };
 
-        for (int i = 0; i < parameters.length; i++) {
-            context.getParameterOptions().start(concat(base, parameters[i]));
-            createTree(personList).generate(context, pdfDocument, FileUtil.removeExtension(inputFileName) + generateOutputDecoration());
-        }
+//        for (int i = 0; i < parameters.length; i++) {
+//            context.getParameterOptions().start(concat(base, parameters[i]));
+//            createTree(personList).generate(context, pdfDocument, FileUtil.removeExtension(inputFileName) + generateOutputDecoration());
+//        }
 
+        createTree(personList).generate(context, pdfDocument, FileUtil.removeExtension(inputFileName) + generateOutputDecoration());
         createTree(personList).generateErrorPage(pdfDocument);
         pdfDocument.endDocument();
     }
