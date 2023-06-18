@@ -8,7 +8,7 @@ import java.util.TreeSet;
 
 public class PersonList extends TreeSet<Person> {
 
-    List<Person> list = new ArrayList<>();
+    final List<Person> list = new ArrayList<>();
 
     public PersonList() {
         super(new PersonComperator());

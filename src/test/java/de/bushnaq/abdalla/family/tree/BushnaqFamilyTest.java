@@ -10,9 +10,9 @@ import org.springframework.test.context.ContextConfiguration;
 @ContextConfiguration(classes = Application.class)
 //@TestPropertySource
 public class BushnaqFamilyTest extends Base {
-    String familyName;
+    final String familyName;
 
-    public BushnaqFamilyTest() throws Exception {
+    public BushnaqFamilyTest() {
         familyName = "bushnaq";
     }
 

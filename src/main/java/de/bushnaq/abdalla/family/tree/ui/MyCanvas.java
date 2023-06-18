@@ -6,7 +6,7 @@ import java.awt.image.BufferedImage;
 
 public class MyCanvas extends Canvas {
 
-    public JFrame f;
+    public final JFrame f;
 //	final Logger	logger	= LoggerFactory.getLogger(this.getClass());
 
     public MyCanvas(BufferedImage image) {

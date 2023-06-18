@@ -35,7 +35,7 @@ public abstract class Person extends BasicFamilyMember {
     public Integer nextPersonX = -1;
     public Integer nextPersonY = -1;
     public Integer pageIndex;                                // index of the pdf page this person is located at
-    public PersonList personList;
+    public final PersonList personList;
     public Integer spouseIndex;
     public float x = 0;
     public float y = 0;
@@ -281,7 +281,7 @@ public abstract class Person extends BasicFamilyMember {
     /**
      * return all descendants, that is children of children of a specific generation
      *
-     * @param maxgeneration
+     * @param targetGeneration
      * @return
      */
     public PersonList getDescendantList(int targetGeneration) {

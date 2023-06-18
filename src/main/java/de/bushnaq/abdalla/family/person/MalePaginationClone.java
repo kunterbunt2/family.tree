@@ -8,7 +8,7 @@ package de.bushnaq.abdalla.family.person;
  * @author abdalla
  */
 public class MalePaginationClone extends Male {
-    Male original;
+    final Male original;
 
     public MalePaginationClone(PersonList personList, Male male) {
         super(personList, male);
@@ -26,9 +26,9 @@ public class MalePaginationClone extends Male {
         return original;
     }
 
-    public Person getOriginalFather() {
-        return original.getFather();
-    }
+    //public Person getOriginalFather() {
+        //return original.getFather();
+    //}
 
     @Override
     public boolean isPaginationClone() {

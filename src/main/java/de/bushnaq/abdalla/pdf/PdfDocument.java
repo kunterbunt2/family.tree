@@ -34,8 +34,8 @@ public class PdfDocument implements Closeable {
     private final String documentFileName;
     private final Map<String, PdfFont> fontMap = new HashMap<>();
     public int lastPageIndex = 0;
-    Map<String, PDImageXObject> imageMap = new HashMap<>();
-    IsoPage[] isoPageList = {                    //
+    final Map<String, PDImageXObject> imageMap = new HashMap<>();
+    final IsoPage[] isoPageList = {                    //
             new IsoPage(PDRectangle.A6, "A6"),                                        //
             new IsoPage(PDRectangle.A5, "A5"),                                        //
             new IsoPage(PDRectangle.A4, "A4"),                                        //
@@ -43,9 +43,9 @@ public class PdfDocument implements Closeable {
             new IsoPage(PDRectangle.A2, "A2"),                                        //
             new IsoPage(PDRectangle.A1, "A1"),                                        //
             new IsoPage(PDRectangle.A0, "A0")};
-    Map<Integer, PDPageContentStream> pageContentStreamMap = new HashMap<>();
+    final Map<Integer, PDPageContentStream> pageContentStreamMap = new HashMap<>();
     PDPageLabels pageLabels;
-    Map<Integer, PDPage> pageMap = new HashMap<>();
+    final Map<Integer, PDPage> pageMap = new HashMap<>();
     private PDDocument document;
 
     public PdfDocument(String fileName) throws IOException, TransformerException {
@@ -70,11 +70,10 @@ public class PdfDocument implements Closeable {
         pageContentStreamMap.put(pageIndex, contentStream);
     }
 
-    public PdfFont createFont(String fontLabel, String fontName, float fontSize) throws IOException {
+    public void createFont(String fontLabel, String fontName, float fontSize) throws IOException {
         PDFont pdFont = loadFont(fontName);
         PdfFont pdfFont = new PdfFont(pdFont, fontSize / getFontSize(pdFont));
         fontMap.put(fontLabel, pdfFont);
-        return pdfFont;
     }
 
     private void createMetaData() throws TransformerException, IOException {
@@ -99,7 +98,7 @@ public class PdfDocument implements Closeable {
         pdd.setAuthor("family.tree");
     }
 
-    public PDPage createPage(int pageIndex, float pageWidth, float pageHeight, String label) throws IOException {
+    public void createPage(int pageIndex, float pageWidth, float pageHeight, String label) throws IOException {
         PDRectangle bestFitting = findBestFittingPageSize(pageWidth, pageHeight).getRect();
         PDPage page = new PDPage(bestFitting);
         pageMap.put(pageIndex, page);
@@ -107,10 +106,9 @@ public class PdfDocument implements Closeable {
         createPageLabel(pageIndex, (pageIndex + 1) + " - " + label);
         PDPageContentStream contentStream = new PDPageContentStream(document, page);
         pageContentStreamMap.put(pageIndex, contentStream);
-        return page;
     }
 
-    public PDPage createPage(PDRectangle mediaBox, String label) throws IOException {
+    public void createPage(PDRectangle mediaBox, String label) throws IOException {
         PDPage page = new PDPage(mediaBox);
         lastPageIndex = pageMap.keySet().size();
         pageMap.put(lastPageIndex, page);
@@ -118,7 +116,6 @@ public class PdfDocument implements Closeable {
         createPageLabel(lastPageIndex, (lastPageIndex + 1) + " - " + label);
         PDPageContentStream contentStream = new PDPageContentStream(document, page);
         pageContentStreamMap.put(lastPageIndex, contentStream);
-        return page;
     }
 
     private void createPageLabel(int pageIndex, String label) {
@@ -191,7 +188,7 @@ public class PdfDocument implements Closeable {
         return pageMap.keySet().size();
     }
 
-    public PDPage getPage(int pageIndex) throws IOException {
+    public PDPage getPage(int pageIndex) {
         PDPage pdPage = pageMap.get(pageIndex);
         return pdPage;
     }

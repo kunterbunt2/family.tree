@@ -14,14 +14,14 @@ import java.io.IOException;
 
 public class Obfuscate extends BasicExcelReader {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    ObfuscatingBase ObfuscatingBase = new ObfuscatingBase();
+    final ObfuscatingBase ObfuscatingBase = new ObfuscatingBase();
 
     public static void main(String[] args) throws Exception {
         Obfuscate obfuscate = new Obfuscate();
         obfuscate.obfuscate("bushnaq/bushnaq.xlsx");
     }
 
-    private void deleteColumn(Row row, String columnName) throws Exception {
+    private void deleteColumn(Row row, String columnName) {
         Cell cell = row.getCell(getColumnHeaderList().getExcelColumnIndex(columnName));
         if (cell != null) {
             row.removeCell(cell);
@@ -35,14 +35,12 @@ public class Obfuscate extends BasicExcelReader {
 
     String obfuscateCell(Cell cell) throws Exception {
         if (cell != null) {
-            switch (cell.getCellType()) {
-                case STRING:
-                    return ObfuscatingBase.obfuscateString(cell.getStringCellValue());
-                case BLANK:
-                    return null;
-                default:
-                    throw new Exception(String.format("Expected String cell value at %s instead found %s", ExcelUtil.cellReference(cell), cell.getCellType().name()));
-            }
+            return switch (cell.getCellType()) {
+                case STRING -> ObfuscatingBase.obfuscateString(cell.getStringCellValue());
+                case BLANK -> null;
+                default ->
+                        throw new Exception(String.format("Expected String cell value at %s instead found %s", ExcelUtil.cellReference(cell), cell.getCellType().name()));
+            };
         }
         return null;
     }

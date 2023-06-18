@@ -8,7 +8,7 @@ package de.bushnaq.abdalla.family.person;
  * @author abdalla
  */
 public class MaleSpouseClone extends Male {
-    Male original;
+    final Male original;
 
     public MaleSpouseClone(PersonList personList, Male male) {
         super(personList, male);

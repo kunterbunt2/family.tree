@@ -4,8 +4,8 @@ import javax.swing.*;
 import java.awt.*;
 
 public class ImageComponent extends JComponent {
-    Image image;
-    Dimension size;
+    final Image image;
+    final Dimension size;
 
     public ImageComponent(Image image) {
         this.image = image;

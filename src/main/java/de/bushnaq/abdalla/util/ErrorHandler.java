@@ -5,7 +5,7 @@ import java.util.List;
 
 public class ErrorHandler {
 
-    public List<Throwable> exceptions = new ArrayList<>();
+    public final List<Throwable> exceptions = new ArrayList<>();
     public boolean noException = true;
 
     protected boolean doubleIsDifferent(double d1, double d2, double delta) {

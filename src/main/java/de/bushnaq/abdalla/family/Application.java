@@ -46,7 +46,7 @@ public class Application implements CommandLineRunner {
      * UNIT TEST Called when running as application Called when running UNIT TEST
      */
     @EventListener
-    public void onApplicationEvent(ContextRefreshedEvent event) throws Exception {
+    public void onApplicationEvent(ContextRefreshedEvent event) {
         if (lazyStart)
             startupMessage = String.format("starting %s %s-%s-%s within a unit test", moduleName, moduleVersion, buildTime, svnRevision);
         // logger.info(String.format("starting family.tree %s.%s within a unit test", moduleVersion, buildNumber));

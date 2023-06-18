@@ -3,9 +3,9 @@ package de.bushnaq.abdalla.pdf;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 
 public class PdfFont {
-    PDFont font;
+    final PDFont font;
 
-    float size;
+    final float size;
 
     public PdfFont(PDFont pdFont, float size) {
         this.font = pdFont;

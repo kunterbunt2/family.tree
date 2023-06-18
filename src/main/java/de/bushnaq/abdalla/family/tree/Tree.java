@@ -23,9 +23,9 @@ public abstract class Tree {
 
     private static final Color GRID_COLOR = new Color(0x2d, 0xb1, 0xff, 32);
     final Logger logger = LoggerFactory.getLogger(this.getClass());
-    public List<PageError> errors = new ArrayList<>();
-    protected Context context;
-    PersonList personList;
+    public final List<PageError> errors = new ArrayList<>();
+    protected final Context context;
+    final PersonList personList;
     private int firstPageIndex;
 
     public Tree(Context context, PersonList personList) {
@@ -140,7 +140,7 @@ public abstract class Tree {
         }
     }
 
-    private void distributeTreeOnPages(Context context, PdfDocument pdfDocument, Person person, int treeMaxGeneration) throws IOException, TransformerException {
+    private void distributeTreeOnPages(Context context, PdfDocument pdfDocument, Person person, int treeMaxGeneration) throws IOException {
         IsoPage page;
         int pageMaxGeneration = treeMaxGeneration;
         IsoPage isoPage = context.getParameterOptions().getTargetPaperSize();
@@ -218,7 +218,7 @@ public abstract class Tree {
         pdfDocument.endDocument();
     }
 
-    public void drawErrors(PdfDocument pdfDocument, int pageIndex) throws IOException {
+    public void drawErrors(PdfDocument pdfDocument, int pageIndex) {
 //		try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
 //			PDPage page = pdfDocument.getPage(pageIndex);
 //			p.setNonStrokingColor(Color.red);

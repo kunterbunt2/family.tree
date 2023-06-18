@@ -63,15 +63,6 @@ public class ColumnHeaderList {
         nameMap.put(columnName, new ColumnHeader(columnName, cellType, optional));
     }
 
-    /**
-     * reuse existing columnHeader to support alternative column names for legacy support
-     *
-     * @param columnName
-     * @param columnHeader
-     */
-//	private void put(String columnName, ColumnHeader columnHeader) {
-//		nameMap.put(columnName, columnHeader);
-//	}
     public void register(ExcelErrorHandler geh, Row row, int columnIndex, String columnName) {
         ColumnHeader columnHeader = nameMap.get(columnName);
         if (geh.isNotNull(String.format(ErrorMessages.ERROR_102_UNKNOWN_HEADER, columnName, ExcelUtil.columnIndexToExcelColumnName(columnIndex)), row, columnIndex, columnHeader)) {

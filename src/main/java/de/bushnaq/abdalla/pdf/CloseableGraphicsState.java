@@ -53,7 +53,7 @@ public class CloseableGraphicsState implements Closeable {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
     }
 
     public void drawCircle(float cx, float cy, float r) throws IOException {

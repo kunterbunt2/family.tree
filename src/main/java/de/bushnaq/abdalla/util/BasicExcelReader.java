@@ -16,7 +16,7 @@ public abstract class BasicExcelReader {
     private final ColumnHeaderList columnHeaderList = new ColumnHeaderList();
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    protected void detectExcelHeaderColumns(Workbook workbook) throws Exception {
+    protected void detectExcelHeaderColumns(Workbook workbook) {
         ExcelErrorHandler grh = new ExcelErrorHandler();
         {
             Sheet sheet = workbook.getSheetAt(0);

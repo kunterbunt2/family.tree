@@ -4,11 +4,11 @@ import java.util.Random;
 
 public class ObfuscatingBase {
     private static final int RANDOM_SEED = 1;
-    Random generator = new Random(RANDOM_SEED);
+    final Random generator = new Random(RANDOM_SEED);
 
-    char[] lowerCaseVowels = {'a', 'e', 'i', 'o', 'u'};
+    final char[] lowerCaseVowels = {'a', 'e', 'i', 'o', 'u'};
 
-    char[] upperCaseVowels = {'A', 'E', 'I', 'O', 'U'};
+    final char[] upperCaseVowels = {'A', 'E', 'I', 'O', 'U'};
 
     private char generateRandomLowerCaseConsonant() {
         char c;
@@ -108,7 +108,7 @@ public class ObfuscatingBase {
         return c;
     }
 
-    public String obfuscateString(String text) throws Exception {
+    public String obfuscateString(String text) {
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < text.length(); i++) {
             char c = obfuscateCharacter(text.charAt(i));
