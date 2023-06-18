@@ -28,6 +28,7 @@ public abstract class Person extends BasicFamilyMember {
     private static final float PERSON_X_SPACE_COMPACT = 3;
     private static final float PERSON_Y_SPACE = 12;
     private static final float PERSON_Y_SPACE_COMPACT = 4;
+    public final PersonList personList;
     private final Attribute attribute = new Attribute();
     private final Map<Integer, PersonList> spouseChildrenList = new HashMap<>();
     public Integer childIndex;
@@ -35,7 +36,6 @@ public abstract class Person extends BasicFamilyMember {
     public Integer nextPersonX = -1;
     public Integer nextPersonY = -1;
     public Integer pageIndex;                                // index of the pdf page this person is located at
-    public final PersonList personList;
     public Integer spouseIndex;
     public float x = 0;
     public float y = 0;
@@ -387,13 +387,13 @@ public abstract class Person extends BasicFamilyMember {
         return rect;
     }
 
-    public Rect getTreeRect(int includeGeneration) {
-        if (!hasChildren() || getGeneration() >= includeGeneration)
+    public Rect getTreeRect(int includingGeneration) {
+        if (!hasChildren() || getGeneration() >= includingGeneration)
             return new Rect(x, y, x, y);
         Rect rect = new Rect(x, y, x, y);
         PersonList childrenList = getChildrenList();
         for (Person child : childrenList) {
-            Rect cr = child.getTreeRect(includeGeneration);
+            Rect cr = child.getTreeRect(includingGeneration);
             rect.expandToInclude(cr);
         }
         return rect;

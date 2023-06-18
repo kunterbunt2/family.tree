@@ -13,8 +13,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class Obfuscate extends BasicExcelReader {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     final ObfuscatingBase ObfuscatingBase = new ObfuscatingBase();
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public static void main(String[] args) throws Exception {
         Obfuscate obfuscate = new Obfuscate();

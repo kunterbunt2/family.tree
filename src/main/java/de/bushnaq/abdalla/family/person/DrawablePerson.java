@@ -146,9 +146,9 @@ public abstract class DrawablePerson extends Person {
                     x2 = x1 + (getWidth(context)) / 2 - w / 2;
                 float y2;
                 //if (context.getParameterOptions().isCompact())
-                    y2 = y1 + getBorder(context) + firstNameHeight;
+                y2 = y1 + getBorder(context) + firstNameHeight;
                 //else
-                    //y2 = y1 + getBorder(context) + firstNameHeight;
+                //y2 = y1 + getBorder(context) + firstNameHeight;
                 p.setNonStrokingColor(textColor);
                 if (text.contains("?"))
                     p.setNonStrokingColor(Color.red);

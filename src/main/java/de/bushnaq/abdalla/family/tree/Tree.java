@@ -22,9 +22,9 @@ import static de.bushnaq.abdalla.family.person.DrawablePerson.*;
 public abstract class Tree {
 
     private static final Color GRID_COLOR = new Color(0x2d, 0xb1, 0xff, 32);
-    final Logger logger = LoggerFactory.getLogger(this.getClass());
     public final List<PageError> errors = new ArrayList<>();
     protected final Context context;
+    final Logger logger = LoggerFactory.getLogger(this.getClass());
     final PersonList personList;
     private int firstPageIndex;
 
@@ -72,7 +72,7 @@ public abstract class Tree {
 
     protected abstract void compact(Context context2, PdfDocument pdfDocument);
 
-    protected abstract void compact(Context context2, PdfDocument pdfDocument, Person rootFather, int clipGeneration);
+    protected abstract void compact(Context context2, PdfDocument pdfDocument, Person rootFather, int includingGeneration);
 
     private void createPages(Context context, PdfDocument pdfDocument) throws IOException {
         position(context, pdfDocument);
@@ -90,13 +90,13 @@ public abstract class Tree {
         }
     }
 
-    private void cutTree(Context context, PdfDocument pdfDocument, Person person, int treeMaxGeneration) {
-        logger.info(String.format("cutting tree for parent=%d genration <= G%d", person.getId(), treeMaxGeneration));
-        cutTree(context, person, treeMaxGeneration);
+    private void cutTree(Context context, PdfDocument pdfDocument, Person person, int includingGeneration) {
+        logger.info(String.format("cutting tree for parent=%d genration <= G%d", person.getId(), includingGeneration));
+        cutTree(context, person, includingGeneration);
     }
 
-    private void cutTree(Context context, Person person, int treeMaxGeneration) {
-        if (person.getGeneration() != null && person.getGeneration() == treeMaxGeneration) {
+    private void cutTree(Context context, Person person, int includingGeneration) {
+        if (person.getGeneration() != null && person.getGeneration() == includingGeneration) {
             if (person.hasChildren()) {
                 // cut the tree at this generation, create a clone for this person
                 if (person.isFemale()) {
@@ -127,7 +127,7 @@ public abstract class Tree {
             // children
             PersonList childrenList = person.getChildrenList(spouse);
             for (Person child : childrenList) {
-                cutTree(context, child, treeMaxGeneration);
+                cutTree(context, child, includingGeneration);
             }
         }
     }
@@ -135,8 +135,8 @@ public abstract class Tree {
     private void distributeTreeOnPages(Context context, PdfDocument pdfDocument) throws IOException, TransformerException {
         List<Male> rootFatherList = findRootFatherList();
         for (Person rootFather : rootFatherList) {
-            int treeMaxgeneration = findMaxgeneration(rootFather);
-            distributeTreeOnPages(context, pdfDocument, rootFather, treeMaxgeneration);
+            int treeMaxGeneration = findMaxgeneration(rootFather);
+            distributeTreeOnPages(context, pdfDocument, rootFather, treeMaxGeneration);
         }
     }
 
@@ -200,7 +200,7 @@ public abstract class Tree {
             drawGrid(pdfDocument);
         for (int pageIndex = firstPageIndex; pageIndex <= pdfDocument.lastPageIndex; pageIndex++) {
             draw(context, pdfDocument, pageIndex);
-            drawErrors(pdfDocument, pageIndex);
+            //drawErrors(pdfDocument, pageIndex);
         }
     }
 
@@ -218,7 +218,7 @@ public abstract class Tree {
         pdfDocument.endDocument();
     }
 
-    public void drawErrors(PdfDocument pdfDocument, int pageIndex) {
+    //public void drawErrors(PdfDocument pdfDocument, int pageIndex) {
 //		try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
 //			PDPage page = pdfDocument.getPage(pageIndex);
 //			p.setNonStrokingColor(Color.red);
@@ -238,7 +238,7 @@ public abstract class Tree {
 //				}
 //			}
 //		}
-    }
+    //}
 
     private void drawGrid(PdfDocument pdfDocument) throws IOException {
         for (int pageIndex = 0; pageIndex < pdfDocument.getNumberOfPages(); pageIndex++) {
@@ -395,7 +395,7 @@ public abstract class Tree {
         pdfDocument.lastPageIndex--;
     }
 
-    abstract float position(Context context, Person person, int treeMaxGeneration);
+    abstract float position(Context context, Person person, int includingGeneration);
 
     private void resetPageIndex(Person person) {
         PersonList spouseList = person.getSpouseList();

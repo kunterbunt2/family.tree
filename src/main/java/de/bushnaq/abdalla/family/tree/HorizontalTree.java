@@ -21,18 +21,18 @@ public class HorizontalTree extends Tree {
      * compact starting from a specific father and ignoring all children from clipGeneration and higher
      */
     @Override
-    protected void compact(Context context2, PdfDocument pdfDocument, Person rootFather, int includeGneration) {
+    protected void compact(Context context2, PdfDocument pdfDocument, Person rootFather, int includingGeneration) {
         int maxgeneration = findMaxgeneration();
 
         for (int g = maxgeneration - 1; g > 0; g--) {
 //			logger.info(String.format("compacting children of generation %d", g));
-            compactChildren(rootFather, g, includeGneration);
+            compactChildren(rootFather, g, includingGeneration);
         }
         for (int g = maxgeneration - 1; g > 0; g--) {
 //			logger.info(String.format("compacting parents of generation %d", g));
-            compactParents(rootFather, g, includeGneration);
+            compactParents(rootFather, g, includingGeneration);
         }
-        Rect treeRect = rootFather.getTreeRect(includeGneration);
+        Rect treeRect = rootFather.getTreeRect(includingGeneration);
         int w = (int) (treeRect.getX2() - treeRect.getX1() + 1);
         int h = (int) (treeRect.getY2() - treeRect.getY1() + 1);
         int area = w * h;
@@ -68,7 +68,7 @@ public class HorizontalTree extends Tree {
      * @param p
      * @param generation
      */
-    private void compactChildren(Person p, int generation, int clipGenration) {
+    private void compactChildren(Person p, int generation, int includingGenration) {
         // generation found
         if (!p.isSpouse() && p.hasChildren() && p.getChildrenList().size() > 1) {
             float y = 0;
@@ -78,8 +78,8 @@ public class HorizontalTree extends Tree {
                     Person child = p.getChildrenList().get(c);
                     if (child.getGeneration() != null && child.getGeneration() == generation) {
                         Person next = p.getChildrenList().get(c + 1);
-                        y = Math.max(next.getTreeRect(clipGenration - 1).getY2(), y);
-                        Rect rect = child.getTreeRect(clipGenration - 1);
+                        y = Math.max(next.getTreeRect(includingGenration - 1).getY2(), y);
+                        Rect rect = child.getTreeRect(includingGenration - 1);
                         if ((rect.getX2() - rect.getX1()) > 0) {
                             // has a tree below that is worth moving
                             float delta;
@@ -119,7 +119,7 @@ public class HorizontalTree extends Tree {
             Iterator<Person> di = p.getChildrenList().descendingIterator();
             while (di.hasNext()) {
                 Person c = di.next();
-                compactChildren(c, generation, clipGenration);
+                compactChildren(c, generation, includingGenration);
             }
         }
 
@@ -278,10 +278,10 @@ public class HorizontalTree extends Tree {
     }
 
     @Override
-    float position(Context context, Person person, int treeMaxGeneration) {
+    float position(Context context, Person person, int includingGeneration) {
         person.setVisible(true);
         float pX = person.x;
-        if (!person.hasChildren() || person.getGeneration() == treeMaxGeneration)
+        if (!person.hasChildren() || person.getGeneration() == includingGeneration)
             pX = person.x + 1;
         PersonList spouseList = person.getSpouseList();
         for (Person spouse : spouseList) {
@@ -291,7 +291,7 @@ public class HorizontalTree extends Tree {
             // children
             PersonList childrenList = person.getChildrenList(spouse);
             for (Person child : childrenList) {
-                if (child.getGeneration() != null && child.getGeneration() <= treeMaxGeneration) {
+                if (child.getGeneration() != null && child.getGeneration() <= includingGeneration) {
                     if (!context.getParameterOptions().isExcludeSpouse()) {
                         spouse.setVisible(true);
                         child.y = spouse.y + 1;
@@ -300,7 +300,7 @@ public class HorizontalTree extends Tree {
                     }
                     child.x = pX;
                     child.setPageIndex(person.getPageIndex());
-                    pX = position(context, child, treeMaxGeneration);
+                    pX = position(context, child, includingGeneration);
                 }
             }
         }

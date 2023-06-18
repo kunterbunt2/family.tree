@@ -18,7 +18,7 @@ public class VerticalTree extends Tree {
     }
 
     @Override
-    protected void compact(Context context2, PdfDocument pdfDocument, Person rootFather, int clipGeneration) {
+    protected void compact(Context context2, PdfDocument pdfDocument, Person rootFather, int includingGeneration) {
         // TODO Auto-generated method stub
 
     }
@@ -158,7 +158,7 @@ public class VerticalTree extends Tree {
     }
 
     @Override
-    float position(Context context, Person person, int treeMaxGeneration) {
+    float position(Context context, Person person, int includingGeneration) {
         person.setVisible(true);
         float pY = person.y;
         if (!person.hasChildren())
@@ -179,7 +179,7 @@ public class VerticalTree extends Tree {
                 }
                 child.y = pY;
                 child.setPageIndex(person.getPageIndex());
-                pY = position(context, child, treeMaxGeneration);
+                pY = position(context, child, includingGeneration);
             }
         }
         return pY;

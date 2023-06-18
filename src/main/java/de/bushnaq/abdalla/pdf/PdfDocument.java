@@ -31,9 +31,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PdfDocument implements Closeable {
-    private final String documentFileName;
-    private final Map<String, PdfFont> fontMap = new HashMap<>();
-    public int lastPageIndex = 0;
     final Map<String, PDImageXObject> imageMap = new HashMap<>();
     final IsoPage[] isoPageList = {                    //
             new IsoPage(PDRectangle.A6, "A6"),                                        //
@@ -44,8 +41,11 @@ public class PdfDocument implements Closeable {
             new IsoPage(PDRectangle.A1, "A1"),                                        //
             new IsoPage(PDRectangle.A0, "A0")};
     final Map<Integer, PDPageContentStream> pageContentStreamMap = new HashMap<>();
-    PDPageLabels pageLabels;
     final Map<Integer, PDPage> pageMap = new HashMap<>();
+    private final String documentFileName;
+    private final Map<String, PdfFont> fontMap = new HashMap<>();
+    public int lastPageIndex = 0;
+    PDPageLabels pageLabels;
     private PDDocument document;
 
     public PdfDocument(String fileName) throws IOException, TransformerException {
