@@ -9,4 +9,5 @@ public class Attribute {
     boolean lastChild = false;    // last child born of a sexual relation
     boolean spouse = false;    // spouse of member of family
     boolean spouseOfLastChild = false;    // spouse of the last child of this branch of the family, used by algorithm to decide where to draw the line for children
+    Sex sex = Sex.male;
 }

@@ -7,6 +7,7 @@ import de.bushnaq.abdalla.family.Context;
 import de.bushnaq.abdalla.pdf.PdfDocument;
 import de.bushnaq.abdalla.util.ErrorMessages;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -71,6 +72,18 @@ public abstract class Person extends BasicFamilyMember {
         } catch (ArabicShapingException ase3) {
             return text;
         }
+    }
+
+    public static Person createFemale(PersonList personList, Integer id) {
+        Person female = new DrawablePerson(personList, id, new Color(0xff, 0x62, 0xb0, 32));
+        female.setFemale();
+        return female;
+    }
+
+    public static Person createMale(PersonList personList, Integer id) {
+        Person female = new DrawablePerson(personList, id, new Color(0x2d, 0xb1, 0xff, 32));
+        female.setMale();
+        return female;
     }
 
     public static float getBorder(Context context) {
@@ -145,9 +158,9 @@ public abstract class Person extends BasicFamilyMember {
             if (spouse.isMember(context)) {
                 // both parents are member of the family
                 // ignore any clone that we already have converted
-                if (!context.getParameterOptions().isFollowFemales() && isMale() && !(spouse instanceof FemaleSpouseClone)) {
+                if (!context.getParameterOptions().isFollowFemales() && isMale() && !(spouse.isSpouseClone())) {
                     // create a clone of the spouse and shift all child relations to that clone
-                    FemaleSpouseClone clone = new FemaleSpouseClone(spouse.personList, (Female) spouse);
+                    Clone clone = Clone.createSpouseClone(spouse.personList, spouse);
                     PersonList childrenList = getChildrenList(spouse);
                     for (Person child : childrenList) {
                         child.setMother(clone);
@@ -157,9 +170,9 @@ public abstract class Person extends BasicFamilyMember {
                     spouse = clone;
                     spouse.spouseIndex = spouseIndex++;
                     spouse.setSpouse(true);
-                } else if (context.getParameterOptions().isFollowFemales() && isFemale() && !(spouse instanceof MaleSpouseClone)) {
+                } else if (context.getParameterOptions().isFollowFemales() && isFemale() && !(spouse.isSpouseClone())) {
                     // create a clone of the spouse and shift all child relations to that clone
-                    MaleSpouseClone clone = new MaleSpouseClone(spouse.personList, (Male) spouse);
+                    Person clone = Clone.createSpouseClone(spouse.personList, spouse);
                     PersonList childrenList = getChildrenList(spouse);
                     for (Person child : childrenList) {
                         child.setFather(clone);
@@ -222,13 +235,8 @@ public abstract class Person extends BasicFamilyMember {
 
     public Person findPaginationClone() {
         for (Person clone : personList) {
-            if (clone instanceof MalePaginationClone) {
-                Person original = ((MalePaginationClone) clone).getOriginal();
-                if (this.equals(original))
-                    return clone;
-
-            } else if (clone instanceof FemalePaginationClone) {
-                Person original = ((FemalePaginationClone) clone).getOriginal();
+            if (clone.isPaginationClone()) {
+                Person original = clone.getOriginal();
                 if (this.equals(original))
                     return clone;
             }
@@ -316,8 +324,6 @@ public abstract class Person extends BasicFamilyMember {
         return generation;
     }
 
-//	public abstract String getSexCharacter();
-
     public String getLastNameAsString(Context context) {
         String name = getLastName();
         if (context.getParameterOptions().isOriginalLanguage()) {
@@ -345,6 +351,14 @@ public abstract class Person extends BasicFamilyMember {
         return nextSibling;
     }
 
+    public Person getOriginal() {
+        return null;
+    }
+
+    protected Person getOriginalFather() {
+        return null;
+    }
+
     public Integer getPageIndex() {
         return pageIndex;
     }
@@ -352,6 +366,8 @@ public abstract class Person extends BasicFamilyMember {
     public Person getPrevSibling() {
         return prevSibling;
     }
+
+//	public abstract String getSexCharacter();
 
     public PersonList getSpouseList() {
         if (spouseList == null) {
@@ -412,10 +428,12 @@ public abstract class Person extends BasicFamilyMember {
     }
 
     public boolean isClone() {
-        return (this instanceof FemaleSpouseClone) || (this instanceof MaleSpouseClone || this instanceof FemalePaginationClone) || (this instanceof MalePaginationClone);
+        return this.isSpouseClone() || this.isPaginationClone();
     }
 
-    public abstract boolean isFemale();
+    public boolean isFemale() {
+        return attribute.sex == Sex.female;
+    }
 
     public boolean isFirstChild() {
         return attribute.firstChild;
@@ -439,10 +457,12 @@ public abstract class Person extends BasicFamilyMember {
         return false;
     }
 
-    public abstract boolean isMale();
+    public boolean isMale() {
+        return attribute.sex == Sex.male;
+    }
 
     public boolean isMember(Context context) {
-        if ((getFather() != null) || (getMother() != null) || (this instanceof FemaleSpouseClone) || (this instanceof MaleSpouseClone) || (this instanceof FemalePaginationClone) || (this instanceof MalePaginationClone)) {
+        if ((getFather() != null) || (getMother() != null) || this.isSpouseClone() || this.isPaginationClone()) {
             // has a known father or mother
             // has a child with a member and had to be cloned
             return true;
@@ -483,6 +503,10 @@ public abstract class Person extends BasicFamilyMember {
      */
     public boolean isSpouse() {
         return attribute.spouse;
+    }
+
+    public boolean isSpouseClone() {
+        return false;
     }
 
     public boolean isSpouseOfLastChild() {
@@ -535,6 +559,10 @@ public abstract class Person extends BasicFamilyMember {
         spouseList = null;// lets the list be populated again, as some might have been replaced by clones
     }
 
+    public void setFemale() {
+        attribute.sex = Sex.female;
+    }
+
     public void setFirstChild(boolean firstChild) {
         this.attribute.firstChild = firstChild;
     }
@@ -553,6 +581,10 @@ public abstract class Person extends BasicFamilyMember {
 
     public void setLastChild(boolean lastChild) {
         this.attribute.lastChild = lastChild;
+    }
+
+    public void setMale() {
+        attribute.sex = Sex.male;
     }
 
     public void setPageIndex(Integer pageIndex) {

@@ -1,7 +1,6 @@
 package de.bushnaq.abdalla.family.tree;
 
 import de.bushnaq.abdalla.family.Context;
-import de.bushnaq.abdalla.family.person.Male;
 import de.bushnaq.abdalla.family.person.Person;
 import de.bushnaq.abdalla.family.person.PersonList;
 import de.bushnaq.abdalla.family.person.Rect;
@@ -25,7 +24,7 @@ public class VerticalTree extends Tree {
 
     @Override
     protected void compact(Context context2, PdfDocument pdfDocument) {
-        List<Male> firstFathers = findRootFatherList();
+        List<Person> firstFathers = findRootFatherList();
         int maxgeneration = 2/* findMaxgeneration() */;
 
         for (Person firstFather : firstFathers) {

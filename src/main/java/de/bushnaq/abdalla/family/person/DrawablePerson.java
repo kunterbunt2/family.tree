@@ -17,7 +17,7 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 
-public abstract class DrawablePerson extends Person {
+public class DrawablePerson extends Person {
     public static final String BIG_WATERMARK_FONT = "BIG_WATERMARK_FONT";
     public static final String DATE_FONT = "DATE_FONT";
     public static final String NAME_FONT = "NAME_FONT";
@@ -30,7 +30,6 @@ public abstract class DrawablePerson extends Person {
     private final Color connectorColor = Color.gray;
     private final Color[] generationColors = {Color.red, Color.blue, Color.green, Color.orange, Color.gray};
     private final Color spouseBorderColor;
-
     private final Color textColor = new Color(0, 0, 0);
 
     public DrawablePerson(PersonList personList, DrawablePerson person, Color backgroundColor) {
@@ -44,7 +43,6 @@ public abstract class DrawablePerson extends Person {
         this.backgroundColor = backgroundColor;
         this.spouseBorderColor = new Color(backgroundColor.getRGB());
     }
-
 
     private void drawBox(Context context, PdfDocument pdfDocument) throws IOException {
         float x1 = xIndexToCoordinate(context, x);    // x * (width + getXSpace(context));
@@ -97,14 +95,8 @@ public abstract class DrawablePerson extends Person {
         if (!context.getParameterOptions().isCompact()) {
             String imageFileName;
             Person father = getFather();
-            if (isClone()) {// TODO do we need to support pagination clones?
-                if (this instanceof MaleSpouseClone) {
-                    MaleSpouseClone c = (MaleSpouseClone) this;
-                    father = c.getOriginalFather();
-                } else if (this instanceof FemaleSpouseClone) {
-                    FemaleSpouseClone c = (FemaleSpouseClone) this;
-                    father = c.getOriginalFather();
-                }
+            if (this.isSpouseClone()) {
+                father = this.getOriginalFather();
             }
 
             if (father != null)
@@ -202,7 +194,7 @@ public abstract class DrawablePerson extends Person {
                 } else {
                     p.setFont(pdfDocument.getFont(NAME_FONT));
                 }
-                if (this instanceof FemaleSpouseClone || this instanceof MaleSpouseClone) {
+                if (this.isSpouseClone()) {
                     String text = "*";
                     float x2 = x1 + getImageWidth(context) + getWidth(context) - p.getStringWidth(text) - getBorder(context) - getMargine(context);
                     float y2 = y1 + getBorder(context) + p.getStringHeight();
@@ -352,15 +344,11 @@ public abstract class DrawablePerson extends Person {
         float y1 = yIndexToCoordinate(context, y);
 
         Person clone = findPaginationClone();
-        if (clone instanceof MalePaginationClone || clone instanceof FemalePaginationClone) {
+        if (clone != null && clone.isPaginationClone()) {
             drawLabelBelow(context, pdfDocument, x1, y1, this, clone);
         }
-        if (this instanceof MalePaginationClone) {
-            MalePaginationClone c = (MalePaginationClone) this;
-            drawLabelAbove(context, pdfDocument, x1, y1, this, c.getOriginal());
-        } else if (this instanceof FemalePaginationClone) {
-            FemalePaginationClone c = (FemalePaginationClone) this;
-            drawLabelAbove(context, pdfDocument, x1, y1, this, c.getOriginal());
+        if (this.isPaginationClone()) {
+            drawLabelAbove(context, pdfDocument, x1, y1, this, this.getOriginal());
         }
 
         // child Connector vertical to horizontal connector from parent spouse
@@ -607,6 +595,10 @@ public abstract class DrawablePerson extends Person {
             }
         }
 
+    }
+
+    public Color getBackgroundColor() {
+        return backgroundColor;
     }
 
     protected float getConnectorWidth(Context context) {

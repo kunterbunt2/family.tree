@@ -1,7 +1,5 @@
 package de.bushnaq.abdalla.family.tree;
 
-import de.bushnaq.abdalla.family.person.Female;
-import de.bushnaq.abdalla.family.person.Male;
 import de.bushnaq.abdalla.family.person.Person;
 import de.bushnaq.abdalla.family.person.PersonList;
 import de.bushnaq.abdalla.util.BasicExcelReader;
@@ -40,9 +38,9 @@ public class TreeExcelReader extends BasicExcelReader {
                     Integer id = row.getRowNum() + 1;
                     String sex = row.getCell(getColumnHeaderList().getExcelColumnIndex(ColumnHeaderList.SEX_COLUMN)).getStringCellValue();
                     if (sex.equalsIgnoreCase("Male")) {
-                        rowIndexToPerson.put(row.getRowNum() + 1, new Male(personList, id));
+                        rowIndexToPerson.put(row.getRowNum() + 1, Person.createMale(personList, id));
                     } else if (sex.equalsIgnoreCase("female")) {
-                        rowIndexToPerson.put(row.getRowNum() + 1, new Female(personList, id));
+                        rowIndexToPerson.put(row.getRowNum() + 1, Person.createFemale(personList, id));
                     } else
                         throw new Exception(String.format("Unknown sex %s", sex));
                 }
@@ -71,11 +69,11 @@ public class TreeExcelReader extends BasicExcelReader {
         return null;
     }
 
-    private Female getFemaleRowByReference(Workbook workbook, Row row) throws Exception {
+    private Person getFemaleRowByReference(Workbook workbook, Row row) throws Exception {
         Cell cell = row.getCell(getColumnHeaderList().getExcelColumnIndex(ColumnHeaderList.MOTHER_COLUMN));
         Person p = getPersonRowByReference(workbook, cell);
         if (p == null || p.isFemale()) {
-            return (Female) p;
+            return p;
         } else {
             throw new Exception(String.format("Expected reference to female person at %s", ExcelUtil.cellReference(cell)));
         }
@@ -110,11 +108,11 @@ public class TreeExcelReader extends BasicExcelReader {
         return null;
     }
 
-    private Male getMaleRowByReference(Workbook workbook, Row row) throws Exception {
+    private Person getMaleRowByReference(Workbook workbook, Row row) throws Exception {
         Cell cell = row.getCell(getColumnHeaderList().getExcelColumnIndex(ColumnHeaderList.FATHER_COLUMN));
         Person p = getPersonRowByReference(workbook, cell);
         if (p == null || p.isMale()) {
-            return (Male) p;
+            return p;
         } else {
             throw new Exception(String.format("Expected reference to male person at %s", ExcelUtil.cellReference(cell)));
         }

@@ -36,7 +36,7 @@ public abstract class Tree {
     }
 
     private void analyzeTree() {
-        List<Male> firstFathers = findRootFatherList();
+        List<Person> firstFathers = findRootFatherList();
         for (Person firstFather : firstFathers) {
             firstFather.setFirstFather(true);
             firstFather.setGeneration(0);
@@ -78,7 +78,7 @@ public abstract class Tree {
         position(context, pdfDocument);
         compact(context, pdfDocument);
         //validate(context);
-        List<Male> rootFatherList = findRootFatherList();
+        List<Person> rootFatherList = findRootFatherList();
         for (Person rootFather : rootFatherList) {
             float pageWidth = calclatePageWidth(rootFather.getPageIndex());
             float pageHeight = calculatePageHeight(context, rootFather.getPageIndex());
@@ -101,7 +101,7 @@ public abstract class Tree {
                 // cut the tree at this generation, create a clone for this person
                 if (person.isFemale()) {
                     // create a clone of the person and shift all child relations to that clone
-                    FemalePaginationClone clone = new FemalePaginationClone(person.personList, (Female) person);
+                    Person clone = Clone.createPaginationClone(person.personList, person);
                     PersonList childrenList = person.getChildrenList();
                     for (Person child : childrenList) {
                         child.setMother(clone);
@@ -111,7 +111,7 @@ public abstract class Tree {
                     personList.add(clone);
                 } else if (person.isMale()) {
                     // create a clone of the spouse and shift all child relations to that clone
-                    MalePaginationClone clone = new MalePaginationClone(person.personList, (Male) person);
+                    Person clone = Clone.createPaginationClone(person.personList, person);
                     PersonList childrenList = person.getChildrenList();
                     for (Person child : childrenList) {
                         child.setFather(clone);
@@ -133,7 +133,7 @@ public abstract class Tree {
     }
 
     private void distributeTreeOnPages(Context context, PdfDocument pdfDocument) throws IOException, TransformerException {
-        List<Male> rootFatherList = findRootFatherList();
+        List<Person> rootFatherList = findRootFatherList();
         for (Person rootFather : rootFatherList) {
             int treeMaxGeneration = findMaxgeneration(rootFather);
             distributeTreeOnPages(context, pdfDocument, rootFather, treeMaxGeneration);
@@ -321,11 +321,11 @@ public abstract class Tree {
         return maxGenration;
     }
 
-    protected List<Male> findRootFatherList() {
-        List<Male> fathers = new ArrayList<>();
+    protected List<Person> findRootFatherList() {
+        List<Person> fathers = new ArrayList<>();
         for (Person p : personList) {
             if (p.isRootFather(context)) {
-                fathers.add((Male) p);
+                fathers.add(p);
             }
         }
         return fathers;
@@ -384,7 +384,7 @@ public abstract class Tree {
     }
 
     private void position(Context context, PdfDocument pdfDocument) {
-        List<Male> firstFathers = findRootFatherList();
+        List<Person> firstFathers = findRootFatherList();
         firstPageIndex = pdfDocument.lastPageIndex;
         for (Person firstFather : firstFathers) {
             firstFather.setPageIndex(pdfDocument.lastPageIndex++);

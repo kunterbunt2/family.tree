@@ -9,13 +9,13 @@ public class BasicFamilyMember {
     final Logger logger = LoggerFactory.getLogger(this.getClass());
     private FlexibleDate born;
     private FlexibleDate died;
-    private Male father;
+    private Person father;
     private String firstName;
     private String firstNameOriginalLanguage;
     private int id;
     private String lastName;
     private String lastNameOriginalLanguage;
-    private Female mother;
+    private Person mother;
 
     public BasicFamilyMember(BasicFamilyMember member) {
         this.id = member.id;
@@ -41,7 +41,7 @@ public class BasicFamilyMember {
         return died;
     }
 
-    public Male getFather() {
+    public Person getFather() {
         return father;
     }
 
@@ -65,7 +65,7 @@ public class BasicFamilyMember {
         return lastNameOriginalLanguage;
     }
 
-    public Female getMother() {
+    public Person getMother() {
         return mother;
     }
 
@@ -77,7 +77,7 @@ public class BasicFamilyMember {
         this.died = died;
     }
 
-    public void setFather(Male father) {
+    public void setFather(Person father) {
         this.father = father;
     }
 
@@ -102,7 +102,7 @@ public class BasicFamilyMember {
         this.lastNameOriginalLanguage = lastNameOriginalLanguage;
     }
 
-    public void setMother(Female mother) {
+    public void setMother(Person mother) {
         this.mother = mother;
     }
 
