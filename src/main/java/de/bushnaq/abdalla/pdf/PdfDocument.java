@@ -58,18 +58,6 @@ public class PdfDocument implements Closeable {
         createPage(0, media.getWidth(), media.getHeight(), "");
     }
 
-    public PdfFont createFont(String fontLabel, String fontName, float fontSize) throws IOException {
-        PDFont pdFont = loadFont(fontName);
-        PdfFont pdfFont = new PdfFont(pdFont, fontSize / getFontSize(pdFont));
-        fontMap.put(fontLabel, pdfFont);
-        return pdfFont;
-    }
-
-    private float getFontSize(PDFont font) {
-        return (-font.getFontDescriptor().getDescent() + font.getFontDescriptor().getCapHeight() + (font.getFontDescriptor().getAscent() - font.getFontDescriptor().getCapHeight())) / 1000;
-    }
-
-
     @Override
     public void close() throws IOException {
         endDocument();
@@ -80,6 +68,13 @@ public class PdfDocument implements Closeable {
         PDPage page = pageMap.get(pageIndex);
         PDPageContentStream contentStream = new PDPageContentStream(document, page, AppendMode.APPEND, true, true);
         pageContentStreamMap.put(pageIndex, contentStream);
+    }
+
+    public PdfFont createFont(String fontLabel, String fontName, float fontSize) throws IOException {
+        PDFont pdFont = loadFont(fontName);
+        PdfFont pdfFont = new PdfFont(pdFont, fontSize / getFontSize(pdFont));
+        fontMap.put(fontLabel, pdfFont);
+        return pdfFont;
     }
 
     private void createMetaData() throws TransformerException, IOException {
@@ -175,6 +170,14 @@ public class PdfDocument implements Closeable {
         return document;
     }
 
+    public PdfFont getFont(String fontName) {
+        return fontMap.get(fontName);
+    }
+
+    private float getFontSize(PDFont font) {
+        return (-font.getFontDescriptor().getDescent() + font.getFontDescriptor().getCapHeight() + (font.getFontDescriptor().getAscent() - font.getFontDescriptor().getCapHeight())) / 1000;
+    }
+
     public PDImageXObject getImage(String imageFileName) throws IOException {
         PDImageXObject pdImage = imageMap.get(imageFileName);
         if (pdImage == null) {
@@ -241,9 +244,5 @@ public class PdfDocument implements Closeable {
         createMetaData();
         includeColorProfile();
         pageLabels = new PDPageLabels(document);
-    }
-
-    public PdfFont getFont(String fontName) {
-        return fontMap.get(fontName);
     }
 }

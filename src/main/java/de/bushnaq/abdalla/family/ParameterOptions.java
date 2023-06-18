@@ -18,6 +18,8 @@ public class ParameterOptions {
     private static final String CLI_OPTION_INPUT = "input";
     private static final String CLI_OPTION_OUTPUT_FILE_DECORATIONS = "output_decorations";
     private static final String CLI_OPTION_V = "v";
+    private static final String CLI_OPTION_SPLIT = "split";
+    private static final String CLI_OPTION_MAX_ISO = "max_iso";
 
     private final boolean colorTrees = false;
     private final boolean drawGrid = false;
@@ -40,6 +42,7 @@ public class ParameterOptions {
     private boolean originalLanguage = false;                                    // use original language fields for fist name and last name
     private String outputDecorator = "";                                        // additional decorations for the output file name
     private boolean v = true;                                        // vertical tree mode
+    private boolean distributeOnPages = true;// distribute trees that do not fit on targetPaperSize
 
     public String getFamilyName() {
         return familyName;
@@ -59,10 +62,6 @@ public class ParameterOptions {
 
     public String getOutputDecorator() {
         return outputDecorator;
-    }
-
-    public void setOutputDecorator(String outputDecorator) {
-        this.outputDecorator = outputDecorator;
     }
 
     public float getPageMargin() {
@@ -87,6 +86,10 @@ public class ParameterOptions {
 
     public boolean isCoordinates() {
         return coordinates;
+    }
+
+    public boolean isDistributeOnPages() {
+        return distributeOnPages;
     }
 
     public boolean isDrawGrid() {
@@ -130,19 +133,25 @@ public class ParameterOptions {
         v = true;
     }
 
+    public void setOutputDecorator(String outputDecorator) {
+        this.outputDecorator = outputDecorator;
+    }
+
     public void start(String[] args) throws Exception {
         resetOptions();
         Options options = new Options();
-        options.addOption(Option.builder(CLI_OPTION_INPUT).hasArgs().desc("Input excel file name. This parameter is not optional.").build());
-        options.addOption(Option.builder(CLI_OPTION_FAMILY_NAME).hasArgs().desc("Family name used to pic root of family. This parameter is optional.").optionalArg(true).build());
-        options.addOption(Option.builder(CLI_OPTION_OUTPUT_FILE_DECORATIONS).hasArgs().desc("Output file name decorations. This parameter is optional.").optionalArg(true).build());
+        options.addOption(Option.builder(CLI_OPTION_INPUT).hasArg().desc("Input excel file name. This parameter is not optional.").build());
+        options.addOption(Option.builder(CLI_OPTION_FAMILY_NAME).hasArg().desc("Family name used to pic root of family. This parameter is optional.").optionalArg(true).build());
+        options.addOption(Option.builder(CLI_OPTION_OUTPUT_FILE_DECORATIONS).hasArg().desc("Output file name decorations. This parameter is optional.").optionalArg(true).build());
         options.addOption(Option.builder(CLI_OPTION_H).desc("Generte horizontal tree. This parameter is optional. Default is false.").optionalArg(true).build());
-        options.addOption(Option.builder(CLI_OPTION_V).desc("Generte vertical tree. This parameter is optional. This parameter is optional. Default is true.").optionalArg(true).build());
+        options.addOption(Option.builder(CLI_OPTION_V).desc("Generte vertical tree. This parameter is optional. Default is true.").optionalArg(true).build());
         options.addOption(Option.builder(CLI_OPTION_EXCLUDE_SPOUSE).desc("Exclude spouses if true. This parameter is optional. Default is false.").build());
         options.addOption(Option.builder(CLI_OPTION_FOLLOW_FEMALES).desc("If children can be visualized with the father or the mother, this parameter will decide. This parameter is optional. Default is false.").build());
         options.addOption(Option.builder(CLI_OPTION_FOLLOW_OL).desc("Use original language for first name and last name if they exist. This parameter is optional. Default is false.").build());
-        options.addOption(Option.builder(CLI_OPTION_COMPACT).desc("Generte compact tree. This parameter is optional. This parameter is optional. Default is false.").optionalArg(true).build());
-        options.addOption(Option.builder(CLI_OPTION_COORDINATES).desc("Generte coordinates. This parameter is optional. This parameter is optional. Default is false.").optionalArg(true).build());
+        options.addOption(Option.builder(CLI_OPTION_COMPACT).desc("Generte compact tree. This parameter is optional. Default is false.").optionalArg(true).build());
+        options.addOption(Option.builder(CLI_OPTION_COORDINATES).desc("Generte coordinates. This parameter is optional. Default is false.").optionalArg(true).build());
+        options.addOption(Option.builder(CLI_OPTION_SPLIT).desc("Split tree that does not fix max_iso page size on several pages. This parameter is optional. Default is false.").optionalArg(true).build());
+        options.addOption(Option.builder(CLI_OPTION_MAX_ISO).hasArg().desc("Maximum iso page size allowed. Any tree that does not fit will be split ont o several pages. Ignored if split option is nto specified. This parameter is optional. Default is A4.").optionalArg(true).build());
 
         // create the parser
         CommandLineParser parser = new DefaultParser();
@@ -217,11 +226,17 @@ public class ParameterOptions {
             originalLanguage = false;
             logger.info("original language mode disabled.");
         }
+        if (line.hasOption(CLI_OPTION_SPLIT)) {
+            distributeOnPages = true;
+            logger.info("split enabled.");
+        } else {
+            distributeOnPages = false;
+            logger.info("split disabled.");
+        }
         if (line.hasOption(CLI_OPTION_FAMILY_NAME)) {
             familyName = line.getOptionValue(CLI_OPTION_FAMILY_NAME);
         } else {
         }
         inputFolder = FileUtil.extractFolderNamePart(input);
     }
-
 }

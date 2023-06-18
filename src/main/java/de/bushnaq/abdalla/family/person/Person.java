@@ -102,11 +102,24 @@ public abstract class Person extends BasicFamilyMember {
             return PERSON_MARGINE * context.getParameterOptions().getZoom();
     }
 
+    public static float getPageMargin(Context context) {
+        return context.getParameterOptions().getPageMargin() * context.getParameterOptions().getZoom();
+    }
+
+    public static float getPersonHeight(Context context) {
+        return getHeight(context) + Person.getYSpace(context);
+    }
+
+    public static float getPersonWidth(Context context) {
+        if (context.getParameterOptions().isShowImage())
+            return getImageWidth(context) + getWidth(context) + getXSpace(context);
+        else
+            return getWidth(context) + getXSpace(context);
+    }
+
     public static float getWidth(Context context) {
         if (context.getParameterOptions().isCompact())
             return PERSON_WIDTH_COMPACT * context.getParameterOptions().getZoom();
-//		else if (context.getParameterOptions().isShowImage())
-//			return (PERSON_IMAGE_WIDTH + PERSON_WIDTH) * context.getParameterOptions().getZoom();
         else
             return PERSON_WIDTH * context.getParameterOptions().getZoom();
     }
@@ -123,247 +136,6 @@ public abstract class Person extends BasicFamilyMember {
             return PERSON_Y_SPACE_COMPACT * context.getParameterOptions().getZoom();
         else
             return PERSON_Y_SPACE * context.getParameterOptions().getZoom();
-    }
-
-    public boolean bornBefore(Person person) {
-        if (getBorn() != null && person.getBorn() != null) {
-            return getBorn().before(person.getBorn());
-        }
-        return getId() < person.getId();
-    }
-
-    public abstract void drawHorizontal(Context context, PdfDocument pdfDocument) throws IOException;
-
-    public abstract void drawVertical(Context context, PdfDocument pdfDocument) throws IOException;
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == this)
-            return true;
-        if (!(o instanceof Person other))
-            return false;
-        if ((other.isClone() && !this.isClone()) || (!other.isClone() && this.isClone()))
-            return false;
-        return this.getId() == other.getId();
-    }
-
-    public String getBornString() {
-        if (getBorn() != null) {
-            return "\u002A" + getBorn().getString();
-        }
-        return "";
-    }
-
-    public PersonList getChildrenList() {
-        if (childrenList == null) {
-            childrenList = new PersonList();
-            PersonList spouseList = getSpouseList();
-            for (Person spouse : spouseList) {
-                childrenList.addAll(getChildrenList(spouse));
-            }
-            Person last = null;
-            for (Person child : childrenList) {
-                if (last != null) {
-                    last.nextSibling = child;
-                    child.prevSibling = last;
-                }
-                last = child;
-            }
-
-        }
-        return childrenList;
-    }
-
-    public PersonList getChildrenList(Person spouse) {
-        if (spouseChildrenList.get(spouse.getId()) == null) {
-            PersonList childrenList = new PersonList();
-//			Person		last			= null;
-            for (Person child : personList) {
-                if (child.getFather() != null && child.getMother() != null) {
-                    if ((child.getFather().equals(this) && child.getMother().equals(spouse)) || (child.getFather().equals(spouse) && child.getMother().equals(this))) {
-                        childrenList.add(child);
-//						if (last != null) {
-//							last.nextSibling = child;
-//							child.prevSibling = last;
-//						}
-//						last = child;
-                    }
-                }
-            }
-            spouseChildrenList.put(spouse.getId(), childrenList);
-        }
-        return spouseChildrenList.get(spouse.getId());
-    }
-
-    /**
-     * return all descendants, that is children of children of a specific generation
-     *
-     * @param maxgeneration
-     * @return
-     */
-    public PersonList getDescendantList(int targetGeneration) {
-        PersonList decendantList = new PersonList();
-        for (Person person : getChildrenList()) {
-            if (person.getGeneration() == targetGeneration)
-                decendantList.add(person);
-            else if (person.getGeneration() < targetGeneration)
-                decendantList.addAll(person.getDescendantList(targetGeneration));
-        }
-
-        return decendantList;
-    }
-
-    protected String getDiedString() {
-        if (getDied() != null) {
-            return /* "\u271D" */"+" + getDied().getString();
-        }
-        return "";
-    }
-
-    public String getFirstNameAsString(Context context) {
-        String name = getFirstName();
-        if (context.getParameterOptions().isOriginalLanguage()) {
-            if (getFirstNameOriginalLanguage() != null)
-                name = bidiReorder(getFirstNameOriginalLanguage());// assuming Arabic language
-        }
-        return String.format("%s", name);
-    }
-
-    public Integer getGeneration() {
-        return generation;
-    }
-
-    public void setGeneration(Integer generation) {
-        this.generation = generation;
-    }
-
-    public String getLastNameAsString(Context context) {
-        String name = getLastName();
-        if (context.getParameterOptions().isOriginalLanguage()) {
-            if (getLastNameOriginalLanguage() != null)
-                name = bidiReorder(getLastNameOriginalLanguage());// assuming Arabic language
-        }
-        if (name != null)
-            return String.format("%s", name);
-        else
-            return "";
-    }
-
-//	public abstract String getSexCharacter();
-
-    protected String getLivedString() {
-        if (getDied() != null)
-            return String.format("%s   -   %s", getBornString(), getDiedString());
-        else
-            return String.format("%s   -   %s", getBornString(), getBornString());
-    }
-
-    public String getName(Context context) {
-        return String.format("%s %s", getFirstNameAsString(context), getLastNameAsString(context));
-    }
-
-    public Person getNextSibling() {
-        return nextSibling;
-    }
-
-    public Integer getPageIndex() {
-        return pageIndex;
-    }
-
-    public void setPageIndex(Integer pageIndex) {
-        this.pageIndex = pageIndex;
-    }
-
-    public Person getPrevSibling() {
-        return prevSibling;
-    }
-
-    public PersonList getSpouseList() {
-        if (spouseList == null) {
-            spouseList = new PersonList();
-            for (Person p : personList) {
-                if (p.getFather() != null && p.getFather().equals(this))
-                    spouseList.add(p.getMother());
-                if (p.getMother() != null && p.getMother().equals(this))
-                    spouseList.add(p.getFather());
-            }
-        }
-        return spouseList;
-    }
-
-    public Person getSpouseParent() {
-        Person ps = null;
-        if (getFather().isSpouse())
-            ps = getFather();
-        else if (getMother().isSpouse())
-            ps = getMother();
-        return ps;
-    }
-
-    public Rect getTreeRect() {
-        if (!hasChildren())
-            return new Rect(x, y, x, y);
-        Rect rect = new Rect(x, y, x, y);
-        PersonList childrenList = getChildrenList();
-        for (Person child : childrenList) {
-            Rect cr = child.getTreeRect();
-            rect.expandToInclude(cr);
-        }
-        return rect;
-    }
-
-    public Rect getLogTreeRect(int maxGeneration) {
-        if (minx == null)
-            minx = this;
-        if (maxx == null)
-            maxx = this;
-        if (miny == null)
-            miny = this;
-        if (maxy == null)
-            maxy = this;
-
-        if (!hasChildren() || getGeneration() >= maxGeneration)
-            return new Rect(x, y, x, y);
-        Rect rect = new Rect(x, y, x, y);
-        PersonList childrenList = getChildrenList();
-        for (Person child : childrenList) {
-            Rect cr = child.getTreeRect(maxGeneration);
-            if (child.x < minx.x)
-                minx = child;
-            if (child.x > maxx.x)
-                maxx = child;
-            if (child.y < miny.y)
-                miny = child;
-            if (child.y > maxy.y)
-                maxy = child;
-            rect.expandToInclude(cr);
-        }
-        return rect;
-    }
-
-    public Rect getTreeRect(int includeGeneration) {
-        if (!hasChildren() || getGeneration() >= includeGeneration)
-            return new Rect(x, y, x, y);
-        Rect rect = new Rect(x, y, x, y);
-        PersonList childrenList = getChildrenList();
-        for (Person child : childrenList) {
-            Rect cr = child.getTreeRect(includeGeneration);
-            rect.expandToInclude(cr);
-        }
-        return rect;
-    }
-
-    public boolean hasChildren() {
-//		for (Person p : personList) {
-//			if ((p.getFather() != null && p.getFather().equals(this)) || (p.getMother() != null && p.getMother().equals(this)))
-//				return true;
-//		}
-//		return false;
-        return getChildrenList() != null && !getChildrenList().isEmpty();
-    }
-
-    protected boolean hasParents() {
-        return getFather() != null || getMother() != null;
     }
 
     public void analyzeTree(Context context) {
@@ -426,6 +198,215 @@ public abstract class Person extends BasicFamilyMember {
         }
     }
 
+    public boolean bornBefore(Person person) {
+        if (getBorn() != null && person.getBorn() != null) {
+            return getBorn().before(person.getBorn());
+        }
+        return getId() < person.getId();
+    }
+
+    public abstract void drawHorizontal(Context context, PdfDocument pdfDocument) throws IOException;
+
+    public abstract void drawVertical(Context context, PdfDocument pdfDocument) throws IOException;
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this)
+            return true;
+        if (!(o instanceof Person other))
+            return false;
+        if ((other.isClone() && !this.isClone()) || (!other.isClone() && this.isClone()))
+            return false;
+        return this.getId() == other.getId();
+    }
+
+    public Person findPaginationClone() {
+        for (Person clone : personList) {
+            if (clone instanceof MalePaginationClone) {
+                Person original = ((MalePaginationClone) clone).getOriginal();
+                if (this.equals(original))
+                    return clone;
+
+            } else if (clone instanceof FemalePaginationClone) {
+                Person original = ((FemalePaginationClone) clone).getOriginal();
+                if (this.equals(original))
+                    return clone;
+            }
+        }
+        return null;
+    }
+
+    public String getBornString() {
+        if (getBorn() != null) {
+            return "\u002A" + getBorn().getString();
+        }
+        return "";
+    }
+
+    public PersonList getChildrenList() {
+        if (childrenList == null) {
+            childrenList = new PersonList();
+            PersonList spouseList = getSpouseList();
+            for (Person spouse : spouseList) {
+                childrenList.addAll(getChildrenList(spouse));
+            }
+            Person last = null;
+            for (Person child : childrenList) {
+                if (last != null) {
+                    last.nextSibling = child;
+                    child.prevSibling = last;
+                }
+                last = child;
+            }
+
+        }
+        return childrenList;
+    }
+
+    public PersonList getChildrenList(Person spouse) {
+        if (spouseChildrenList.get(spouse.getId()) == null) {
+            PersonList childrenList = new PersonList();
+            for (Person child : personList) {
+                if (child.getFather() != null && child.getMother() != null) {
+                    if ((child.getFather().equals(this) && child.getMother().equals(spouse)) || (child.getFather().equals(spouse) && child.getMother().equals(this))) {
+                        childrenList.add(child);
+                    }
+                }
+            }
+            spouseChildrenList.put(spouse.getId(), childrenList);
+        }
+        return spouseChildrenList.get(spouse.getId());
+    }
+
+    /**
+     * return all descendants, that is children of children of a specific generation
+     *
+     * @param maxgeneration
+     * @return
+     */
+    public PersonList getDescendantList(int targetGeneration) {
+        PersonList decendantList = new PersonList();
+        for (Person person : getChildrenList()) {
+            if (person.getGeneration() == targetGeneration)
+                decendantList.add(person);
+            else if (person.getGeneration() < targetGeneration)
+                decendantList.addAll(person.getDescendantList(targetGeneration));
+        }
+
+        return decendantList;
+    }
+
+    protected String getDiedString() {
+        if (getDied() != null) {
+            return /* "\u271D" */"+" + getDied().getString();
+        }
+        return "";
+    }
+
+    public String getFirstNameAsString(Context context) {
+        String name = getFirstName();
+        if (context.getParameterOptions().isOriginalLanguage()) {
+            if (getFirstNameOriginalLanguage() != null)
+                name = bidiReorder(getFirstNameOriginalLanguage());// assuming Arabic language
+        }
+        return String.format("%s", name);
+    }
+
+    public Integer getGeneration() {
+        return generation;
+    }
+
+//	public abstract String getSexCharacter();
+
+    public String getLastNameAsString(Context context) {
+        String name = getLastName();
+        if (context.getParameterOptions().isOriginalLanguage()) {
+            if (getLastNameOriginalLanguage() != null)
+                name = bidiReorder(getLastNameOriginalLanguage());// assuming Arabic language
+        }
+        if (name != null)
+            return String.format("%s", name);
+        else
+            return "";
+    }
+
+    protected String getLivedString() {
+        if (getDied() != null)
+            return String.format("%s   -   %s", getBornString(), getDiedString());
+        else
+            return String.format("%s   -   %s", getBornString(), getBornString());
+    }
+
+    public String getName(Context context) {
+        return String.format("%s %s", getFirstNameAsString(context), getLastNameAsString(context));
+    }
+
+    public Person getNextSibling() {
+        return nextSibling;
+    }
+
+    public Integer getPageIndex() {
+        return pageIndex;
+    }
+
+    public Person getPrevSibling() {
+        return prevSibling;
+    }
+
+    public PersonList getSpouseList() {
+        if (spouseList == null) {
+            spouseList = new PersonList();
+            for (Person p : personList) {
+                if (p.getFather() != null && p.getFather().equals(this))
+                    spouseList.add(p.getMother());
+                if (p.getMother() != null && p.getMother().equals(this))
+                    spouseList.add(p.getFather());
+            }
+        }
+        return spouseList;
+    }
+
+    public Person getSpouseParent() {
+        Person ps = null;
+        if (getFather().isSpouse())
+            ps = getFather();
+        else if (getMother().isSpouse())
+            ps = getMother();
+        return ps;
+    }
+
+    public Rect getTreeRect() {
+        if (!hasChildren())
+            return new Rect(x, y, x, y);
+        Rect rect = new Rect(x, y, x, y);
+        PersonList childrenList = getChildrenList();
+        for (Person child : childrenList) {
+            Rect cr = child.getTreeRect();
+            rect.expandToInclude(cr);
+        }
+        return rect;
+    }
+
+    public Rect getTreeRect(int includeGeneration) {
+        if (!hasChildren() || getGeneration() >= includeGeneration)
+            return new Rect(x, y, x, y);
+        Rect rect = new Rect(x, y, x, y);
+        PersonList childrenList = getChildrenList();
+        for (Person child : childrenList) {
+            Rect cr = child.getTreeRect(includeGeneration);
+            rect.expandToInclude(cr);
+        }
+        return rect;
+    }
+
+    public boolean hasChildren() {
+        return getChildrenList() != null && !getChildrenList().isEmpty();
+    }
+
+    protected boolean hasParents() {
+        return getFather() != null || getMother() != null;
+    }
+
     public boolean isChild() {
         return attribute.child;
     }
@@ -440,10 +421,6 @@ public abstract class Person extends BasicFamilyMember {
         return attribute.firstChild;
     }
 
-    public void setFirstChild(boolean firstChild) {
-        this.attribute.firstChild = firstChild;
-    }
-
     boolean isFirstNameOl(Context context) {
         if (context.getParameterOptions().isOriginalLanguage()) {
             return getFirstNameOriginalLanguage() != null;
@@ -453,10 +430,6 @@ public abstract class Person extends BasicFamilyMember {
 
     public boolean isLastChild() {
         return attribute.lastChild;
-    }
-
-    public void setLastChild(boolean lastChild) {
-        this.attribute.lastChild = lastChild;
     }
 
     boolean isLastNameOl(Context context) {
@@ -469,7 +442,7 @@ public abstract class Person extends BasicFamilyMember {
     public abstract boolean isMale();
 
     public boolean isMember(Context context) {
-        if ((getFather() != null) || (getMother() != null) || (this instanceof FemaleSpouseClone) || (this instanceof MaleSpouseClone)) {
+        if ((getFather() != null) || (getMother() != null) || (this instanceof FemaleSpouseClone) || (this instanceof MaleSpouseClone) || (this instanceof FemalePaginationClone) || (this instanceof MalePaginationClone)) {
             // has a known father or mother
             // has a child with a member and had to be cloned
             return true;
@@ -481,6 +454,10 @@ public abstract class Person extends BasicFamilyMember {
             }
         }
         return true;
+    }
+
+    public boolean isPaginationClone() {
+        return false;
     }
 
     /**
@@ -508,28 +485,12 @@ public abstract class Person extends BasicFamilyMember {
         return attribute.spouse;
     }
 
-    public void setSpouse(boolean spouse) {
-        this.attribute.spouse = spouse;
-    }
-
-    public boolean isPaginationClone() {
-        return false;
-    }
-
     public boolean isSpouseOfLastChild() {
         return attribute.spouseOfLastChild;
     }
 
-    public void setSpouseOfLastChild(boolean spouseOfLastChild) {
-        this.attribute.spouseOfLastChild = spouseOfLastChild;
-    }
-
     public boolean isVisible() {
         return attribute.visible;
-    }
-
-    public void setVisible(boolean child) {
-        this.attribute.visible = child;
     }
 
     public void moveTree(float x, float y) {
@@ -559,16 +520,55 @@ public abstract class Person extends BasicFamilyMember {
         errors.clear();
     }
 
+    public void resetChildrenList() {
+        childrenList = null;
+        spouseChildrenList.clear();
+        for (Person spouse : getSpouseList()) {
+            spouse.resetSpouseList();
+
+        }
+
+        spouseList = null;
+    }
+
     private void resetSpouseList() {
         spouseList = null;// lets the list be populated again, as some might have been replaced by clones
+    }
+
+    public void setFirstChild(boolean firstChild) {
+        this.attribute.firstChild = firstChild;
     }
 
     public void setFirstFather(boolean firstFather) {
         attribute.firstFather = firstFather;
     }
 
+    public void setGeneration(Integer generation) {
+        this.generation = generation;
+    }
+
     public void setIsChild(boolean child) {
         this.attribute.child = child;
+    }
+
+    public void setLastChild(boolean lastChild) {
+        this.attribute.lastChild = lastChild;
+    }
+
+    public void setPageIndex(Integer pageIndex) {
+        this.pageIndex = pageIndex;
+    }
+
+    public void setSpouse(boolean spouse) {
+        this.attribute.spouse = spouse;
+    }
+
+    public void setSpouseOfLastChild(boolean spouseOfLastChild) {
+        this.attribute.spouseOfLastChild = spouseOfLastChild;
+    }
+
+    public void setVisible(boolean child) {
+        this.attribute.visible = child;
     }
 
     public void validate(Context context) {
@@ -584,33 +584,6 @@ public abstract class Person extends BasicFamilyMember {
         if (getPageIndex() == null) {
             errors.add(ErrorMessages.ERROR_002_PAGE_INDEX_NULL);
         }
-    }
-
-    public void resetChildrenList() {
-        childrenList = null;
-        spouseChildrenList.clear();
-        for (Person spouse : getSpouseList()) {
-            spouse.resetSpouseList();
-
-        }
-
-        spouseList = null;
-    }
-
-    public Person findPaginationClone() {
-        for (Person clone : personList) {
-            if (clone instanceof MalePaginationClone) {
-                Person original = ((MalePaginationClone) clone).getOriginal();
-                if (this.equals(original))
-                    return clone;
-
-            } else if (clone instanceof FemalePaginationClone) {
-                Person original = ((FemalePaginationClone) clone).getOriginal();
-                if (this.equals(original))
-                    return clone;
-            }
-        }
-        return null;
     }
 
 }

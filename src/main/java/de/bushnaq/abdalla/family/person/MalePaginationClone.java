@@ -22,22 +22,22 @@ public class MalePaginationClone extends Male {
         return original.getGeneration();
     }
 
-    @Override
-    public void setGeneration(Integer generation) {
-        original.setGeneration(generation);
+    public Person getOriginal() {
+        return original;
     }
 
     public Person getOriginalFather() {
         return original.getFather();
     }
 
-    public Person getOriginal() {
-        return original;
-    }
-
     @Override
     public boolean isPaginationClone() {
         return true;
+    }
+
+    @Override
+    public void setGeneration(Integer generation) {
+        original.setGeneration(generation);
     }
 
 //	@Override

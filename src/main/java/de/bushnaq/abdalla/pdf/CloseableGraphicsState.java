@@ -56,6 +56,20 @@ public class CloseableGraphicsState implements Closeable {
     public void close() throws IOException {
     }
 
+    public void drawCircle(float cx, float cy, float r) throws IOException {
+        final float k = 0.552284749831f;
+//		final float k = 1f;
+//	    contentStream.setNonStrokingColor(red, green, blue);
+        float tcy = pageHeight - cy;
+
+        contentStream.moveTo(cx - r, tcy);
+        contentStream.curveTo(cx - r, tcy + k * r, cx - k * r, tcy + r, cx, tcy + r);
+        contentStream.curveTo(cx + k * r, tcy + r, cx + r, tcy + k * r, cx + r, tcy);
+        contentStream.curveTo(cx + r, tcy - k * r, cx + k * r, tcy - r, cx, tcy - r);
+        contentStream.curveTo(cx - k * r, tcy - r, cx - r, tcy - k * r, cx - r, tcy);
+        //contentStream.fill();
+    }
+
     public void drawImage(String imageFileName, float x, float y, float w, float h) throws IOException {
         contentStream.setGraphicsStateParameters(graphicsState);
         PDImageXObject pdImage = pdfDocument.getImage(imageFileName);
@@ -76,20 +90,6 @@ public class CloseableGraphicsState implements Closeable {
     public void drawLine(float x1, float y1, float x2, float y2) throws IOException {
         contentStream.moveTo(x1, pageHeight - y1);
         contentStream.lineTo(x2, pageHeight - y2);
-    }
-
-    public void drawCircle(float cx, float cy, float r) throws IOException {
-        final float k = 0.552284749831f;
-//		final float k = 1f;
-//	    contentStream.setNonStrokingColor(red, green, blue);
-        float tcy = pageHeight - cy;
-
-        contentStream.moveTo(cx - r, tcy);
-        contentStream.curveTo(cx - r, tcy + k * r, cx - k * r, tcy + r, cx, tcy + r);
-        contentStream.curveTo(cx + k * r, tcy + r, cx + r, tcy + k * r, cx + r, tcy);
-        contentStream.curveTo(cx + r, tcy - k * r, cx + k * r, tcy - r, cx, tcy - r);
-        contentStream.curveTo(cx - k * r, tcy - r, cx - r, tcy - k * r, cx - r, tcy);
-        //contentStream.fill();
     }
 
     public void drawRect(float x, float y, float width, float height) throws IOException {
@@ -115,10 +115,6 @@ public class CloseableGraphicsState implements Closeable {
         return font;
     }
 
-    public void setFont(PdfFont font) throws IOException {
-        setFont(font.getFont(), font.getSize());
-    }
-
     public PdfFont getFontFittingWidth(PdfFont font, Float boxWidth, String text) throws IOException {
 
         float size = font.getSize();
@@ -142,12 +138,6 @@ public class CloseableGraphicsState implements Closeable {
         return nonStrokingColor;
     }
 
-    public void setNonStrokingColor(Color nonStrokingColor) throws IOException {
-        this.nonStrokingColor = nonStrokingColor;
-        contentStream.setNonStrokingColor(nonStrokingColor);
-        graphicsState.setNonStrokingAlphaConstant(nonStrokingColor.getAlpha() / 255.0f);
-    }
-
     public float getStringHeight() {
         return (-getFont().getFontDescriptor().getDescent() + getFont().getFontDescriptor().getAscent()) / 1000 * getFontSize();
     }
@@ -169,15 +159,13 @@ public class CloseableGraphicsState implements Closeable {
         return strokingColor;
     }
 
-    public void setStrokingColor(Color strokingColor) throws IOException {
-        this.strokingColor = strokingColor;
-        contentStream.setStrokingColor(strokingColor);
-        graphicsState.setStrokingAlphaConstant(strokingColor.getAlpha() / 255.0f);
-    }
-
     public void newLineAtOffset(float tx, float ty) throws IOException {
         float descent = getFont().getFontDescriptor().getDescent() / 1000 * getFontSize();
         contentStream.newLineAtOffset(tx, pageHeight - ty - descent);
+    }
+
+    public void setFont(PdfFont font) throws IOException {
+        setFont(font.getFont(), font.getSize());
     }
 
     public void setFont(PDFont font, float fontSize) throws IOException {
@@ -196,10 +184,22 @@ public class CloseableGraphicsState implements Closeable {
         contentStream.setLineWidth(lineWidth);
     }
 
+    public void setNonStrokingColor(Color nonStrokingColor) throws IOException {
+        this.nonStrokingColor = nonStrokingColor;
+        contentStream.setNonStrokingColor(nonStrokingColor);
+        graphicsState.setNonStrokingAlphaConstant(nonStrokingColor.getAlpha() / 255.0f);
+    }
+
     public void setNonStrokingColor(Color nonStrokingColor, float alpha) throws IOException {
         this.nonStrokingColor = nonStrokingColor;
         contentStream.setNonStrokingColor(nonStrokingColor);
         graphicsState.setNonStrokingAlphaConstant(alpha);
+    }
+
+    public void setStrokingColor(Color strokingColor) throws IOException {
+        this.strokingColor = strokingColor;
+        contentStream.setStrokingColor(strokingColor);
+        graphicsState.setStrokingAlphaConstant(strokingColor.getAlpha() / 255.0f);
     }
 
     public void setStrokingColor(Color strokingColor, float alpha) throws IOException {

@@ -75,10 +75,6 @@ public class LookAndFeelsComboBox extends JComboBox<UIManager.LookAndFeelInfo> {
         return (sel instanceof LookAndFeelInfo) ? ((LookAndFeelInfo) sel).getClassName() : null;
     }
 
-    public void setSelectedLookAndFeel(String className) {
-        setSelectedIndex(getIndexOfLookAndFeel(className));
-    }
-
     void lafChanged(PropertyChangeEvent e) {
         if ("lookAndFeel".equals(e.getPropertyName())) {
             selectedCurrentLookAndFeel();
@@ -101,5 +97,9 @@ public class LookAndFeelsComboBox extends JComboBox<UIManager.LookAndFeelInfo> {
 
     public void selectedCurrentLookAndFeel() {
         setSelectedLookAndFeel(UIManager.getLookAndFeel().getClass().getName());
+    }
+
+    public void setSelectedLookAndFeel(String className) {
+        setSelectedIndex(getIndexOfLookAndFeel(className));
     }
 }

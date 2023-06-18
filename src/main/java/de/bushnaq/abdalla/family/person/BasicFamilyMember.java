@@ -37,69 +37,69 @@ public class BasicFamilyMember {
         return born;
     }
 
-    public void setBorn(FlexibleDate born) {
-        this.born = born;
-    }
-
     public FlexibleDate getDied() {
         return died;
-    }
-
-    public void setDied(FlexibleDate died) {
-        this.died = died;
     }
 
     public Male getFather() {
         return father;
     }
 
-    public void setFather(Male father) {
-        this.father = father;
-    }
-
     public String getFirstName() {
         return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
     }
 
     public String getFirstNameOriginalLanguage() {
         return firstNameOriginalLanguage;
     }
 
-    public void setFirstNameOriginalLanguage(String firstNameOriginalLanguage) {
-        this.firstNameOriginalLanguage = firstNameOriginalLanguage;
-    }
-
     public int getId() {
         return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getLastName() {
         return lastName;
     }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
     public String getLastNameOriginalLanguage() {
         return lastNameOriginalLanguage;
+    }
+
+    public Female getMother() {
+        return mother;
+    }
+
+    public void setBorn(FlexibleDate born) {
+        this.born = born;
+    }
+
+    public void setDied(FlexibleDate died) {
+        this.died = died;
+    }
+
+    public void setFather(Male father) {
+        this.father = father;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public void setFirstNameOriginalLanguage(String firstNameOriginalLanguage) {
+        this.firstNameOriginalLanguage = firstNameOriginalLanguage;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public void setLastNameOriginalLanguage(String lastNameOriginalLanguage) {
 
         this.lastNameOriginalLanguage = lastNameOriginalLanguage;
-    }
-
-    public Female getMother() {
-        return mother;
     }
 
     public void setMother(Female mother) {

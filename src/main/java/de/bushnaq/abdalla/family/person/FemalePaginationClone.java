@@ -22,11 +22,6 @@ public class FemalePaginationClone extends Female {
         return original.getGeneration();
     }
 
-    @Override
-    public void setGeneration(Integer generation) {
-        original.setGeneration(generation);
-    }
-
     public Person getOriginal() {
         return original;
     }
@@ -38,6 +33,11 @@ public class FemalePaginationClone extends Female {
     @Override
     public boolean isPaginationClone() {
         return true;
+    }
+
+    @Override
+    public void setGeneration(Integer generation) {
+        original.setGeneration(generation);
     }
 
 //	@Override

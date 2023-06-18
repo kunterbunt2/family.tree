@@ -18,11 +18,11 @@ import java.io.File;
 import java.io.IOException;
 
 public abstract class DrawablePerson extends Person {
-    public static final String NAME_FONT = "NAME_FONT";
-    public static final String DATE_FONT = "DATE_FONT";
     public static final String BIG_WATERMARK_FONT = "BIG_WATERMARK_FONT";
-    public static final String SMALL_WATERMARK_FONT = "SMALL_WATERMARK_FONT";
+    public static final String DATE_FONT = "DATE_FONT";
+    public static final String NAME_FONT = "NAME_FONT";
     public static final String NAME_OL_FONT = "NAME_OL_FONT";
+    public static final String SMALL_WATERMARK_FONT = "SMALL_WATERMARK_FONT";
     private static final float FAT_LINE_STROKE_WIDTH = 2f;
     private static final float MEDIUM_LINE_STROKE_WIDTH = 1f;
     private final Color backgroundColor;
@@ -45,20 +45,6 @@ public abstract class DrawablePerson extends Person {
         this.spouseBorderColor = new Color(backgroundColor.getRGB());
     }
 
-    public static float getPageMargin(Context context) {
-        return context.getParameterOptions().getPageMargin() * context.getParameterOptions().getZoom();
-    }
-
-    public static float getPersonWidth(Context context) {
-        if (context.getParameterOptions().isShowImage())
-            return getImageWidth(context) + getWidth(context) + getXSpace(context);
-        else
-            return getWidth(context) + getXSpace(context);
-    }
-
-    public static float getPersonHeight(Context context) {
-        return getHeight(context) + Person.getYSpace(context);
-    }
 
     private void drawBox(Context context, PdfDocument pdfDocument) throws IOException {
         float x1 = xIndexToCoordinate(context, x);    // x * (width + getXSpace(context));
@@ -444,28 +430,6 @@ public abstract class DrawablePerson extends Person {
         }
     }
 
-    private void drawLabelBelow(Context context, PdfDocument pdfDocument, float x1, float y1, DrawablePerson person, Person clone) throws IOException {
-        float annotationSize = 16f;
-        float annotationX;
-        if (context.getParameterOptions().isShowImage()) {
-            annotationX = x1 + +getImageWidth(context) + (getWidth(context)) / 2;
-        } else {
-            annotationX = x1 + (getWidth(context)) / 2;
-        }
-        drawLabel(context, pdfDocument, annotationX, y1 + Person.getHeight(context) + annotationSize / 2, annotationSize, person, clone);
-    }
-
-    private void drawLabelAbove(Context context, PdfDocument pdfDocument, float x1, float y1, DrawablePerson person, Person clone) throws IOException {
-        float annotationSize = 16f;
-        float annotationX;
-        if (context.getParameterOptions().isShowImage()) {
-            annotationX = x1 + +getImageWidth(context) + (getWidth(context)) / 2;
-        } else {
-            annotationX = x1 + (getWidth(context)) / 2;
-        }
-        drawLabel(context, pdfDocument, annotationX, y1 - annotationSize / 2, annotationSize, person, clone);
-    }
-
     private void drawLabel(Context context, PdfDocument pdfDocument, float x1, float y1, float labelSize, Person person, Person clone) throws IOException {
         try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, person.getPageIndex())) {
             int targetPageNumber = clone.getPageIndex() + 1;
@@ -512,6 +476,28 @@ public abstract class DrawablePerson extends Person {
                 sourcePage.getAnnotations().add(link);
             }
         }
+    }
+
+    private void drawLabelAbove(Context context, PdfDocument pdfDocument, float x1, float y1, DrawablePerson person, Person clone) throws IOException {
+        float annotationSize = 16f;
+        float annotationX;
+        if (context.getParameterOptions().isShowImage()) {
+            annotationX = x1 + +getImageWidth(context) + (getWidth(context)) / 2;
+        } else {
+            annotationX = x1 + (getWidth(context)) / 2;
+        }
+        drawLabel(context, pdfDocument, annotationX, y1 - annotationSize / 2, annotationSize, person, clone);
+    }
+
+    private void drawLabelBelow(Context context, PdfDocument pdfDocument, float x1, float y1, DrawablePerson person, Person clone) throws IOException {
+        float annotationSize = 16f;
+        float annotationX;
+        if (context.getParameterOptions().isShowImage()) {
+            annotationX = x1 + +getImageWidth(context) + (getWidth(context)) / 2;
+        } else {
+            annotationX = x1 + (getWidth(context)) / 2;
+        }
+        drawLabel(context, pdfDocument, annotationX, y1 + Person.getHeight(context) + annotationSize / 2, annotationSize, person, clone);
     }
 
     private void drawTextMetric(CloseableGraphicsState p, float x, float y, String text, Context context) throws IOException {

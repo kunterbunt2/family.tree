@@ -300,8 +300,6 @@ public class HorizontalTree extends Tree {
                     }
                     child.x = pX;
                     child.setPageIndex(person.getPageIndex());
-//					if (child.getId() == 39)
-//						logger.info(String.format("Susan pageIndex=%d, generation=%d", child.getPageIndex(), treeMaxGeneration));
                     pX = position(context, child, treeMaxGeneration);
                 }
             }

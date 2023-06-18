@@ -22,13 +22,13 @@ public class FemaleSpouseClone extends Female {
         return original.getGeneration();
     }
 
+    public Person getOriginalFather() {
+        return original.getFather();
+    }
+
     @Override
     public void setGeneration(Integer generation) {
         original.setGeneration(generation);
-    }
-
-    public Person getOriginalFather() {
-        return original.getFather();
     }
 
 }
