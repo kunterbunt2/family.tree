@@ -35,7 +35,6 @@ public class LookAndFeelsComboBox extends JComboBox<UIManager.LookAndFeelInfo> {
             private static final long serialVersionUID = -5728721488941592344L;
 
             @Override
-            @SuppressWarnings("rawtypes")
             public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                 value = (value != null) ? ((LookAndFeelInfo) value).getName() : UIManager.getLookAndFeel().getName();
                 return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);

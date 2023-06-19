@@ -299,6 +299,7 @@ public class HorizontalTree extends Tree {
                     }
                     child.x = pX;
                     child.setPageIndex(person.getPageIndex());
+                    child.setFamilyLetter(person.getFamilyLetter());
                     pX = position(context, child, includingGeneration);
                 }
             }

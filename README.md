@@ -6,9 +6,9 @@ Unrelated parts of the tree will be displayed on seperate pages.
 Every pdf document consists of
 
 1. a readme page
-1. every page has the ISO page size as a watermark in the upper right corner.
-1. every page has the calculated tree area as a watermark in the upper right corner.
-1. an error page, in case there are any errors. Possble errors are:<br>
+2. every page has the ISO page size as a watermark in the upper right corner.
+3. every page has the calculated tree area as a watermark in the upper right corner.
+4. an error page, in case there are any errors. Possble errors are:<br>
    Error #001: [%d]%s %s is not visible. A person is visible if he is member of the family or has children with someone
    from the family.<br>
    Error #002. Page index null<br>
@@ -23,34 +23,34 @@ There are several options that impact the overall visualization of a family tree
 
 1. you can display the tree in horizontal mode, where children are displayed in order of birth from left to right below
    their parents.
-1. you can display the tree in vertical mode, where children are displayed in order of birth from to to down to the
+2. you can display the tree in vertical mode, where children are displayed in order of birth from to to down to the
    right of their parents.
-1. you can use first and last names from the english column of the excel sheet or the original langauge column.
-1. you can display the tree in compact mode, where birth and death dates are omitted to reduce the area needed for the
+3. you can use first and last names from the english column of the excel sheet or the original langauge column.
+4. you can display the tree in compact mode, where birth and death dates are omitted to reduce the area needed for the
    trees.
-1. You can display children right to their father or mother, if both are applicable.
-1. You can chose to exclude the spouse to reduce the area needed for the trees.
-1. By default family.tree will try to optimize the needed area for a tree by shifting subtrees below (horizontal mode)
+5. You can display children right to their father or mother, if both are applicable.
+6. You can chose to exclude the spouse to reduce the area needed for the trees.
+7. By default family.tree will try to optimize the needed area for a tree by shifting subtrees below (horizontal mode)
    each other.
 
 Every person is displayes with
 
 1. A box in blue color for males and pink color for women.
-1. The person box border will be dotted to visualize that this is a copy of the original person. Copies are created for
+2. The person box border will be dotted to visualize that this is a copy of the original person. Copies are created for
    women that are diplayed under their parents and additionally below their husbands and above their children. (
    configurable)
-1. In the middle of the person box the first name, last name born date and death date are shown.
-1. in case original language option is used, the first name and last name are taken from teh OL columns.
-1. in the upper left corner, the Genration is displayed, starting with G0 for the root parents and incremented for every
+3. In the middle of the person box the first name, last name born date and death date are shown.
+4. in case original language option is used, the first name and last name are taken from teh OL columns.
+5. in the upper left corner, the Genration is displayed, starting with G0 for the root parents and incremented for every
    child genration.
-1. In the upper right corner an asterix \* is shown to show that thsi person box is a copy.
-1. In the lower right corner the unique ID is displayed.
-1. In the lower right corner the coordinates are displyed. Helpfull to find a specific person box.
+6. In the upper right corner an asterix \* is shown to show that thsi person box is a copy.
+7. In the lower right corner the unique ID is displayed.
+8. In the lower right corner the coordinates are displyed. Helpfull to find a specific person box.
 
 Relations between persons are displyed using line connections.
 
 1. Children have a line to their parents.
-1. By default women are displayed below (horizontal mode) their male spouse connected to him with a dotted line.
+2. By default women are displayed below (horizontal mode) their male spouse connected to him with a dotted line.
 
 Remark: you can search in the pdf for any of the text information to find a specific person.
 
@@ -118,6 +118,10 @@ Every record represents one person and the relations to other peopele within the
 | Mother          | Cell Reference | A reference to the First Name column of the record that represents the mother of this person within this table. |
 | Comment         | String         | Comments purly intended for the author of the table.                                                            |
 | Comment (OL)    | String         | Comments in original language purly intended for the author of the table.                                       |
+
+#Spechial Cases
+family.tree detects if the members of the family are actually more than one family (not same ansesters), every family is
+assigned a family letter starting with A to distinguish the families from each other.
 
 # Missing tests
 

@@ -21,7 +21,7 @@ public class ParameterOptions {
     private static final String CLI_OPTION_SPLIT = "split";
     private static final String CLI_OPTION_MAX_ISO = "max_iso";
 
-    private final boolean colorTrees = false;
+    private final boolean colorTrees = true;
     private final boolean drawGrid = false;
     private final boolean drawTextMetric = false;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

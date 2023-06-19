@@ -74,19 +74,32 @@ public abstract class Tree {
 
     protected abstract void compact(Context context2, PdfDocument pdfDocument, Person rootFather, int includingGeneration);
 
+    private void createFonts(Context context, PdfDocument pdfDocument) throws IOException {
+        if (context.getParameterOptions().isCompact())
+            pdfDocument.createFont(DATE_FONT, "NotoSans-Regular.ttf", (Person.getHeight(context) - Person.getBorder(context) * 2) / 5);
+        else
+            pdfDocument.createFont(DATE_FONT, "NotoSans-Regular.ttf", (Person.getHeight(context) - Person.getBorder(context) * 2 - Person.getMargine(context) * 2) / 5);
+        pdfDocument.createFont(BIG_WATERMARK_FONT, "NotoSans-Bold.ttf", 128);
+        pdfDocument.createFont(SMALL_WATERMARK_FONT, "NotoSans-Bold.ttf", 32);
+        if (context.getParameterOptions().isCompact()) {
+            pdfDocument.createFont(NAME_FONT, "NotoSans-Regular.ttf", (Person.getHeight(context)) / 2);
+            pdfDocument.createFont(NAME_OL_FONT, "Amiri-Regular.ttf", (Person.getHeight(context)) / 2);
+        } else {
+            pdfDocument.createFont(NAME_FONT, "NotoSans-Bold.ttf", (Person.getHeight(context) - Person.getBorder(context) * 2 - Person.getMargine(context) * 2) / 3);
+            pdfDocument.createFont(NAME_OL_FONT, "Amiri-bold.ttf", (Person.getHeight(context) - Person.getBorder(context) * 2 - Person.getMargine(context) * 2) / 3);
+        }
+    }
+
     private void createPages(Context context, PdfDocument pdfDocument) throws IOException {
         position(context, pdfDocument);
         compact(context, pdfDocument);
-        //validate(context);
         List<Person> rootFatherList = findRootFatherList();
         for (Person rootFather : rootFatherList) {
             float pageWidth = calclatePageWidth(rootFather.getPageIndex());
             float pageHeight = calculatePageHeight(context, rootFather.getPageIndex());
-//			Rect	treeRect	= rootFather.getTreeRect();
             pdfDocument.createPage(rootFather.getPageIndex(), pageWidth, pageHeight, rootFather.getFirstName() + context.getParameterOptions().getOutputDecorator());
             drawPageSizeWatermark(pdfDocument, rootFather.getPageIndex());
             drawPageAreaWatermark(pdfDocument, rootFather.getPageIndex(), rootFather.getTreeRect());
-            //pdfDocument.lastPageIndex++;
         }
     }
 
@@ -134,7 +147,10 @@ public abstract class Tree {
 
     private void distributeTreeOnPages(Context context, PdfDocument pdfDocument) throws IOException, TransformerException {
         List<Person> rootFatherList = findRootFatherList();
+        char familyLetter = 'A';
         for (Person rootFather : rootFatherList) {
+            rootFather.setFamilyLetter(String.valueOf(familyLetter));
+            familyLetter += 1;
             int treeMaxGeneration = findMaxgeneration(rootFather);
             distributeTreeOnPages(context, pdfDocument, rootFather, treeMaxGeneration);
         }
@@ -206,18 +222,6 @@ public abstract class Tree {
 
     abstract void draw(Context context, PdfDocument pdfDocument, int pageIndex) throws IOException;
 
-    private void drawDebugTree(Context context, Person person, int pageIndex) throws IOException, TransformerException {
-        PdfDocument pdfDocument = new PdfDocument("debug.pdf");
-        init(context, pdfDocument);
-        float pageWidth = calclatePageWidth(pageIndex);
-        float pageHeight = calculatePageHeight(context, pageIndex);
-        pdfDocument.createPage(pageIndex, pageWidth, pageHeight, person.getFirstName() + context.getParameterOptions().getOutputDecorator());
-        drawPageSizeWatermark(pdfDocument, pageIndex);
-        drawPageAreaWatermark(pdfDocument, pageIndex, person.getTreeRect());
-        draw(context, pdfDocument, pageIndex);
-        pdfDocument.endDocument();
-    }
-
     //public void drawErrors(PdfDocument pdfDocument, int pageIndex) {
 //		try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
 //			PDPage page = pdfDocument.getPage(pageIndex);
@@ -239,6 +243,18 @@ public abstract class Tree {
 //			}
 //		}
     //}
+
+    private void drawDebugTree(Context context, Person person, int pageIndex) throws IOException, TransformerException {
+        PdfDocument pdfDocument = new PdfDocument("debug.pdf");
+        createFonts(context, pdfDocument);
+        float pageWidth = calclatePageWidth(pageIndex);
+        float pageHeight = calculatePageHeight(context, pageIndex);
+        pdfDocument.createPage(pageIndex, pageWidth, pageHeight, person.getFirstName() + context.getParameterOptions().getOutputDecorator());
+        drawPageSizeWatermark(pdfDocument, pageIndex);
+        drawPageAreaWatermark(pdfDocument, pageIndex, person.getTreeRect());
+        draw(context, pdfDocument, pageIndex);
+        pdfDocument.endDocument();
+    }
 
     private void drawGrid(PdfDocument pdfDocument) throws IOException {
         for (int pageIndex = 0; pageIndex < pdfDocument.getNumberOfPages(); pageIndex++) {
@@ -333,14 +349,14 @@ public abstract class Tree {
 
     public void generate(Context context, PdfDocument pdfDocument, String familyName) throws Exception {
         logger.info(String.format("Generating %s tree ...", context.getParameterOptions().getOutputDecorator()));
-        init(context, pdfDocument);
+        createFonts(context, pdfDocument);
         analyzeTree();
         draw(context, pdfDocument);
     }
 
     public void generateErrorPage(PdfDocument pdfDocument) throws IOException {
         logger.info("Generating Error page ...");
-        init(context, pdfDocument);
+        createFonts(context, pdfDocument);
         analyzeTree();
         position(context, pdfDocument);
         compact(context, pdfDocument);
@@ -367,30 +383,17 @@ public abstract class Tree {
         }
     }
 
-    private void init(Context context, PdfDocument pdfDocument) throws IOException {
-        if (context.getParameterOptions().isCompact())
-            pdfDocument.createFont(DATE_FONT, "NotoSans-Regular.ttf", (Person.getHeight(context) - Person.getBorder(context) * 2) / 5);
-        else
-            pdfDocument.createFont(DATE_FONT, "NotoSans-Regular.ttf", (Person.getHeight(context) - Person.getBorder(context) * 2 - Person.getMargine(context) * 2) / 5);
-        pdfDocument.createFont(BIG_WATERMARK_FONT, "NotoSans-Bold.ttf", 128);
-        pdfDocument.createFont(SMALL_WATERMARK_FONT, "NotoSans-Bold.ttf", 32);
-        if (context.getParameterOptions().isCompact()) {
-            pdfDocument.createFont(NAME_FONT, "NotoSans-Regular.ttf", (Person.getHeight(context)) / 2);
-            pdfDocument.createFont(NAME_OL_FONT, "Amiri-Regular.ttf", (Person.getHeight(context)) / 2);
-        } else {
-            pdfDocument.createFont(NAME_FONT, "NotoSans-Bold.ttf", (Person.getHeight(context) - Person.getBorder(context) * 2 - Person.getMargine(context) * 2) / 3);
-            pdfDocument.createFont(NAME_OL_FONT, "Amiri-bold.ttf", (Person.getHeight(context) - Person.getBorder(context) * 2 - Person.getMargine(context) * 2) / 3);
-        }
-    }
-
     private void position(Context context, PdfDocument pdfDocument) {
-        List<Person> firstFathers = findRootFatherList();
+        List<Person> rootFatherList = findRootFatherList();
         firstPageIndex = pdfDocument.lastPageIndex;
-        for (Person firstFather : firstFathers) {
-            firstFather.setPageIndex(pdfDocument.lastPageIndex++);
-            firstFather.x = 0;
-            firstFather.y = 0;
-            position(context, firstFather, 1000);
+        char familyLetter = 'A';
+        for (Person rootFather : rootFatherList) {
+            rootFather.setPageIndex(pdfDocument.lastPageIndex++);
+            rootFather.setFamilyLetter(String.valueOf(familyLetter));
+            familyLetter += 1;
+            rootFather.x = 0;
+            rootFather.y = 0;
+            position(context, rootFather, 1000);
         }
         pdfDocument.lastPageIndex--;
     }

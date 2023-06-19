@@ -17,8 +17,6 @@ import java.util.Set;
 public class CloseableGraphicsState implements Closeable {
 
     private final PDPageContentStream contentStream;
-    private final PDPage page;
-    private final PDRectangle pageBBox;
     private final float pageHeight;
     private final float pageWidth;
     private final PdfDocument pdfDocument;
@@ -32,9 +30,9 @@ public class CloseableGraphicsState implements Closeable {
 
     public CloseableGraphicsState(PdfDocument pdfDocument, int pageIndex) throws IOException {
         this.pdfDocument = pdfDocument;
-        this.page = pdfDocument.getPage(pageIndex);
+        PDPage page = pdfDocument.getPage(pageIndex);
         this.contentStream = pdfDocument.getContentStream(pageIndex);
-        pageBBox = page.getBBox();
+        PDRectangle pageBBox = page.getBBox();
         pageWidth = pageBBox.getWidth();
         pageHeight = pageBBox.getHeight();
     }

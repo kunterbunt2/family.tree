@@ -206,7 +206,6 @@ public class DrawablePerson extends Person {
                 }
             }
         }
-//		if (!context.getParameterOptions().isCompact())
         {
             // ID
             try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
@@ -228,7 +227,6 @@ public class DrawablePerson extends Person {
                 }
             }
         }
-//		if (!context.getParameterOptions().isCompact())
         {
             // Generation
             try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
@@ -236,7 +234,6 @@ public class DrawablePerson extends Person {
                     p.setNonStrokingColor(textColor);
                     if (context.getParameterOptions().isCompact()) {
                         p.setFont(pdfDocument.getFont(DATE_FONT));
-//						y2 = y1 + p.getStringHeight() + getBorder(context);
                     } else {
                         p.setFont(pdfDocument.getFont(NAME_FONT));
                     }
@@ -422,7 +419,7 @@ public class DrawablePerson extends Person {
         try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, person.getPageIndex())) {
             int targetPageNumber = clone.getPageIndex() + 1;
             //float annotationSize = 24f;
-            String text = "P" + targetPageNumber;
+            String text = getFamilyLetter() + targetPageNumber;
             p.setFont(pdfDocument.getFont(NAME_FONT));
             float stringWidth = p.getStringWidth(text);
             float stringHeight = p.getStringHeight();

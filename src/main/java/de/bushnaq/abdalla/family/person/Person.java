@@ -49,6 +49,7 @@ public abstract class Person extends BasicFamilyMember {
     private Person nextSibling;
     private Person prevSibling;
     private PersonList spouseList;
+    private String familyLetter;// one letter to distinguish different families that have the same last name
 
     public Person(PersonList personList, Integer id) {
         super(id);
@@ -58,6 +59,7 @@ public abstract class Person extends BasicFamilyMember {
     public Person(PersonList personList, Person person) {
         super(person);
         this.pageIndex = person.pageIndex;
+        this.familyLetter = person.familyLetter;
         this.personList = personList;
         person.errors = errors;
     }
@@ -311,6 +313,10 @@ public abstract class Person extends BasicFamilyMember {
         return "";
     }
 
+    public String getFamilyLetter() {
+        return familyLetter;
+    }
+
     public String getFirstNameAsString(Context context) {
         String name = getFirstName();
         if (context.getParameterOptions().isOriginalLanguage()) {
@@ -367,8 +373,6 @@ public abstract class Person extends BasicFamilyMember {
         return prevSibling;
     }
 
-//	public abstract String getSexCharacter();
-
     public PersonList getSpouseList() {
         if (spouseList == null) {
             spouseList = new PersonList();
@@ -381,6 +385,8 @@ public abstract class Person extends BasicFamilyMember {
         }
         return spouseList;
     }
+
+//	public abstract String getSexCharacter();
 
     public Person getSpouseParent() {
         Person ps = null;
@@ -557,6 +563,10 @@ public abstract class Person extends BasicFamilyMember {
 
     private void resetSpouseList() {
         spouseList = null;// lets the list be populated again, as some might have been replaced by clones
+    }
+
+    public void setFamilyLetter(String familyLetter) {
+        this.familyLetter = familyLetter;
     }
 
     public void setFemale() {
