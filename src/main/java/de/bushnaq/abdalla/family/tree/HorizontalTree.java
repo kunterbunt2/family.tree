@@ -20,14 +20,14 @@ public class HorizontalTree extends Tree {
      * compact starting from a specific father and ignoring all children from clipGeneration and higher
      */
     @Override
-    protected void compact(Context context2, PdfDocument pdfDocument, Person rootFather, int includingGeneration) {
-        int maxgeneration = findMaxgeneration();
+    protected void compact(Context context, PdfDocument pdfDocument, Person rootFather, int includingGeneration) {
+        int maxGeneration = personList.findMaxgeneration();
 
-        for (int g = maxgeneration - 1; g > 0; g--) {
+        for (int g = maxGeneration - 1; g > 0; g--) {
 //			logger.info(String.format("compacting children of generation %d", g));
             compactChildren(rootFather, g, includingGeneration);
         }
-        for (int g = maxgeneration - 1; g > 0; g--) {
+        for (int g = maxGeneration - 1; g > 0; g--) {
 //			logger.info(String.format("compacting parents of generation %d", g));
             compactParents(rootFather, g, includingGeneration);
         }
@@ -41,7 +41,7 @@ public class HorizontalTree extends Tree {
     @Override
     protected void compact(Context context, PdfDocument pdfDocument) {
         List<Person> firstFathers = findRootFatherList();
-        int maxgeneration = findMaxgeneration();
+        int maxgeneration = personList.findMaxgeneration();
 
         for (Person firstFather : firstFathers) {
             for (int g = maxgeneration - 1; g > 0; g--) {

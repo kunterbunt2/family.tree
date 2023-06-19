@@ -314,15 +314,6 @@ public abstract class Tree {
         }
     }
 
-    int findMaxgeneration() {
-        int maxGenration = -1;
-
-        for (Person p : personList) {
-            if (p.getGeneration() != null)
-                maxGenration = Math.max(maxGenration, p.getGeneration());
-        }
-        return maxGenration;
-    }
 
     int findMaxgeneration(Person father) {
         return findMaxgeneration(father, -1);

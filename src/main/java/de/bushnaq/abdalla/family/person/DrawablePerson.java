@@ -24,7 +24,7 @@ public class DrawablePerson extends Person {
     public static final String NAME_OL_FONT = "NAME_OL_FONT";
     public static final String SMALL_WATERMARK_FONT = "SMALL_WATERMARK_FONT";
     private static final float FAT_LINE_STROKE_WIDTH = 2f;
-    private static final float MEDIUM_LINE_STROKE_WIDTH = 1f;
+    private static final float MEDIUM_LINE_STROKE_WIDTH = 2f;
     private final Color backgroundColor;
     private final Color borderColor = new Color(0, 0, 0, 64);
     private final Color connectorColor = Color.gray;
@@ -50,13 +50,13 @@ public class DrawablePerson extends Person {
 
         if (getGeneration() != null && getGeneration() > 0 && !isSpouse() && hasChildren()) {
             // family tree background color
-            Rect treeRect = getTreeRect();
-            float tx1 = xIndexToCoordinate(context, treeRect.x1);
-            float ty1 = yIndexToCoordinate(context, treeRect.y1);
-            float tx2 = xIndexToCoordinate(context, treeRect.x2);
-            float ty2 = yIndexToCoordinate(context, treeRect.y2);
 
             if (context.getParameterOptions().isColorTrees()) {
+                Rect treeRect = getTreeRect();
+                float tx1 = xIndexToCoordinate(context, treeRect.x1);
+                float ty1 = yIndexToCoordinate(context, treeRect.y1);
+                float tx2 = xIndexToCoordinate(context, treeRect.x2);
+                float ty2 = yIndexToCoordinate(context, treeRect.y2);
                 try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
                     p.setNonStrokingColor(getGenrationColor(getGeneration()), 0.05f);
                     p.fillRect(tx1, ty1, tx2 - tx1 + getWidth(context), ty2 - ty1 + getHeight(context));
@@ -65,6 +65,50 @@ public class DrawablePerson extends Person {
             }
         }
 
+//        if (childIndex != null) {
+//            float maxGeneration = personList.findMaxgeneration() * 2;
+//            // family color border
+//            Color color = new Color(.5f + getGeneration() / maxGeneration, .5f + getGeneration() / maxGeneration, .5f + getGeneration() / maxGeneration);
+//
+//            {
+//                try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
+//                    p.setNonStrokingColor(color);
+//                    {
+//                        //top
+//                        float tx = x1 - getXSpace(context) / 2;
+//                        float ty = y1 - getYSpace(context) / 2;
+//                        float tw = getPersonWidth(context);
+//                        float th = getYSpace(context) / 2;
+//                        p.fillRect(tx, ty, tw, th);
+//                    }
+//                    {
+//                        //bottom
+//                        float tx = x1 - getXSpace(context) / 2;
+//                        float ty = y1 + getHeight(context);
+//                        float tw = getPersonWidth(context);
+//                        float th = getYSpace(context) / 2;
+//                        p.fillRect(tx, ty, tw, th);
+//                    }
+//                    {
+//                        //left
+//                        float tx = x1 - getXSpace(context) / 2;
+//                        float ty = y1;
+//                        float tw = getXSpace(context) / 2;
+//                        float th = getHeight(context);
+//                        p.fillRect(tx, ty, tw, th);
+//                    }
+//                    {
+//                        //right
+//                        float tx = x1 + getPersonWidth(context) - getXSpace(context);
+//                        float ty = y1;
+//                        float tw = getXSpace(context) / 2;
+//                        float th = getHeight(context);
+//                        p.fillRect(tx, ty, tw, th);
+//                    }
+//                    p.fill();
+//                }
+//            }
+//        }
         if (!context.getParameterOptions().isCompact()) {
             try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
                 // interior
@@ -355,7 +399,7 @@ public class DrawablePerson extends Person {
                 p.setLineWidth(getConnectorWidth(context));
                 Person sp = getSpouseParent();
                 p.setLineDashPattern(new float[]{}, 0);
-                p.drawLine(x1 + getWidth(context) / 2, yIndexToCoordinate(context, sp.y) + getHeight(context) + getYSpace(context) / 2, x1 + getWidth(context) / 2, y1);
+                p.drawLine(x1 + getPersonWidth(context) / 2, yIndexToCoordinate(context, sp.y) + getHeight(context) + getYSpace(context) / 2, x1 + getPersonWidth(context) / 2, y1);
                 p.stroke();
             }
         }
@@ -365,8 +409,8 @@ public class DrawablePerson extends Person {
                 if (!getChildrenList().isEmpty()) {// TODO why do we need to check for this?
                     p.setStrokingColor(connectorColor);
                     p.setLineWidth(getConnectorWidth(context));
-                    float cx1 = x1 + getWidth(context) / 2;
-                    float cx2 = xIndexToCoordinate(context, getChildrenList().last().x) + getWidth(context) / 2;
+                    float cx1 = x1 + getPersonWidth(context) / 2;
+                    float cx2 = xIndexToCoordinate(context, getChildrenList().last().x) + getPersonWidth(context) / 2;
                     p.setLineDashPattern(new float[]{}, 0);
                     p.drawLine(cx1, y1 + getHeight(context) + getYSpace(context) / 2, cx2, y1 + getHeight(context) + getYSpace(context) / 2);
                     p.stroke();
@@ -379,7 +423,7 @@ public class DrawablePerson extends Person {
                 p.setStrokingColor(connectorColor);
                 p.setLineWidth(getConnectorWidth(context));
                 p.setLineDashPattern(new float[]{}, 0);
-                p.drawLine(x1 + getWidth(context) / 2, y1 + getHeight(context), x1 + getWidth(context) / 2, y1 + getHeight(context) + getYSpace(context) / 2);
+                p.drawLine(x1 + getPersonWidth(context) / 2, y1 + getHeight(context), x1 + getPersonWidth(context) / 2, y1 + getHeight(context) + getYSpace(context) / 2);
                 p.stroke();
             }
         }
@@ -390,13 +434,13 @@ public class DrawablePerson extends Person {
                 p.setStrokingColor(connectorColor);
                 p.setLineDashPattern(new float[]{1}, 0);
                 p.setLineWidth(getConnectorWidth(context));
-                p.drawLine(x1 + getWidth(context) / 2, y1 + getHeight(context), x1 + getWidth(context) / 2, y1 + getHeight(context) + getYSpace(context) / 2);
+                p.drawLine(x1 + getPersonWidth(context) / 2, y1 + getHeight(context), x1 + getPersonWidth(context) / 2, y1 + getHeight(context) + getYSpace(context) / 2);
                 for (Person spouse : getSpouseList()) {
                     float sx = xIndexToCoordinate(context, spouse.x);
-                    p.drawLine(sx + getWidth(context) / 2, y1 + getHeight(context) + getYSpace(context) / 2, sx + getWidth(context) / 2, y1 + getHeight(context) + getYSpace(context));
+                    p.drawLine(sx + getPersonWidth(context) / 2, y1 + getHeight(context) + getYSpace(context) / 2, sx + getPersonWidth(context) / 2, y1 + getHeight(context) + getYSpace(context));
                 }
                 float lsx = xIndexToCoordinate(context, getSpouseList().last().x);
-                p.drawLine(x1 + getWidth(context) / 2, y1 + getHeight(context) + getYSpace(context) / 2, lsx + getWidth(context) / 2, y1 + getHeight(context) + getYSpace(context) / 2);
+                p.drawLine(x1 + getPersonWidth(context) / 2, y1 + getHeight(context) + getYSpace(context) / 2, lsx + getPersonWidth(context) / 2, y1 + getHeight(context) + getYSpace(context) / 2);
                 p.stroke();
             }
         }
@@ -405,7 +449,7 @@ public class DrawablePerson extends Person {
             try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
                 p.setStrokingColor(connectorColor);
                 p.setLineWidth(getConnectorWidth(context));
-                p.drawLine(x1 + getWidth(context), y1 + getHeight(context) / 2, x1 + getWidth(context) + getXSpace(context) / 2, y1 + getHeight(context) / 2);
+                p.drawLine(x1 + getWidth(context), y1 + getHeight(context) / 2, x1 + getPersonWidth(context) + getXSpace(context) / 2, y1 + getHeight(context) / 2);
                 float cx1 = y1 + getWidth(context) / 2;
                 float cx2 = xIndexToCoordinate(context, getChildrenList().last().x) + getWidth(context) / 2;
                 p.setLineDashPattern(new float[]{}, 0);

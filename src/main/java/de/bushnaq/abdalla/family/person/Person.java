@@ -21,13 +21,13 @@ public abstract class Person extends BasicFamilyMember {
     private static final float PERSON_HEIGHT_COMPACT = 30;
     private static final float PERSON_IMAGE_HEIGHT = 64;
     private static final float PERSON_IMAGE_WIDTH = 54;
-    private static final float PERSON_MARGINE = 1;
-    private static final float PERSON_MARGINE_COMPACT = 0;
+    private static final float PERSON_MARGIN = 1;
+    private static final float PERSON_MARGIN_COMPACT = 0;
     private static final float PERSON_WIDTH = 128;
     private static final float PERSON_WIDTH_COMPACT = 64;
     private static final float PERSON_X_SPACE = 24;
     private static final float PERSON_X_SPACE_COMPACT = 3;
-    private static final float PERSON_Y_SPACE = 12;
+    private static final float PERSON_Y_SPACE = 24;
     private static final float PERSON_Y_SPACE_COMPACT = 4;
     public final PersonList personList;
     private final Attribute attribute = new Attribute();
@@ -112,9 +112,9 @@ public abstract class Person extends BasicFamilyMember {
 
     public static float getMargine(Context context) {
         if (context.getParameterOptions().isCompact())
-            return PERSON_MARGINE_COMPACT * context.getParameterOptions().getZoom();
+            return PERSON_MARGIN_COMPACT * context.getParameterOptions().getZoom();
         else
-            return PERSON_MARGINE * context.getParameterOptions().getZoom();
+            return PERSON_MARGIN * context.getParameterOptions().getZoom();
     }
 
     public static float getPageMargin(Context context) {

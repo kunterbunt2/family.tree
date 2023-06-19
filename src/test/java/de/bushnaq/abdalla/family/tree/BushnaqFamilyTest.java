@@ -22,7 +22,7 @@ public class BushnaqFamilyTest extends Base {
 
     @Test
     public void generate() throws Exception {
-        generate(new String[]{"-input", buildFileName(), "-family_name", "bushnaq", "-split"});
+        generate(new String[]{"-input", buildFileName(), "-family_name", "bushnaq"});
     }
 
 //	@Test
