@@ -23,13 +23,13 @@ public class ParameterOptions {
     private static final String CLI_OPTION_MAX_ISO = "max_iso";
 
     private final boolean colorTrees = false;
-    private final boolean drawGrid = true;
+    private final boolean drawGrid = false;
     private final boolean drawTextMetric = false;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final int minYDistanceBetweenTrees = 0;
     private final float pageMargin = 32f;                                        // unprintable margin
     private final boolean showImage = true;
-    private final IsoPage targetPaperSize = new IsoPage(PDRectangle.A4, "A4");
+    private IsoPage targetPaperSize = new IsoPage(PDRectangle.A4, "A4");
     private final float zoom = 0.5f;
     String inputFolder;
     private boolean compact = false;                                    // compact tree (no birth, died, ID)
@@ -240,6 +240,24 @@ public class ParameterOptions {
         } else {
             distributeOnPages = false;
             logger.info("split disabled.");
+        }
+        if (line.hasOption(CLI_OPTION_MAX_ISO)) {
+
+            String pageName = line.getOptionValue(CLI_OPTION_MAX_ISO);
+            switch (pageName) {
+                case "A0" -> targetPaperSize = new IsoPage(PDRectangle.A0, "A0");
+                case "A1" -> targetPaperSize = new IsoPage(PDRectangle.A1, "A1");
+                case "A2" -> targetPaperSize = new IsoPage(PDRectangle.A2, "A2");
+                case "A3" -> targetPaperSize = new IsoPage(PDRectangle.A3, "A3");
+                case "A4" -> targetPaperSize = new IsoPage(PDRectangle.A4, "A4");
+                case "A5" -> targetPaperSize = new IsoPage(PDRectangle.A5, "A5");
+                case "A6" -> targetPaperSize = new IsoPage(PDRectangle.A6, "A6");
+                default -> throw new Exception(String.format("Unsupported max_iso size %s", pageName));
+            }
+            logger.info(String.format("max_iso page is %s.", pageName));
+        } else {
+            targetPaperSize = new IsoPage(PDRectangle.A4, "A4");
+            logger.info("max_iso page is A4.");
         }
         if (line.hasOption(CLI_OPTION_FAMILY_NAME)) {
             familyName = line.getOptionValue(CLI_OPTION_FAMILY_NAME);

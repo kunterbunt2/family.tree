@@ -18,7 +18,7 @@ public class Obfuscate extends BasicExcelReader {
 
     public static void main(String[] args) throws Exception {
         Obfuscate obfuscate = new Obfuscate();
-        obfuscate.obfuscate("bushnaq/bushnaq.xlsx");
+        obfuscate.obfuscate("reference/bushnaq/bushnaq.xlsx");
     }
 
     private void deleteColumn(Row row, String columnName) {
@@ -59,7 +59,7 @@ public class Obfuscate extends BasicExcelReader {
         evaluator.evaluateAll();
         ObfuscatingBase.reseed();
         String familyName = ObfuscatingBase.obfuscateString(FileUtil.removeExtension(FileUtil.extractFileNamePart(fileName)));
-        write(workbook, "examples/" + familyName + ".xlsx");
+        write(workbook, "reference/" + familyName + "/" + familyName + ".xlsx");
     }
 
     @Override
