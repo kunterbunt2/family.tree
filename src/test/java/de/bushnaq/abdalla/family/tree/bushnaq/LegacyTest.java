@@ -8,17 +8,11 @@ import org.springframework.test.context.ContextConfiguration;
 
 @SpringBootTest
 @ContextConfiguration(classes = Application.class)
-//@TestPropertySource
 public class LegacyTest extends Base {
-//    final String familyName;
 
     public LegacyTest() {
         super("bushnaq");
     }
-
-//    private String buildFileName() {
-//        return "bushnaq/" + getFamilyName() + ".xlsx";
-//    }
 
     @Test
     public void generate() throws Exception {

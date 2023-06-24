@@ -195,7 +195,7 @@ public class HorizontalTree extends Tree {
      */
     private void compactParents(Person p, int generation, int includeGeneration) {
         if (p.getGeneration() != null && p.getGeneration() == generation - 1) {
-            // generation found
+            // found target generation
             if (!p.isSpouse() && p.hasChildren() && p.getChildrenList().size() > 1) {
                 // has a tree below that is worth moving
                 {
@@ -205,10 +205,10 @@ public class HorizontalTree extends Tree {
                         Person prev = p.getChildrenList().get(c - 1);
                         Rect rect = prev.getTreeRect(includeGeneration);
                         float x;
-                        if (prev.hasChildren()) {
-                            Person person = prev.getSpouseList().get(prev.getSpouseList().size() - 1);
-                            x = prev.getSpouseList().get(prev.getSpouseList().size() - 1).getX();
-                        } else
+//                        if (prev.hasChildren()) {
+//                            Person person = prev.getSpouseList().get(prev.getSpouseList().size() - 1);
+//                            x = prev.getSpouseList().get(prev.getSpouseList().size() - 1).getX();
+//                        } else
                             x = prev.getX();
 
                         float deltaX = child.getX() - x;

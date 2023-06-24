@@ -106,6 +106,7 @@ public class Main {
 
         TreeExcelReader excelReader = new TreeExcelReader();
         PersonList personList = excelReader.importPersonList(fileName);
+        logger.info(String.format("Read %d person from Excel file.", personList.size()));
         return personList;
 
     }

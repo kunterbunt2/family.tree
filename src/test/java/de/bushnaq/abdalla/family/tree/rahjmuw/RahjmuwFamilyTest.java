@@ -9,18 +9,12 @@ import org.springframework.test.context.ContextConfiguration;
 
 @SpringBootTest
 @ContextConfiguration(classes = Application.class)
-//@TestPropertySource
 public class RahjmuwFamilyTest extends Base {
-    //    private final ObfuscatingBase ObfuscatingBase = new ObfuscatingBase();
     String familyName;
 
     public RahjmuwFamilyTest() throws Exception {
         super(new ObfuscatingBase().obfuscateString("bushnaq"));
     }
-
-//    private String buildFileName() {
-//        return "examples/" + familyName + ".xlsx";
-//    }
 
     @Test
     public void generateHorizontal() throws Exception {

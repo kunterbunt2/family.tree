@@ -4,6 +4,7 @@ import de.bushnaq.abdalla.family.Application;
 import de.bushnaq.abdalla.family.person.PersonList;
 import de.bushnaq.abdalla.family.tree.util.Base;
 import de.bushnaq.abdalla.family.tree.util.ExpectedResult;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
@@ -19,7 +20,8 @@ public class BTest extends Base {
 
 
     @Test
-    public void twoGenerations() throws Exception {
+    @DisplayName("3 generations, 2 subtrees, can be compacted")
+    public void generate() throws Exception {
         PersonList personList = generate(new String[]{"-input", buildFileName(), "-family_name", getFamilyName(), "-coordinates"});
         writeResult(personList);
 

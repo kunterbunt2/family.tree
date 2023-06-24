@@ -240,6 +240,8 @@ public abstract class Tree {
 
     private void distributeTreeTopDownOnPages(Context context, PdfDocument pdfDocument) throws Exception {
         List<Person> rootFatherList = personList.findRootFatherList(context);
+        if(rootFatherList.size()==0)
+            throw new Exception("Did not find root father");
         char familyLetter = 'A';
         for (Person rootFather : rootFatherList) {
             rootFather.setFamilyLetter(String.valueOf(familyLetter));

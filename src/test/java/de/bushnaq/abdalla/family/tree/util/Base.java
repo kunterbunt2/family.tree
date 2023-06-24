@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.awt.image.BufferedImage;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -68,7 +70,8 @@ public class Base {
     }
 
     protected void writeResult(PersonList personList) throws Exception {
-        FileWriter fileWriter = new FileWriter(String.format("reference/%s/%s.csv", getFamilyName(), getFamilyName()));
+        Files.createDirectories(Paths.get(String.format("output/%s",  getFamilyName())));
+        FileWriter fileWriter = new FileWriter(String.format("output/%s/%s.csv", getFamilyName(), getFamilyName()));
         PrintWriter printWriter = new PrintWriter(fileWriter);
         printWriter.printf("        ExpectedResult[] expectedResult = {//\n");
         for (Person person : personList) {

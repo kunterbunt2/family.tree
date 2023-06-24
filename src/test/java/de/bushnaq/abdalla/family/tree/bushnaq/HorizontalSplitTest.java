@@ -8,17 +8,12 @@ import org.springframework.test.context.ContextConfiguration;
 
 @SpringBootTest
 @ContextConfiguration(classes = Application.class)
-//@TestPropertySource
 public class HorizontalSplitTest extends Base {
 //    final String familyName;
 
     public HorizontalSplitTest() {
         super("bushnaq");
     }
-
-//    private String buildFileName() {
-//        return "bushnaq/" + getFamilyName() + ".xlsx";
-//    }
 
     @Test
     public void splitBottomUp() throws Exception {
