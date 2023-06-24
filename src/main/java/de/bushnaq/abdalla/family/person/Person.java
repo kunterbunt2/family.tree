@@ -38,12 +38,12 @@ public abstract class Person extends BasicFamilyMember {
     public Integer nextPersonY = -1;
     public Integer pageIndex;                                // index of the pdf page this person is located at
     public Integer spouseIndex;
-    public float x = 0;
-    public float y = 0;
     public Person minx = null;
     public Person maxx = null;
     public Person miny = null;
     public Person maxy = null;
+    private float x = 0;
+    private float y = 0;
     private PersonList childrenList;
     private Integer generation;
     private Person nextSibling;
@@ -110,7 +110,7 @@ public abstract class Person extends BasicFamilyMember {
         return PERSON_IMAGE_WIDTH * context.getParameterOptions().getZoom();
     }
 
-    public static float getMargine(Context context) {
+    public static float getMargin(Context context) {
         if (context.getParameterOptions().isCompact())
             return PERSON_MARGIN_COMPACT * context.getParameterOptions().getZoom();
         else
@@ -204,9 +204,10 @@ public abstract class Person extends BasicFamilyMember {
                     child.setFirstChild(true);
                     firstChild = false;
                 }
-                if (child.equals(childrenList.last())) {
+                if (child.equals(childrenList.getLast())) {
                     child.setLastChild(true);
                 }
+                child.setFamilyLetter(getFamilyLetter());
                 child.analyzeTree(context);
             }
             resetSpouseList();
@@ -218,6 +219,23 @@ public abstract class Person extends BasicFamilyMember {
             return getBorn().before(person.getBorn());
         }
         return getId() < person.getId();
+    }
+
+    public int compare(Person o1, Person o2) {
+        if (o1.getBorn() != null && o2.getBorn() != null) {
+            int compare = o1.getBorn().compareTo(o2.getBorn());
+            if (compare != 0) {
+                return compare;
+            }
+        }
+        if (o1.isClone() && !o2.isClone()) {
+            return o1.getId() + 1000 - o2.getId();
+        }
+        if (!o1.isClone() && o2.isClone()) {
+            return o1.getId() - o2.getId() - 1000;
+        }
+
+        return o1.getId() - o2.getId();
     }
 
     public abstract void drawHorizontal(Context context, PdfDocument pdfDocument) throws IOException;
@@ -246,11 +264,26 @@ public abstract class Person extends BasicFamilyMember {
         return null;
     }
 
+    public Person findSpouseClone() {
+        for (Person clone : personList) {
+            if (clone.isSpouseClone()) {
+                Person original = clone.getOriginal();
+                if (this.equals(original))
+                    return clone;
+            }
+        }
+        return null;
+    }
+
     public String getBornString() {
         if (getBorn() != null) {
             return "\u002A" + getBorn().getString();
         }
         return "";
+    }
+
+    public Integer getChildIndex() {
+        return childIndex;
     }
 
     public PersonList getChildrenList() {
@@ -301,6 +334,16 @@ public abstract class Person extends BasicFamilyMember {
                 decendantList.add(person);
             else if (person.getGeneration() < targetGeneration)
                 decendantList.addAll(person.getDescendantList(targetGeneration));
+        }
+
+        return decendantList;
+    }
+
+    public PersonList getDescendantList() {
+        PersonList decendantList = new PersonList();
+        for (Person person : getChildrenList()) {
+            decendantList.add(person);
+            decendantList.addAll(person.getDescendantList());
         }
 
         return decendantList;
@@ -373,6 +416,8 @@ public abstract class Person extends BasicFamilyMember {
         return prevSibling;
     }
 
+//	public abstract String getSexCharacter();
+
     public PersonList getSpouseList() {
         if (spouseList == null) {
             spouseList = new PersonList();
@@ -386,8 +431,6 @@ public abstract class Person extends BasicFamilyMember {
         return spouseList;
     }
 
-//	public abstract String getSexCharacter();
-
     public Person getSpouseParent() {
         Person ps = null;
         if (getFather().isSpouse())
@@ -397,10 +440,24 @@ public abstract class Person extends BasicFamilyMember {
         return ps;
     }
 
+    /**
+     * return the parent that heads this little tree
+     *
+     * @return
+     */
+    public Person getTreeHead() {
+        if (getFather() != null && !getFather().isSpouse()) {
+            return getFather();
+        } else if (getMother() != null && !getMother().isSpouse()) {
+            return getMother();
+        }
+        return null;// we are teh head of this tree
+    }
+
     public Rect getTreeRect() {
         if (!hasChildren())
-            return new Rect(x, y, x, y);
-        Rect rect = new Rect(x, y, x, y);
+            return new Rect(getX(), getY(), getX(), getY());
+        Rect rect = new Rect(getX(), getY(), getX(), getY());
         PersonList childrenList = getChildrenList();
         for (Person child : childrenList) {
             Rect cr = child.getTreeRect();
@@ -411,14 +468,22 @@ public abstract class Person extends BasicFamilyMember {
 
     public Rect getTreeRect(int includingGeneration) {
         if (!hasChildren() || getGeneration() >= includingGeneration)
-            return new Rect(x, y, x, y);
-        Rect rect = new Rect(x, y, x, y);
+            return new Rect(getX(), getY(), getX(), getY());
+        Rect rect = new Rect(getX(), getY(), getX(), getY());
         PersonList childrenList = getChildrenList();
         for (Person child : childrenList) {
             Rect cr = child.getTreeRect(includingGeneration);
             rect.expandToInclude(cr);
         }
         return rect;
+    }
+
+    public float getX() {
+        return x;
+    }
+
+    public float getY() {
+        return y;
     }
 
     public boolean hasChildren() {
@@ -525,8 +590,8 @@ public abstract class Person extends BasicFamilyMember {
 
     public void moveTree(float x, float y) {
         if (x != 0 || y != 0) {
-            this.x += x;
-            this.y += y;
+            this.setX(this.getX() + x);
+            this.setY(this.getY() + y);
             if (!isSpouse()) {
                 PersonList spouseList = getSpouseList();
                 for (Person spouse : spouseList) {
@@ -613,7 +678,18 @@ public abstract class Person extends BasicFamilyMember {
         this.attribute.visible = child;
     }
 
-    public void validate(Context context) {
+    public void setX(float x) {
+        this.x = x;
+    }
+
+    public void setY(float y) {
+        this.y = y;
+    }
+
+    public void validate(Context context) throws Exception {
+        if (isVisible() && getPageIndex() == null) {
+            throw new Exception(String.format("[%d] %s is visible but pageIndex == null.", getId(), getClass().getName()));
+        }
         if (!isMember(context) && getLastName() != null && getLastName().toLowerCase().contains(context.getParameterOptions().getFamilyName().toLowerCase())) {
             errors.add(String.format(ErrorMessages.ERROR_005_PERSON_UNKNOWN_ORIGINS, context.getParameterOptions().getFamilyName()));
         }
@@ -627,5 +703,4 @@ public abstract class Person extends BasicFamilyMember {
             errors.add(ErrorMessages.ERROR_002_PAGE_INDEX_NULL);
         }
     }
-
 }

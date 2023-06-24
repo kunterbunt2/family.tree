@@ -1,10 +1,7 @@
 package de.bushnaq.abdalla.family;
 
 import de.bushnaq.abdalla.family.person.PersonList;
-import de.bushnaq.abdalla.family.tree.HorizontalTree;
-import de.bushnaq.abdalla.family.tree.Tree;
-import de.bushnaq.abdalla.family.tree.TreeExcelReader;
-import de.bushnaq.abdalla.family.tree.VerticalTree;
+import de.bushnaq.abdalla.family.tree.*;
 import de.bushnaq.abdalla.pdf.PdfDocument;
 import de.bushnaq.abdalla.util.FileUtil;
 import org.slf4j.Logger;
@@ -15,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Stream;
 
 @Component
@@ -23,6 +21,7 @@ public class Main {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     Context context;
+    private List<PageError> pageErrors;
 
     /**
      * bean
@@ -45,7 +44,7 @@ public class Main {
         return tree;
     }
 
-    private void generate(String inputFileName) throws Exception {
+    private PersonList generate(String inputFileName) throws Exception {
         PersonList personList = importPersonList(inputFileName);
         PdfDocument pdfDocument = new PdfDocument(FileUtil.removeExtension(inputFileName) + ".pdf");
 
@@ -67,8 +66,9 @@ public class Main {
 //        }
 
         createTree(personList).generate(context, pdfDocument, FileUtil.removeExtension(inputFileName) + generateOutputDecoration());
-        createTree(personList).generateErrorPage(pdfDocument);
+        pageErrors = createTree(personList).generateErrorPage(pdfDocument);
         pdfDocument.endDocument();
+        return personList;
     }
 
     private String generateOutputDecoration() {
@@ -98,6 +98,10 @@ public class Main {
         return outputDecorator;
     }
 
+    public List<PageError> getPageErrors() {
+        return pageErrors;
+    }
+
     public PersonList importPersonList(String fileName) throws Exception {
 
         TreeExcelReader excelReader = new TreeExcelReader();
@@ -106,12 +110,12 @@ public class Main {
 
     }
 
-    public void start(String[] args) throws Exception {
+    public PersonList start(String[] args) throws Exception {
 
         context.getParameterOptions().start(args);
 
         String inputName = context.getParameterOptions().getInput();
-        generate(inputName);
+        return generate(inputName);
 
     }
 

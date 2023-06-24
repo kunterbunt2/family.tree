@@ -5,7 +5,7 @@ import de.bushnaq.abdalla.util.FlexibleDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BasicFamilyMember {
+public class BasicFamilyMember implements Comparable<BasicFamilyMember> {
     final Logger logger = LoggerFactory.getLogger(this.getClass());
     private FlexibleDate born;
     private FlexibleDate died;
@@ -31,6 +31,12 @@ public class BasicFamilyMember {
 
     public BasicFamilyMember(Integer id) {
         this.id = id;
+    }
+
+
+    @Override
+    public int compareTo(BasicFamilyMember o) {
+        return Integer.compare(getId(), o.getId());
     }
 
     public FlexibleDate getBorn() {

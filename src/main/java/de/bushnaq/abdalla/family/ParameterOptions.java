@@ -1,5 +1,6 @@
 package de.bushnaq.abdalla.family;
 
+import de.bushnaq.abdalla.family.tree.SplitMode;
 import de.bushnaq.abdalla.pdf.IsoPage;
 import de.bushnaq.abdalla.util.FileUtil;
 import org.apache.commons.cli.*;
@@ -22,7 +23,7 @@ public class ParameterOptions {
     private static final String CLI_OPTION_MAX_ISO = "max_iso";
 
     private final boolean colorTrees = false;
-    private final boolean drawGrid = false;
+    private final boolean drawGrid = true;
     private final boolean drawTextMetric = false;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final int minYDistanceBetweenTrees = 0;
@@ -43,6 +44,11 @@ public class ParameterOptions {
     private String outputDecorator = "";                                        // additional decorations for the output file name
     private boolean v = true;                                        // vertical tree mode
     private boolean distributeOnPages = true;// distribute trees that do not fit on targetPaperSize
+    private SplitMode distributeOnPagesMode = SplitMode.TOP_DOWN;
+
+    public SplitMode getDistributeOnPagesMode() {
+        return distributeOnPagesMode;
+    }
 
     public String getFamilyName() {
         return familyName;
@@ -143,14 +149,14 @@ public class ParameterOptions {
         options.addOption(Option.builder(CLI_OPTION_INPUT).hasArg().desc("Input excel file name. This parameter is not optional.").build());
         options.addOption(Option.builder(CLI_OPTION_FAMILY_NAME).hasArg().desc("Family name used to pic root of family. This parameter is optional.").optionalArg(true).build());
         options.addOption(Option.builder(CLI_OPTION_OUTPUT_FILE_DECORATIONS).hasArg().desc("Output file name decorations. This parameter is optional.").optionalArg(true).build());
-        options.addOption(Option.builder(CLI_OPTION_H).desc("Generte horizontal tree. This parameter is optional. Default is false.").optionalArg(true).build());
-        options.addOption(Option.builder(CLI_OPTION_V).desc("Generte vertical tree. This parameter is optional. Default is true.").optionalArg(true).build());
+        options.addOption(Option.builder(CLI_OPTION_H).desc("Generate horizontal tree. This parameter is optional. Default is false.").optionalArg(true).build());
+        options.addOption(Option.builder(CLI_OPTION_V).desc("Generate vertical tree. This parameter is optional. Default is true.").optionalArg(true).build());
         options.addOption(Option.builder(CLI_OPTION_EXCLUDE_SPOUSE).desc("Exclude spouses if true. This parameter is optional. Default is false.").build());
         options.addOption(Option.builder(CLI_OPTION_FOLLOW_FEMALES).desc("If children can be visualized with the father or the mother, this parameter will decide. This parameter is optional. Default is false.").build());
         options.addOption(Option.builder(CLI_OPTION_FOLLOW_OL).desc("Use original language for first name and last name if they exist. This parameter is optional. Default is false.").build());
-        options.addOption(Option.builder(CLI_OPTION_COMPACT).desc("Generte compact tree. This parameter is optional. Default is false.").optionalArg(true).build());
-        options.addOption(Option.builder(CLI_OPTION_COORDINATES).desc("Generte coordinates. This parameter is optional. Default is false.").optionalArg(true).build());
-        options.addOption(Option.builder(CLI_OPTION_SPLIT).desc("Split tree that does not fix max_iso page size on several pages. This parameter is optional. Default is false.").optionalArg(true).build());
+        options.addOption(Option.builder(CLI_OPTION_COMPACT).desc("Generate compact tree. This parameter is optional. Default is false.").optionalArg(true).build());
+        options.addOption(Option.builder(CLI_OPTION_COORDINATES).desc("Generate coordinates. This parameter is optional. Default is false.").optionalArg(true).build());
+        options.addOption(Option.builder(CLI_OPTION_SPLIT).hasArg().desc("Splits trees, that do not fit onto max_iso page sizes onto several pages. Parameter must be one of : top-down, bottom-up.This parameter is optional. Default is false.").optionalArg(true).build());
         options.addOption(Option.builder(CLI_OPTION_MAX_ISO).hasArg().desc("Maximum iso page size allowed. Any tree that does not fit will be split ont o several pages. Ignored if split option is nto specified. This parameter is optional. Default is A4.").optionalArg(true).build());
 
         // create the parser
@@ -228,6 +234,8 @@ public class ParameterOptions {
         }
         if (line.hasOption(CLI_OPTION_SPLIT)) {
             distributeOnPages = true;
+            String splitMode = line.getOptionValue(CLI_OPTION_SPLIT);
+            distributeOnPagesMode = SplitMode.valueOf(splitMode);
             logger.info("split enabled.");
         } else {
             distributeOnPages = false;

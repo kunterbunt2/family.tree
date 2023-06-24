@@ -16,6 +16,7 @@ public class Clone extends DrawablePerson {
         setFather(null);// we are just a clone
         setMother(null);// we are just a clone
         original = person;
+        setVisible(false);
     }
 
     public static Clone createPaginationClone(PersonList personList, Person person) {

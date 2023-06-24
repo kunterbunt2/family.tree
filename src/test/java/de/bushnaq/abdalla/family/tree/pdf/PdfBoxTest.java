@@ -1,4 +1,4 @@
-package de.bushnaq.abdalla.family.tree;
+package de.bushnaq.abdalla.family.tree.pdf;
 
 import de.bushnaq.abdalla.pdf.CloseableGraphicsState;
 import de.bushnaq.abdalla.pdf.PdfDocument;

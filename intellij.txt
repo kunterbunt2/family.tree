@@ -1,9 +1,16 @@
 intellij
+
+What I dislike
 will ignore maven compiler options for java version and ask for sdk
 build happens when you want to run, slow, even shows message that it finished, no difference what compiler you use.
 line comment has no key assigned
 optimize impots crashes
 how do I get back to last editor position?
+
+What I love
+Spellchecking of method and variable names is owsom, this should be standard for all Ricoh developers
+
+
 
 
 

@@ -56,8 +56,6 @@ public class CloseableGraphicsState implements Closeable {
 
     public void drawCircle(float cx, float cy, float r) throws IOException {
         final float k = 0.552284749831f;
-//		final float k = 1f;
-//	    contentStream.setNonStrokingColor(red, green, blue);
         float tcy = pageHeight - cy;
 
         contentStream.moveTo(cx - r, tcy);
@@ -65,7 +63,25 @@ public class CloseableGraphicsState implements Closeable {
         contentStream.curveTo(cx + k * r, tcy + r, cx + r, tcy + k * r, cx + r, tcy);
         contentStream.curveTo(cx + r, tcy - k * r, cx + k * r, tcy - r, cx, tcy - r);
         contentStream.curveTo(cx - k * r, tcy - r, cx - r, tcy - k * r, cx - r, tcy);
-        //contentStream.fill();
+    }
+
+    public void drawCurveLeftToBottom(float cx, float cy, float r) throws IOException {
+        final float k = 0.552284749831f;
+        float tcy = pageHeight - cy;
+
+        contentStream.moveTo(cx, tcy);
+        contentStream.curveTo(cx + k * r, tcy, cx + r, tcy + k * r - r, cx + r, tcy - r);
+    }
+
+    public void drawCurveTopToRight(float cx, float cy, float r) throws IOException {
+        final float k = 0.552284749831f;
+        float tcy = pageHeight - cy;
+
+        contentStream.moveTo(cx + r, tcy - r);
+        //contentStream.curveTo(cx - r, tcy + k * r, cx - k * r, tcy + r, cx, tcy + r);
+        //contentStream.curveTo(cx + k * r, tcy + r, cx + r, tcy + k * r, cx + r, tcy);
+        //contentStream.curveTo(cx + r, tcy - k * r, cx + k * r, tcy - r, cx, tcy - r);
+        contentStream.curveTo(cx - k * r + r, tcy - r, cx - r + r, tcy - k * r, cx - r + r, tcy);
     }
 
     public void drawImage(String imageFileName, float x, float y, float w, float h) throws IOException {

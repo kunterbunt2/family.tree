@@ -8,7 +8,6 @@ import de.bushnaq.abdalla.pdf.PdfDocument;
 
 import java.io.IOException;
 import java.util.Iterator;
-import java.util.List;
 
 public class VerticalTree extends Tree {
 
@@ -22,28 +21,28 @@ public class VerticalTree extends Tree {
 
     }
 
-    @Override
-    protected void compact(Context context2, PdfDocument pdfDocument) {
-        List<Person> firstFathers = findRootFatherList();
-        int maxgeneration = 2/* findMaxgeneration() */;
-
-        for (Person firstFather : firstFathers) {
-//			int g = 2;
-            for (int g = maxgeneration - 1; g > 0; g--) {
-//				logger.info(String.format("compacting children of generation %d", g));
-                compactChildren(firstFather, g);
-            }
-            for (int g = maxgeneration - 1; g > 0; g--) {
-//				logger.info(String.format("compacting parents of generation %d", g));
-                compactParents(firstFather, g);
-            }
-            Rect treeRect = firstFather.getTreeRect();
-            int w = (int) (treeRect.getX2() - treeRect.getX1() + 1);
-            int h = (int) (treeRect.getY2() - treeRect.getY1() + 1);
-            int area = w * h;
-//			logger.info(String.format("compacted tree to %d X %d = %d", w, h, area));
-        }
-    }
+//    @Override
+//    protected void compact(Context context2, PdfDocument pdfDocument) {
+//        List<Person> firstFathers = personList.findRootFatherList(context);
+//        int maxgeneration = 2/* findMaxgeneration() */;
+//
+//        for (Person firstFather : firstFathers) {
+////			int g = 2;
+//            for (int g = maxgeneration - 1; g > 0; g--) {
+////				logger.info(String.format("compacting children of generation %d", g));
+//                compactChildren(firstFather, g);
+//            }
+//            for (int g = maxgeneration - 1; g > 0; g--) {
+////				logger.info(String.format("compacting parents of generation %d", g));
+//                compactParents(firstFather, g);
+//            }
+//            Rect treeRect = firstFather.getTreeRect();
+//            int w = (int) (treeRect.getX2() - treeRect.getX1() + 1);
+//            int h = (int) (treeRect.getY2() - treeRect.getY1() + 1);
+//            int area = w * h;
+////			logger.info(String.format("compacted tree to %d X %d = %d", w, h, area));
+//        }
+//    }
 
     /**
      * this algorithm will pack children and their subtrees together by moving them below each other.<br>
@@ -68,9 +67,9 @@ public class VerticalTree extends Tree {
                             // has a tree below that is worth moving
                             float deltaX;
                             if (child.getSpouseList().size() > 1)
-                                deltaX = x - child.x + context.getParameterOptions().getMinYDistanceBetweenTrees();
+                                deltaX = x - child.getX() + context.getParameterOptions().getMinYDistanceBetweenTrees();
                             else
-                                deltaX = x - child.x + context.getParameterOptions().getMinYDistanceBetweenTrees() - 1;
+                                deltaX = x - child.getX() + context.getParameterOptions().getMinYDistanceBetweenTrees() - 1;
                             child.moveTree(deltaX, 0);
 //							logger.info(String.format("Move [%d]%s %s x = %d.", child.getId(), child.getFirstName(), child.getLastName(), (int) deltaX));
                         }
@@ -81,7 +80,7 @@ public class VerticalTree extends Tree {
                     for (int c = 1; c < p.getChildrenList().size(); c++) {
                         Person child = p.getChildrenList().get(c);
                         Person prev = p.getChildrenList().get(c - 1);
-                        float deltaY = child.y - prev.y;
+                        float deltaY = child.getY() - prev.getY();
                         if (deltaY > 1) {
                             // move child tree to be one unit right to the previous child
                             float delta = -deltaY + 1;
@@ -89,7 +88,7 @@ public class VerticalTree extends Tree {
 //							logger.info(String.format("Move [%d]%s %s y = %d.", child.getId(), child.getFirstName(), child.getLastName(), (int) delta));
                             // if this is the first child of a spouse, the spouse must be moved too
                             if (child.isFirstChild()) {
-                                child.getSpouseParent().y += delta;
+                                child.getSpouseParent().setY(child.getSpouseParent().getY() + delta);
                             }
                         }
 
@@ -124,14 +123,14 @@ public class VerticalTree extends Tree {
                         Person child = p.getChildrenList().get(c);
                         Person prev = p.getChildrenList().get(c - 1);
                         Rect rect = prev.getTreeRect();
-                        float deltaY = child.y - rect.getY2();
+                        float deltaY = child.getY() - rect.getY2();
                         if (deltaY > 1) {
                             // move child tree to be one unit right to the previous child
                             child.moveTree(0, -deltaY + 1);
 //							logger.info(String.format("Move [%d]%s %s y = %d.", child.getId(), child.getFirstName(), child.getLastName(), (int) -deltaY + 1));
                             // if this is the first child of a spouse, the spouse must be moved too
                             if (child.isFirstChild()) {
-                                child.getSpouseParent().y += -deltaY + 1;
+                                child.getSpouseParent().setY(child.getSpouseParent().getY() + -deltaY + 1);
                             }
                         }
                     }
@@ -159,24 +158,24 @@ public class VerticalTree extends Tree {
     @Override
     float position(Context context, Person person, int includingGeneration) {
         person.setVisible(true);
-        float pY = person.y;
+        float pY = person.getY();
         if (!person.hasChildren())
-            pY = person.y + 1;
+            pY = person.getY() + 1;
         PersonList spouseList = person.getSpouseList();
         for (Person spouse : spouseList) {
-            spouse.x = person.x + 1;
-            spouse.y = pY;
+            spouse.setX(person.getX() + 1);
+            spouse.setY(pY);
             spouse.setPageIndex(person.getPageIndex());
             // children
             PersonList childrenList = person.getChildrenList(spouse);
             for (Person child : childrenList) {
                 if (!context.getParameterOptions().isExcludeSpouse()) {
                     spouse.setVisible(true);
-                    child.x = spouse.x + 1;
+                    child.setX(spouse.getX() + 1);
                 } else {
-                    child.x = person.x + 1;
+                    child.setX(person.getX() + 1);
                 }
-                child.y = pY;
+                child.setY(pY);
                 child.setPageIndex(person.getPageIndex());
                 pY = position(context, child, includingGeneration);
             }
