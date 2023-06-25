@@ -264,6 +264,10 @@ public abstract class Person extends BasicFamilyMember {
         return null;
     }
 
+    /**
+     * find any existing spouse clone of this person
+     * @return
+     */
     public Person findSpouseClone() {
         for (Person clone : personList) {
             if (clone.isSpouseClone()) {

@@ -178,7 +178,13 @@ public abstract class Tree {
                 if (!visitedList.contains(lastGeneration))// ignore if already distributed onto a page
                 {
                     logger.info(String.format(">-starting with child=%d pageIndex=%d G%d", lastGeneration.getId(), pdfDocument.lastPageIndex, lastGeneration.getGeneration()));
-                    distributeTreeBottomUpOnPages(context, pdfDocument, lastGeneration);
+                    boolean pageCreated=distributeTreeBottomUpOnPages(context, pdfDocument, lastGeneration);
+                    if(!pageCreated)
+                    {
+                        //we found no person that we could cut and no page big enough, we are forced to cut where we are
+                        int pageMaxGeneration = personList.findMaxGeneration();
+                        cutAndCreatePage(context, pdfDocument, lastGeneration, pageMaxGeneration);
+                    }
                     changed = true;
                     break;
                 }
@@ -214,28 +220,36 @@ public abstract class Tree {
             } else {
                 if (person.getTreeHead() != null)
                     resetPageIndex(person.getTreeHead());// the actual head will stay on the page of its parents, we will only take over its clone
-                page = findIsoPage(context, pdfDocument, pageMaxGeneration, person);// run successful treeHead again
-                // we decided the page size and generation
-                logger.info(String.format("*-decided parent=%d pageIndex=%d pageSize=%s maxGeneration=G%d", person.getId(), person.getPageIndex(), page.getName(), pageMaxGeneration));
-                visitedList.addAll(person.getDescendantList());// all our children do not need to be distributed anymore
-                if (person.getTreeHead() != null) {
-                    cutPerson(person);
-                    visitedList.add(person.findPaginationClone());
-                    person.setPageIndex(null);
-                    person.setVisible(false);
-                } else {
-                    visitedList.add(person);
-                }
-                float pageWidth = calculatePageWidth(pdfDocument.lastPageIndex);
-                float pageHeight = calculatePageHeight(context, pdfDocument.lastPageIndex);
-                Person person1 = personList.get(personList.size() - 1);
-                pdfDocument.createPage(pdfDocument.lastPageIndex, pageWidth, pageHeight, person.getFirstName() + context.getParameterOptions().getOutputDecorator());
-                drawPageSizeWatermark(pdfDocument, pdfDocument.lastPageIndex);
-                drawPageAreaWatermark(pdfDocument, pdfDocument.lastPageIndex, person.getTreeRect());
-                pdfDocument.lastPageIndex++;
+                cutAndCreatePage(context, pdfDocument, person, pageMaxGeneration);
             }
         }
         return true;
+    }
+
+    private void cutAndCreatePage(Context context, PdfDocument pdfDocument, Person person, int pageMaxGeneration) throws Exception {
+        IsoPage minPageSize = context.getParameterOptions().getTargetPaperSize();
+        IsoPage page;
+        page = findIsoPage(context, pdfDocument, pageMaxGeneration, person);// run successful treeHead again
+        if (page.compareTo(minPageSize) < 0)
+            page = minPageSize;
+        // we decided the page size and generation
+        logger.info(String.format("*-decided parent=%d pageIndex=%d pageSize=%s maxGeneration=G%d", person.getId(), person.getPageIndex(), page.getName(), pageMaxGeneration));
+        visitedList.addAll(person.getDescendantList());// all our children do not need to be distributed anymore
+        if (person.getTreeHead() != null) {
+            cutPerson(person);
+            visitedList.add(person.findPaginationClone());
+            person.setPageIndex(null);
+            person.setVisible(false);
+        } else {
+            visitedList.add(person);
+        }
+        float pageWidth = page.getRect().getWidth();
+        float pageHeight = page.getRect().getWidth();
+        Person person1 = personList.get(personList.size() - 1);
+        pdfDocument.createPage(pdfDocument.lastPageIndex, pageWidth, pageHeight, person.getFirstName() + context.getParameterOptions().getOutputDecorator());
+        drawPageSizeWatermark(pdfDocument, pdfDocument.lastPageIndex);
+        drawPageAreaWatermark(pdfDocument, pdfDocument.lastPageIndex, person.getTreeRect());
+        pdfDocument.lastPageIndex++;
     }
 
     private void distributeTreeTopDownOnPages(Context context, PdfDocument pdfDocument) throws Exception {
@@ -269,19 +283,8 @@ public abstract class Tree {
         do {
             //TODO consider using findIsoPage
             page = findIsoPage(context, pdfDocument, pageMaxGeneration, person);// run successful treeHead again
-//            resetPageIndex(person);
-//            person.setPageIndex(pdfDocument.lastPageIndex);
-//            person.setX(0);
-//            person.setY(0);
-//            position(context, person, pageMaxGeneration);
-//            compact(context, pdfDocument, person, pageMaxGeneration);
-//            validate(context, pageMaxGeneration);
-//            Rect treeRect = person.getTreeRect(pageMaxGeneration);
-
             //if (person.getId() == 38)
             //drawDebugTree(context, person, pdfDocument.lastPageIndex);
-
-//            page = pdfDocument.findBestFittingPageSize(context, treeRect);
             pageMaxGeneration--;
         } while (page.compareTo(targetPageSize) > 0 && pageMaxGeneration != person.getGeneration());
         if (page.compareTo(minPageSize) < 0)
@@ -444,13 +447,26 @@ public abstract class Tree {
         return page;
     }
 
+    /**
+     * find the bottom of the tree
+     *
+     * @param context
+     * @return
+     */
     public List<Person> findLastGeneration(Context context) {
         List<Person> lastGenerationList = new ArrayList<>();
         for (Person p : personList) {
-            Person clone = p.findSpouseClone();
-            if (p.isChild() && !p.hasChildren() && (clone == null || !clone.hasChildren())) {
-                if (!visitedList.contains(p))
+            if (!visitedList.contains(p)) {
+                Person clone = p.findSpouseClone();
+                boolean allChildrenVisited = true;
+                for (Person c : p.getChildrenList()) {
+                    if (!visitedList.contains(c))
+                        allChildrenVisited = false;
+                }
+                //a child without children or only children that have been visited that is not a spouse clone or is a spouse clone without children
+                if (p.isChild() && (!p.hasChildren() || allChildrenVisited) && (clone == null || !clone.hasChildren())) {
                     lastGenerationList.add(p);
+                }
             }
         }
         return lastGenerationList;

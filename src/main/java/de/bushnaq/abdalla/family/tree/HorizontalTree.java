@@ -23,7 +23,7 @@ public class HorizontalTree extends Tree {
         int maxGeneration = personList.findMaxGeneration();
 
         for (int g = maxGeneration; g >= 0; g--) {
-            logger.info(String.format("compacting children of generation %d", g));
+//            logger.info(String.format("compacting children of generation %d", g));
             compactChildren(rootFather, g, includingGeneration);
         }
         for (int g = maxGeneration; g >= 0; g--) {
@@ -88,7 +88,7 @@ public class HorizontalTree extends Tree {
                             else
                                 delta = Math.max(y - child.getY() + context.getParameterOptions().getMinYDistanceBetweenTrees() - 1, 0f);
                             child.moveTree(0, delta);
-                            logger.info(String.format("Move [%d]%s %s y = %d.", child.getId(), child.getFirstName(), child.getLastName(), (int) delta));
+//                            logger.info(String.format("Move [%d]%s %s y = %d.", child.getId(), child.getFirstName(), child.getLastName(), (int) delta));
                         }
                     }
                 }
@@ -104,7 +104,7 @@ public class HorizontalTree extends Tree {
                             // move child tree to be one unit right to the previous child
                             float delta = -deltaX + 1;
                             child.moveTree(delta, 0);
-                            logger.info(String.format("Move [%d]%s %s x = %d.", child.getId(), child.getFirstName(), child.getLastName(), (int) delta));
+//                            logger.info(String.format("Move [%d]%s %s x = %d.", child.getId(), child.getFirstName(), child.getLastName(), (int) delta));
                             // if this is the first child of a spouse, the spouse must be moved too
                             if (child.isFirstChild()) {
                                 child.getSpouseParent().setX(child.getSpouseParent().getX() + delta);
