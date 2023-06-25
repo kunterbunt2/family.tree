@@ -253,7 +253,7 @@ public class ParameterOptions {
             distributeOnPages = true;
             String splitMode = line.getOptionValue(CLI_OPTION_SPLIT);
             distributeOnPagesMode = SplitMode.valueOf(splitMode);
-            logger.info("split enabled.");
+            logger.info(String.format("split mode %s enabled.", splitMode));
         } else {
             distributeOnPages = false;
             logger.info("split disabled.");

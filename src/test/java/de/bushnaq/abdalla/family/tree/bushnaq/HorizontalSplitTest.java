@@ -16,15 +16,15 @@ public class HorizontalSplitTest extends Base {
     }
 
     @Test
-    @DisplayName("bushnaq family, split on A4 pages bottom up")
+    @DisplayName("bushnaq family, split bottom up on A4 pages")
     public void splitBottomUp() throws Exception {
-        generate(new String[]{"-input", buildFileName(), "-family_name", getFamilyName(), "-max_iso", "A4", "-split", "BOTTOM_UP"});
+        generate(new String[]{"-input", buildFileName(), "-family_name", getFamilyName(), "-coordinates", "-grid", "-max_iso", "A4", "-split", "BOTTOM_UP"});
     }
 
     @Test
-    @DisplayName("bushnaq family, split on A4 pages top down")
+    @DisplayName("bushnaq family, split top down on A4 pages")
     public void splitTopDown() throws Exception {
-        generate(new String[]{"-input", buildFileName(), "-family_name", getFamilyName(), "-max_iso", "A4", "-split", "TOP_DOWN"});
+        generate(new String[]{"-input", buildFileName(), "-family_name", getFamilyName(), "-coordinates", "-grid", "-max_iso", "A4", "-split", "TOP_DOWN"});
     }
 
 }

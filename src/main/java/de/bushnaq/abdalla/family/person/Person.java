@@ -266,6 +266,7 @@ public abstract class Person extends BasicFamilyMember {
 
     /**
      * find any existing spouse clone of this person
+     *
      * @return
      */
     public Person findSpouseClone() {
