@@ -141,7 +141,7 @@ public class PdfDocument implements Closeable {
         return findBestFittingPageSize(w * DrawablePerson.getPersonWidth(context) + DrawablePerson.getPageMargin(context) * 2, h * DrawablePerson.getPersonHeight(context) + DrawablePerson.getPageMargin(context) * 2);
     }
 
-    private IsoPage findBestFittingPageSize(float w, float h) {
+    public IsoPage findBestFittingPageSize(float w, float h) {
         if (w >= h) {
             for (int i = 0; i < isoPageList.length; i++) {
                 IsoPage pageSize = isoPageList[i];

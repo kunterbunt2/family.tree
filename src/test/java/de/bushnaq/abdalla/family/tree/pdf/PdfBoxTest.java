@@ -17,6 +17,12 @@ import java.nio.file.Paths;
 class PdfBoxTest {
     PdfDocument pdfDocument;
 
+    private String createOutputFileName(String displayName) throws IOException {
+        String folderName = "output/pdf/";
+        Files.createDirectories(Paths.get(folderName));
+        return folderName + displayName + ".pdf";
+    }
+
     private void createText(float x, float y, Color color, String string) throws IOException {
         try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, 0)) {
 
@@ -107,7 +113,7 @@ class PdfBoxTest {
 
     @Test
     void testBoxWithBorder(TestInfo testInfo) throws IOException, TransformerException {
-        pdfDocument = new PdfDocument(createOutputFileName(testInfo.getDisplayName() ), PDRectangle.A4);
+        pdfDocument = new PdfDocument(createOutputFileName(testInfo.getDisplayName()), PDRectangle.A4);
 
         fillRect(100, 200, 100, 100);
         drawRect(100, 200, 100, 100);
@@ -115,15 +121,9 @@ class PdfBoxTest {
         pdfDocument.endDocument();
     }
 
-    private String createOutputFileName(String displayName) throws IOException {
-        String folderName = "output/pdf/";
-        Files.createDirectories(Paths.get(folderName));
-        return folderName + displayName + ".pdf";
-    }
-
     @Test
     void testDrawLine(TestInfo testInfo) throws IOException, TransformerException {
-        pdfDocument = new PdfDocument(createOutputFileName(testInfo.getDisplayName() ), PDRectangle.A4);
+        pdfDocument = new PdfDocument(createOutputFileName(testInfo.getDisplayName()), PDRectangle.A4);
 
         drawLine(0, 0, 100, 100);
         drawLine(0, 0, 0, 10);
@@ -134,7 +134,7 @@ class PdfBoxTest {
 
     @Test
     void testDrawRect(TestInfo testInfo) throws IOException, TransformerException {
-        pdfDocument = new PdfDocument(createOutputFileName(testInfo.getDisplayName() ), PDRectangle.A4);
+        pdfDocument = new PdfDocument(createOutputFileName(testInfo.getDisplayName()), PDRectangle.A4);
 
         drawRect(0, 0, 100, 100);
         drawRect(0, 0, 10, 10);
@@ -144,7 +144,7 @@ class PdfBoxTest {
 
     @Test
     void testFillRect(TestInfo testInfo) throws IOException, TransformerException {
-        pdfDocument = new PdfDocument(createOutputFileName(testInfo.getDisplayName() ), PDRectangle.A4);
+        pdfDocument = new PdfDocument(createOutputFileName(testInfo.getDisplayName()), PDRectangle.A4);
 
         fillRect(0, 0, 100, 100);
         fillRect(0, 0, 10, 10);
@@ -154,7 +154,7 @@ class PdfBoxTest {
 
     @Test
     void testState(TestInfo testInfo) throws IOException, TransformerException {
-        pdfDocument = new PdfDocument(createOutputFileName(testInfo.getDisplayName() ), PDRectangle.A4);
+        pdfDocument = new PdfDocument(createOutputFileName(testInfo.getDisplayName()), PDRectangle.A4);
 
         try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, 0)) {
             p.setNonStrokingColor(Color.red);
@@ -179,7 +179,7 @@ class PdfBoxTest {
 
     @Test
     void testText(TestInfo testInfo) throws IOException, TransformerException {
-        pdfDocument = new PdfDocument(createOutputFileName(testInfo.getDisplayName() ), PDRectangle.A4);
+        pdfDocument = new PdfDocument(createOutputFileName(testInfo.getDisplayName()), PDRectangle.A4);
 
         createText(20, 20, Color.red, "Hallo 1");
         createText(20, 40, new Color(200, 250, 100, 100), "Hallo 2");
@@ -190,7 +190,7 @@ class PdfBoxTest {
 
     @Test
     void testTextMetric(TestInfo testInfo) throws IOException, TransformerException {
-        pdfDocument = new PdfDocument(createOutputFileName(testInfo.getDisplayName() ), PDRectangle.A4);
+        pdfDocument = new PdfDocument(createOutputFileName(testInfo.getDisplayName()), PDRectangle.A4);
 
         createTextMetric(20, 20, "NotoSans-Regular.ttf", Color.black, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
         createTextMetric(20, 40, "Amiri-Regular.ttf", Color.black, "هجايليش بشناق");

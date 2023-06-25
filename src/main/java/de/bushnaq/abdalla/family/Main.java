@@ -22,6 +22,7 @@ public class Main {
     @Autowired
     Context context;
     private List<PageError> pageErrors;
+    private PdfDocument pdfDocument;
 
     /**
      * bean
@@ -46,7 +47,7 @@ public class Main {
 
     private PersonList generate(String inputFileName) throws Exception {
         PersonList personList = importPersonList(inputFileName);
-        PdfDocument pdfDocument = new PdfDocument(FileUtil.removeExtension(inputFileName) + ".pdf");
+        pdfDocument = new PdfDocument(FileUtil.removeExtension(inputFileName) + ".pdf");
 
         //String[] base = {"-input", context.getParameterOptions().getInput(), "-family_name", context.getParameterOptions().getFamilyName()};
         //String[][] parameters = {                                                                                                                                                //
@@ -100,6 +101,10 @@ public class Main {
 
     public List<PageError> getPageErrors() {
         return pageErrors;
+    }
+
+    public PdfDocument getPdfDocument() {
+        return pdfDocument;
     }
 
     public PersonList importPersonList(String fileName) throws Exception {

@@ -240,7 +240,7 @@ public abstract class Tree {
 
     private void distributeTreeTopDownOnPages(Context context, PdfDocument pdfDocument) throws Exception {
         List<Person> rootFatherList = personList.findRootFatherList(context);
-        if(rootFatherList.size()==0)
+        if (rootFatherList.size() == 0)
             throw new Exception("Did not find root father");
         char familyLetter = 'A';
         for (Person rootFather : rootFatherList) {
@@ -252,18 +252,19 @@ public abstract class Tree {
     }
 
     private void distributeTreeTopDownOnPages(Context context, PdfDocument pdfDocument, Person person, int treeMaxGeneration) throws Exception {
+        IsoPage minPageSize = context.getParameterOptions().getTargetPaperSize();
         IsoPage page;
         int pageMaxGeneration = treeMaxGeneration;
 
-        IsoPage isoPage = new IsoPage(new PDRectangle(9999, 9999), ">A0");
+        IsoPage targetPageSize = new IsoPage(new PDRectangle(9999, 9999), ">A0");
         if (context.getParameterOptions().isDistributeOnPages())
-            isoPage = context.getParameterOptions().getTargetPaperSize();
-//        int wPortrait = (int) ((isoPage.getRect().getWidth() - DrawablePerson.getPageMargin(context) * 2) / DrawablePerson.getPersonWidth(context));
-//        int hPortrait = (int) ((isoPage.getRect().getHeight() - DrawablePerson.getPageMargin(context) * 2) / DrawablePerson.getPersonHeight(context));
-//        int wLandscape = (int) ((isoPage.getRect().getHeight() - DrawablePerson.getPageMargin(context) * 2) / DrawablePerson.getPersonWidth(context));
-//        int hLandscape = (int) ((isoPage.getRect().getWidth() - DrawablePerson.getPageMargin(context) * 2) / DrawablePerson.getPersonHeight(context));
-//        logger.info(String.format("%s portrait can fit: %d x %d person.", isoPage.getName(), wPortrait, hPortrait));
-//        logger.info(String.format("%s landscape can fit: %d x %d person.", isoPage.getName(), wLandscape, hLandscape));
+            targetPageSize = context.getParameterOptions().getTargetPaperSize();
+//        int wPortrait = (int) ((targetPageSize.getRect().getWidth() - DrawablePerson.getPageMargin(context) * 2) / DrawablePerson.getPersonWidth(context));
+//        int hPortrait = (int) ((targetPageSize.getRect().getHeight() - DrawablePerson.getPageMargin(context) * 2) / DrawablePerson.getPersonHeight(context));
+//        int wLandscape = (int) ((targetPageSize.getRect().getHeight() - DrawablePerson.getPageMargin(context) * 2) / DrawablePerson.getPersonWidth(context));
+//        int hLandscape = (int) ((targetPageSize.getRect().getWidth() - DrawablePerson.getPageMargin(context) * 2) / DrawablePerson.getPersonHeight(context));
+//        logger.info(String.format("%s portrait can fit: %d x %d person.", targetPageSize.getName(), wPortrait, hPortrait));
+//        logger.info(String.format("%s landscape can fit: %d x %d person.", targetPageSize.getName(), wLandscape, hLandscape));
 
         do {
             //TODO consider using findIsoPage
@@ -282,7 +283,10 @@ public abstract class Tree {
 
 //            page = pdfDocument.findBestFittingPageSize(context, treeRect);
             pageMaxGeneration--;
-        } while (page.compareTo(isoPage) > 0 && pageMaxGeneration != person.getGeneration());
+        } while (page.compareTo(targetPageSize) > 0 && pageMaxGeneration != person.getGeneration());
+        if (page.compareTo(minPageSize) < 0)
+            page = minPageSize;
+
         // we decided the page size and generation
         pageMaxGeneration++;
         logger.info(String.format("*-decided parent=%d pageIndex=%d pageSize=%s maxGeneration=G%d", person.getId(), person.getPageIndex(), page.getName(), pageMaxGeneration));
@@ -291,8 +295,10 @@ public abstract class Tree {
         for (Person child : person.getDescendantList(pageMaxGeneration)) {
             logger.info(String.format("child%d=%d G%d", child.childIndex, child.getId(), child.getGeneration()));
         }
-        float pageWidth = calculatePageWidth(pdfDocument.lastPageIndex);
-        float pageHeight = calculatePageHeight(context, pdfDocument.lastPageIndex);
+//        float pageWidth = calculatePageWidth(pdfDocument.lastPageIndex);
+//        float pageHeight = calculatePageHeight(context, pdfDocument.lastPageIndex);
+        float pageWidth = page.getRect().getWidth();
+        float pageHeight = page.getRect().getWidth();
         pdfDocument.createPage(pdfDocument.lastPageIndex, pageWidth, pageHeight, person.getFirstName() + context.getParameterOptions().getOutputDecorator());
         drawPageSizeWatermark(pdfDocument, pdfDocument.lastPageIndex);
         drawPageAreaWatermark(pdfDocument, pdfDocument.lastPageIndex, person.getTreeRect());
@@ -320,7 +326,7 @@ public abstract class Tree {
 //            distributeTreeTopDownOnPages(context, pdfDocument);
 //        else
 //            createPages(context, pdfDocument);
-        if (context.getParameterOptions().isDrawGrid())
+        if (context.getParameterOptions().isShowGrid())
             drawGrid(pdfDocument);
         for (int pageIndex = firstPageIndex; pageIndex <= pdfDocument.lastPageIndex; pageIndex++) {
             draw(context, pdfDocument, pageIndex);

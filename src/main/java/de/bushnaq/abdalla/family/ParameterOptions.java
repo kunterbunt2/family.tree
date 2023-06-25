@@ -21,17 +21,20 @@ public class ParameterOptions {
     private static final String CLI_OPTION_V = "v";
     private static final String CLI_OPTION_SPLIT = "split";
     private static final String CLI_OPTION_MAX_ISO = "max_iso";
+    private static final String CLI_OPTION_MIN_ISO = "min_iso";
+    private static final String CLI_OPTION_GRID = "grid";
 
     private final boolean colorTrees = false;
-    private final boolean drawGrid = false;
     private final boolean drawTextMetric = false;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final int minYDistanceBetweenTrees = 0;
     private final float pageMargin = 32f;                                        // unprintable margin
     private final boolean showImage = true;
-    private IsoPage targetPaperSize = new IsoPage(PDRectangle.A4, "A4");
     private final float zoom = 0.5f;
     String inputFolder;
+    private boolean showGrid = false;
+    private IsoPage targetPaperSize = new IsoPage(PDRectangle.A4, "A4");
+    private IsoPage minPaperSize = new IsoPage(PDRectangle.A6, "A6");
     private boolean compact = false;                                    // compact tree (no birth, died, ID)
     private boolean coordinates = true;                                        // enable coordinates
     private boolean excludeSpouse = false;                                    // excluded the spouse in the tree if true otherwise do not include them
@@ -60,6 +63,10 @@ public class ParameterOptions {
 
     public String getInputFolder() {
         return inputFolder;
+    }
+
+    public IsoPage getMinPaperSize() {
+        return minPaperSize;
     }
 
     public int getMinYDistanceBetweenTrees() {
@@ -98,10 +105,6 @@ public class ParameterOptions {
         return distributeOnPages;
     }
 
-    public boolean isDrawGrid() {
-        return drawGrid;
-    }
-
     public boolean isDrawTextMetric() {
         return drawTextMetric;
     }
@@ -120,6 +123,10 @@ public class ParameterOptions {
 
     public boolean isOriginalLanguage() {
         return originalLanguage;
+    }
+
+    public boolean isShowGrid() {
+        return showGrid;
     }
 
     public boolean isShowImage() {
@@ -156,7 +163,9 @@ public class ParameterOptions {
         options.addOption(Option.builder(CLI_OPTION_FOLLOW_OL).desc("Use original language for first name and last name if they exist. This parameter is optional. Default is false.").build());
         options.addOption(Option.builder(CLI_OPTION_COMPACT).desc("Generate compact tree. This parameter is optional. Default is false.").optionalArg(true).build());
         options.addOption(Option.builder(CLI_OPTION_COORDINATES).desc("Generate coordinates. This parameter is optional. Default is false.").optionalArg(true).build());
+        options.addOption(Option.builder(CLI_OPTION_GRID).desc("Generate a grid. This parameter is optional. Default is false.").optionalArg(true).build());
         options.addOption(Option.builder(CLI_OPTION_SPLIT).hasArg().desc("Splits trees, that do not fit onto max_iso page sizes onto several pages. Parameter must be one of : top-down, bottom-up.This parameter is optional. Default is false.").optionalArg(true).build());
+        options.addOption(Option.builder(CLI_OPTION_MIN_ISO).hasArg().desc("Minimum iso page size allowed. Any page will be at least this size. This parameter is optional. Default is A6.").optionalArg(true).build());
         options.addOption(Option.builder(CLI_OPTION_MAX_ISO).hasArg().desc("Maximum iso page size allowed. Any tree that does not fit will be split ont o several pages. Ignored if split option is nto specified. This parameter is optional. Default is A4.").optionalArg(true).build());
 
         // create the parser
@@ -191,12 +200,20 @@ public class ParameterOptions {
             compact = false;
             logger.info("compact tree disabled.");
         }
-        if (line.hasOption(CLI_OPTION_COORDINATES) /* && !compact */) {
+        if (line.hasOption(CLI_OPTION_COORDINATES)) {
             coordinates = true;
             logger.info("coordinates enabled.");
         } else {
             coordinates = false;
             logger.info("coordinates disabled.");
+        }
+
+        if (line.hasOption(CLI_OPTION_GRID)) {
+            showGrid = true;
+            logger.info("grid enabled.");
+        } else {
+            showGrid = false;
+            logger.info("grid disabled.");
         }
 
         if (line.hasOption(CLI_OPTION_V)) {
@@ -242,7 +259,6 @@ public class ParameterOptions {
             logger.info("split disabled.");
         }
         if (line.hasOption(CLI_OPTION_MAX_ISO)) {
-
             String pageName = line.getOptionValue(CLI_OPTION_MAX_ISO);
             switch (pageName) {
                 case "A0" -> targetPaperSize = new IsoPage(PDRectangle.A0, "A0");
@@ -258,6 +274,23 @@ public class ParameterOptions {
         } else {
             targetPaperSize = new IsoPage(PDRectangle.A4, "A4");
             logger.info("max_iso page is A4.");
+        }
+        if (line.hasOption(CLI_OPTION_MIN_ISO)) {
+            String pageName = line.getOptionValue(CLI_OPTION_MIN_ISO);
+            switch (pageName) {
+                case "A0" -> minPaperSize = new IsoPage(PDRectangle.A0, "A0");
+                case "A1" -> minPaperSize = new IsoPage(PDRectangle.A1, "A1");
+                case "A2" -> minPaperSize = new IsoPage(PDRectangle.A2, "A2");
+                case "A3" -> minPaperSize = new IsoPage(PDRectangle.A3, "A3");
+                case "A4" -> minPaperSize = new IsoPage(PDRectangle.A4, "A4");
+                case "A5" -> minPaperSize = new IsoPage(PDRectangle.A5, "A5");
+                case "A6" -> minPaperSize = new IsoPage(PDRectangle.A6, "A6");
+                default -> throw new Exception(String.format("Unsupported max_iso size %s", pageName));
+            }
+            logger.info(String.format("min_iso page is %s.", pageName));
+        } else {
+            minPaperSize = new IsoPage(PDRectangle.A6, "A6");
+            logger.info("min_iso page is A4.");
         }
         if (line.hasOption(CLI_OPTION_FAMILY_NAME)) {
             familyName = line.getOptionValue(CLI_OPTION_FAMILY_NAME);

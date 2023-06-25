@@ -209,7 +209,7 @@ public class HorizontalTree extends Tree {
 //                            Person person = prev.getSpouseList().get(prev.getSpouseList().size() - 1);
 //                            x = prev.getSpouseList().get(prev.getSpouseList().size() - 1).getX();
 //                        } else
-                            x = prev.getX();
+                        x = prev.getX();
 
                         float deltaX = child.getX() - x;
                         if (deltaX > 1) {

@@ -36,4 +36,9 @@ public class IsoPage implements Comparable<IsoPage> {
     public PDRectangle getRect() {
         return rect;
     }
+
+    public String toString() {
+        return name;
+    }
+
 }
