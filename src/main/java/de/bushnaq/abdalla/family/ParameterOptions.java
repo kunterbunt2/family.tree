@@ -17,6 +17,7 @@ public class ParameterOptions {
     private static final String CLI_OPTION_FOLLOW_OL = "ol";
     private static final String CLI_OPTION_H = "h";
     private static final String CLI_OPTION_INPUT = "input";
+    private static final String CLI_OPTION_OUTPUT = "output";
     private static final String CLI_OPTION_OUTPUT_FILE_DECORATIONS = "output_decorations";
     private static final String CLI_OPTION_V = "v";
     private static final String CLI_OPTION_SPLIT = "split";
@@ -43,6 +44,7 @@ public class ParameterOptions {
     // family
     private boolean h = false;                                    // draw a horizontal tree if true
     private String input;                                                                            // input excel file
+    private String output;                                                                            // output pdf file
     private boolean originalLanguage = false;                                    // use original language fields for fist name and last name
     private String outputDecorator = "";                                        // additional decorations for the output file name
     private boolean v = true;                                        // vertical tree mode
@@ -71,6 +73,10 @@ public class ParameterOptions {
 
     public int getMinYDistanceBetweenTrees() {
         return minYDistanceBetweenTrees;
+    }
+
+    public String getOutput() {
+        return output;
     }
 
     public String getOutputDecorator() {
@@ -154,6 +160,7 @@ public class ParameterOptions {
         resetOptions();
         Options options = new Options();
         options.addOption(Option.builder(CLI_OPTION_INPUT).hasArg().desc("Input excel file name. This parameter is not optional.").build());
+        options.addOption(Option.builder(CLI_OPTION_OUTPUT).hasArg().desc("Output pdf file name. This parameter is optional. Default is input file name.").build());
         options.addOption(Option.builder(CLI_OPTION_FAMILY_NAME).hasArg().desc("Family name used to pic root of family. This parameter is optional.").optionalArg(true).build());
         options.addOption(Option.builder(CLI_OPTION_OUTPUT_FILE_DECORATIONS).hasArg().desc("Output file name decorations. This parameter is optional.").optionalArg(true).build());
         options.addOption(Option.builder(CLI_OPTION_H).desc("Generate horizontal tree. This parameter is optional. Default is false.").optionalArg(true).build());
@@ -179,6 +186,11 @@ public class ParameterOptions {
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("family.tree", "", options, "", true);
             return;
+        }
+        if (line.hasOption(CLI_OPTION_OUTPUT)) {
+            output = line.getOptionValue(CLI_OPTION_OUTPUT);
+        } else {
+            output = input;
         }
 
         if (line.hasOption(CLI_OPTION_OUTPUT_FILE_DECORATIONS)) {

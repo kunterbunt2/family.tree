@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.awt.image.BufferedImage;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -33,18 +34,30 @@ public class Base {
         System.setProperty("java.awt.headless", "false");
     }
 
-    private final String familyName;
     @Autowired
     protected Context context;
     @Autowired
     protected Main main;
+    private String familyName = null;
 
     public Base(String familyName) {
         this.familyName = familyName;
     }
 
-    protected String buildFileName() {
-        return "reference/" + getFamilyName() + "/" + getFamilyName() + ".xlsx";
+    public Base() {
+    }
+
+    protected String buildInputFileName(TestInfo testInfo) {
+        String testClassName = testInfo.getTestClass().get().getSimpleName();
+//        String testMethod = testInfo.getTestMethod().get().getName();
+        return String.format("reference/%s/%s.xlsx", testClassName, testClassName);
+    }
+
+    protected String buildOutputFileName(TestInfo testInfo) throws IOException {
+        String testClassName = testInfo.getTestClass().get().getSimpleName();
+        String testMethod = testInfo.getTestMethod().get().getName();
+        Files.createDirectories(Paths.get(String.format("output/%s", testClassName)));
+        return String.format("output/%s/%s.pdf", testClassName, testMethod);
     }
 
     public PersonList generate(String[] args) throws Exception {

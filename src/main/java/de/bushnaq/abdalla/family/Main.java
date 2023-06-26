@@ -45,9 +45,9 @@ public class Main {
         return tree;
     }
 
-    private PersonList generate(String inputFileName) throws Exception {
+    private PersonList generate(String inputFileName, String outputFileName) throws Exception {
         PersonList personList = importPersonList(inputFileName);
-        pdfDocument = new PdfDocument(FileUtil.removeExtension(inputFileName) + ".pdf");
+        pdfDocument = new PdfDocument(FileUtil.removeExtension(outputFileName) + ".pdf");
 
         //String[] base = {"-input", context.getParameterOptions().getInput(), "-family_name", context.getParameterOptions().getFamilyName()};
         //String[][] parameters = {                                                                                                                                                //
@@ -120,8 +120,9 @@ public class Main {
 
         context.getParameterOptions().start(args);
 
-        String inputName = context.getParameterOptions().getInput();
-        return generate(inputName);
+        String inputFileName = context.getParameterOptions().getInput();
+        String outputFileName = context.getParameterOptions().getOutput();
+        return generate(inputFileName, outputFileName);
 
     }
 

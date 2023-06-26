@@ -26,7 +26,7 @@ public class DTest extends Base {
     @Test
     @DisplayName("2 generations, split bottom up, cannot be compacted, does not fit page")
     public void splitBottomUp(TestInfo testInfo) throws Exception {
-        PersonList personList = generate(new String[]{"-input", buildFileName(), "-family_name", getFamilyName(), "-coordinates", "-grid", "-max_iso", "A4", "-min_iso", "A4", "-split", "BOTTOM_UP"});
+        PersonList personList = generate(new String[]{"-input", buildInputFileName(testInfo), "-output", buildOutputFileName(testInfo), "-family_name", getFamilyName(), "-coordinates", "-grid", "-max_iso", "A4", "-min_iso", "A4", "-split", "BOTTOM_UP"});
         writeResult(personList, testInfo);
         List<ExpectedResult> expectedResultList = readResult(testInfo);
         testResult(personList, expectedResultList, new IsoPage(PDRectangle.A4, "A4"));
@@ -35,7 +35,7 @@ public class DTest extends Base {
     @Test
     @DisplayName("2 generations, split top down, cannot be compacted, does not fit page")
     public void splitTopDown(TestInfo testInfo) throws Exception {
-        PersonList personList = generate(new String[]{"-input", buildFileName(), "-family_name", getFamilyName(), "-coordinates", "-grid", "-max_iso", "A4", "-min_iso", "A4", "-split", "TOP_DOWN"});
+        PersonList personList = generate(new String[]{"-input", buildInputFileName(testInfo), "-output", buildOutputFileName(testInfo), "-family_name", getFamilyName(), "-coordinates", "-grid", "-max_iso", "A4", "-min_iso", "A4", "-split", "TOP_DOWN"});
         writeResult(personList, testInfo);
         List<ExpectedResult> expectedResultList = readResult(testInfo);
         testResult(personList, expectedResultList, new IsoPage(PDRectangle.A4, "A4"));

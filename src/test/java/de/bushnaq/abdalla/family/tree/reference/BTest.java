@@ -27,7 +27,7 @@ public class BTest extends Base {
     @Test
     @DisplayName("3 generations, 2 subtrees, can be compacted")
     public void generate(TestInfo testInfo) throws Exception {
-        PersonList personList = generate(new String[]{"-input", buildFileName(), "-family_name", getFamilyName(), "-coordinates", "-grid", "-min_iso", "A4"});
+        PersonList personList = generate(new String[]{"-input", buildInputFileName(testInfo), "-output", buildOutputFileName(testInfo), "-family_name", getFamilyName(), "-coordinates", "-grid", "-min_iso", "A4"});
         writeResult(personList, testInfo);
         List<ExpectedResult> expectedResultList = readResult(testInfo);
         testResult(personList, expectedResultList, new IsoPage(PDRectangle.A4, "A4"));
