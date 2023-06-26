@@ -11,23 +11,23 @@ public class Clone extends DrawablePerson {
     final Person original;
     CloneType cloneType;
 
-    public Clone(PersonList personList, Person person) {
+    public Clone(PersonList personList, Person person, CloneType cloneType) {
         super(personList, (DrawablePerson) person, ((DrawablePerson) person).getBackgroundColor());
         setFather(null);// we are just a clone
         setMother(null);// we are just a clone
         original = person;
-        setVisible(false);
+        this.cloneType = cloneType;
+        if (cloneType.equals(CloneType.pagination))
+            setVisible(true);
     }
 
     public static Clone createPaginationClone(PersonList personList, Person person) {
-        Clone clone = new Clone(personList, person);
-        clone.cloneType = CloneType.pagination;
+        Clone clone = new Clone(personList, person, CloneType.pagination);
         return clone;
     }
 
     public static Clone createSpouseClone(PersonList personList, Person person) {
-        Clone clone = new Clone(personList, person);
-        clone.cloneType = CloneType.spouse;
+        Clone clone = new Clone(personList, person, CloneType.spouse);
         return clone;
     }
 

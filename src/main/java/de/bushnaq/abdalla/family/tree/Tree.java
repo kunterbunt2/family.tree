@@ -355,7 +355,6 @@ public abstract class Tree {
                 PDPage page = pdfDocument.getPage(pageIndex);
                 p.setLineWidth(0.5f);
                 p.setStrokingColor(GRID_COLOR);
-                p.setNonStrokingColor(GRID_COLOR);
                 p.setFont(pdfDocument.getFont(NAME_FONT));
                 float h = Person.getPersonHeight(context);
                 float w = Person.getPersonWidth(context);
@@ -364,6 +363,8 @@ public abstract class Tree {
                     p.drawRect(getPageMargin(context) + 0, getPageMargin(context) - Person.getYSpace(context) / 2 + y * h, page.getBBox().getWidth(), 1);
                     for (int x = 0; x < page.getBBox().getWidth() / w + 1; x++) {
                         p.drawRect(getPageMargin(context) - Person.getXSpace(context) / 2 + x * w, getPageMargin(context) + 0, 1, page.getBBox().getHeight());
+                        p.setFont(pdfDocument.getFont(DATE_FONT));
+                        p.setNonStrokingColor(Color.black);
                         p.beginText();
                         p.newLineAtOffset(getPageMargin(context) + x * w, getPageMargin(context) - Person.getYSpace(context) / 2 + y * h + Person.getPersonHeight(context));
                         p.showText(String.format("%d,%d", x, y));

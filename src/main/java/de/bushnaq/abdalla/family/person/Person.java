@@ -472,7 +472,7 @@ public abstract class Person extends BasicFamilyMember {
     }
 
     public Rect getTreeRect(int includingGeneration) {
-        if (!hasChildren() || getGeneration() >= includingGeneration)
+        if (!hasChildren() || (getGeneration() != null && getGeneration() >= includingGeneration))
             return new Rect(getX(), getY(), getX(), getY());
         Rect rect = new Rect(getX(), getY(), getX(), getY());
         PersonList childrenList = getChildrenList();
@@ -593,6 +593,25 @@ public abstract class Person extends BasicFamilyMember {
         return attribute.visible;
     }
 
+    public void moveSpouseTree(float x, float y) {
+        if (x != 0 || y != 0) {
+            this.setX(this.getX() + x);
+            this.setY(this.getY() + y);
+            if (isSpouse()) {
+                PersonList spouseList = getSpouseList();
+                for (Person spouse : spouseList) {
+//					logger.info(String.format("Moving [%d]%s %s x= %d, y = %d.", getId(), getFirstName(), getLastName(), (int) x, (int) y));
+//                    spouse.moveTree(x, y);
+                    PersonList childrenList = getChildrenList(spouse);
+                    for (Person child : childrenList) {
+                        child.moveTree(x, y);
+                    }
+                }
+
+            }
+        }
+    }
+
     public void moveTree(float x, float y) {
         if (x != 0 || y != 0) {
             this.setX(this.getX() + x);
@@ -689,6 +708,13 @@ public abstract class Person extends BasicFamilyMember {
 
     public void setY(float y) {
         this.y = y;
+    }
+
+    public String toString() {
+        if (isClone())
+            return String.format("[%d] %.0f %.0f clone", getId(), x, y);
+        else
+            return String.format("[%d] %.0f %.0f", getId(), x, y);
     }
 
     public void validate(Context context) throws Exception {

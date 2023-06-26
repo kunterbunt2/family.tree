@@ -461,7 +461,8 @@ public class DrawablePerson extends Person {
                 p.setStrokingColor(connectorColor);
                 p.setLineDashPattern(new float[]{1}, 0);
                 p.setLineWidth(getConnectorWidth(context));
-                p.drawLine(x1 + getPersonWidth(context) / 2, y1 + getHeight(context), x1 + getPersonWidth(context) / 2, y1 + getHeight(context) + getYSpace(context) / 2);
+                float y2 = yIndexToCoordinate(context, getSpouseList().getFirst().getY());
+                p.drawLine(x1 + getPersonWidth(context) / 2, y1 + getHeight(context), x1 + getPersonWidth(context) / 2, y2/*y1 + getHeight(context) + getYSpace(context) / 2*/);
                 if (getSpouseList().size() > 1)
                     p.drawCurveTopToRight(x1 + getPersonWidth(context) / 2, y1 + getHeight(context), getYSpace(context) / 2);
                 for (Person spouse : getSpouseList()) {

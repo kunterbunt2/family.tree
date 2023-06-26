@@ -42,4 +42,9 @@ public class Rect {
     public float getY2() {
         return y2;
     }
+
+    public String toString() {
+        return String.format("%.0f %.0f %.0f %.0f", x1, y1, x2, y2);
+    }
+
 }

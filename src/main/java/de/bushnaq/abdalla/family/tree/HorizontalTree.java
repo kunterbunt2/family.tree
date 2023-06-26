@@ -27,6 +27,10 @@ public class HorizontalTree extends Tree {
             compactChildren(rootFather, g, includingGeneration);
         }
         for (int g = maxGeneration; g >= 0; g--) {
+//            logger.info(String.format("compacting children of generation %d", g));
+            compactSpouses(rootFather, g, includingGeneration);
+        }
+        for (int g = maxGeneration; g >= 0; g--) {
 //			logger.info(String.format("compacting parents of generation %d", g));
             compactParents(rootFather, g, includingGeneration);
         }
@@ -37,28 +41,6 @@ public class HorizontalTree extends Tree {
 //		logger.info(String.format("compacted tree to %d X %d = %d", w, h, area));
     }
 
-//    @Override
-//    protected void compact(Context context, PdfDocument pdfDocument) {
-//        List<Person> firstFathers = personList.findRootFatherList(context);
-//        int maxgeneration = personList.findMaxGeneration();
-//
-//        for (Person firstFather : firstFathers) {
-//            for (int g = maxgeneration - 1; g > 0; g--) {
-////				logger.info(String.format("compacting children of generation %d", g));
-//                compactChildren(firstFather, g);
-//            }
-//            for (int g = maxgeneration - 1; g > 0; g--) {
-////				logger.info(String.format("compacting parents of generation %d", g));
-//                compactParents(firstFather, g);
-//            }
-//            Rect treeRect = firstFather.getTreeRect();
-//            int w = (int) (treeRect.getX2() - treeRect.getX1() + 1);
-//            int h = (int) (treeRect.getY2() - treeRect.getY1() + 1);
-//            int area = w * h;
-////			logger.info(String.format("compacted tree to %d X %d = %d", w, h, area));
-//        }
-//    }
-
     /**
      * this algorithm will pack children of parents of a specific generation and their subtrees together by moving them below each other.<br>
      * The eldest child lowest and the youngest child highest.
@@ -67,7 +49,6 @@ public class HorizontalTree extends Tree {
      * @param generation
      */
     private void compactChildren(Person p, int generation, int includingGeneration) {
-//        if (!p.isSpouse() && p.hasChildren() && p.getChildrenList().size() > 1)
         if (p.getGeneration() != null && p.getGeneration() == generation) {
             // generation found
             float y = 0;
@@ -75,7 +56,6 @@ public class HorizontalTree extends Tree {
                 // iterate over children from last to first
                 for (int c = p.getChildrenList().size() - 2; c > -1; c--) {
                     Person child = p.getChildrenList().get(c);
-//                    if (child.getGeneration() != null && child.getGeneration() == generation)
                     {
                         Person next = p.getChildrenList().get(c + 1);
                         y = Math.max(next.getTreeRect(includingGeneration).getY2(), y);
@@ -120,6 +100,53 @@ public class HorizontalTree extends Tree {
             while (di.hasNext()) {
                 Person c = di.next();
                 compactChildren(c, generation, includingGeneration);
+            }
+        }
+    }
+
+    /**
+     * Move parents that are one generation older than specified nearer to each other ignoring all children that are younger than clipGenration
+     *
+     * @param p
+     * @param generation
+     */
+    private void compactParents(Person p, int generation, int includeGeneration) {
+        if (p.getGeneration() != null && p.getGeneration() == generation - 1) {
+            // found target generation
+            if (!p.isSpouse() && p.hasChildren() && p.getChildrenList().size() > 1) {
+                // has a tree below that is worth moving
+                {
+                    // iterate over all children from first to last
+                    for (int c = 1; c < p.getChildrenList().size(); c++) {
+                        Person child = p.getChildrenList().get(c);
+                        Person prev = p.getChildrenList().get(c - 1);
+                        Rect rect = prev.getTreeRect(includeGeneration);
+                        float x;
+//                        if (prev.hasChildren()) {
+//                            Person person = prev.getSpouseList().get(prev.getSpouseList().size() - 1);
+//                            x = prev.getSpouseList().get(prev.getSpouseList().size() - 1).getX();
+//                        } else
+                        x = prev.getX();
+
+                        float deltaX = child.getX() - x;
+                        if (deltaX > 1) {
+                            // move child tree to be one unit right to the previous child
+                            child.moveTree(-deltaX + 1, 0);
+//							logger.info(String.format("Move [%d]%s %s x = %d.", child.getId(), child.getFirstName(), child.getLastName(), (int) -deltaX + 1));
+                            // if this is the first child of a spouse, the spouse must be moved too
+                            if (child.isFirstChild()) {
+                                child.getSpouseParent().setX(child.getSpouseParent().getX() + -deltaX + 1);
+                            }
+                        }
+                    }
+                }
+            }
+        } else if (p.getGeneration() != null && p.getGeneration() < generation - 1) {
+            // generation not found yet
+            Iterator<Person> di = p.getChildrenList().descendingIterator();
+            while (di.hasNext()) {
+                Person c = di.next();
+                compactParents(c, generation, includeGeneration);
             }
         }
 
@@ -187,52 +214,60 @@ public class HorizontalTree extends Tree {
 //
 //    }
 
-    /**
-     * Move parents that are one generation older than specified nearer to each other ignoring all children that are younger than clipGenration
-     *
-     * @param p
-     * @param generation
-     */
-    private void compactParents(Person p, int generation, int includeGeneration) {
-        if (p.getGeneration() != null && p.getGeneration() == generation - 1) {
-            // found target generation
-            if (!p.isSpouse() && p.hasChildren() && p.getChildrenList().size() > 1) {
-                // has a tree below that is worth moving
-                {
-                    // iterate over all children from first to last
-                    for (int c = 1; c < p.getChildrenList().size(); c++) {
-                        Person child = p.getChildrenList().get(c);
-                        Person prev = p.getChildrenList().get(c - 1);
-                        Rect rect = prev.getTreeRect(includeGeneration);
-                        float x;
-//                        if (prev.hasChildren()) {
-//                            Person person = prev.getSpouseList().get(prev.getSpouseList().size() - 1);
-//                            x = prev.getSpouseList().get(prev.getSpouseList().size() - 1).getX();
-//                        } else
-                        x = prev.getX();
-
-                        float deltaX = child.getX() - x;
-                        if (deltaX > 1) {
-                            // move child tree to be one unit right to the previous child
-                            child.moveTree(-deltaX + 1, 0);
-//							logger.info(String.format("Move [%d]%s %s x = %d.", child.getId(), child.getFirstName(), child.getLastName(), (int) -deltaX + 1));
-                            // if this is the first child of a spouse, the spouse must be moved too
-                            if (child.isFirstChild()) {
-                                child.getSpouseParent().setX(child.getSpouseParent().getX() + -deltaX + 1);
-                            }
+    private void compactSpouses(Person p, int generation, int includingGeneration) {
+        if (p.getGeneration() != null && p.getGeneration() == generation) {
+            // generation found
+            float y = 0;
+            {
+                // iterate over spouses from last to first
+                for (int c = p.getSpouseList().size() - 2; c > -1; c--) {
+                    Person spouse = p.getSpouseList().get(c);
+                    {
+                        Person next = p.getSpouseList().get(c + 1);
+                        y = Math.max(next.getTreeRect(includingGeneration).getY2(), y);
+                        Rect rect = spouse.getTreeRect(includingGeneration);
+                        if ((rect.getX2() - rect.getX1()) > 0) {
+                            // has a tree below that is worth moving
+                            float delta;
+//                            if (spouse.getSpouseList().size() > 1)
+//                                delta = Math.max(y - spouse.getY() + context.getParameterOptions().getMinYDistanceBetweenTrees(), 0);
+//                            else
+                            delta = Math.max(y - spouse.getY() + context.getParameterOptions().getMinYDistanceBetweenTrees() - 0, 0f);
+                            spouse.moveSpouseTree(0, delta);
+//                            logger.info(String.format("Move [%d]%s %s y = %d.", spouse.getId(), spouse.getFirstName(), spouse.getLastName(), (int) delta));
                         }
                     }
                 }
             }
-        } else if (p.getGeneration() != null && p.getGeneration() < generation - 1) {
+            {
+                // iterate over all spouses from first to last
+                for (int c = 1; c < p.getSpouseList().size(); c++) {
+                    Person spouse = p.getSpouseList().get(c);
+                    if (p.getGeneration() != null && p.getGeneration() == generation) {
+                        Person prev = p.getChildrenList().get(c - 1);
+                        float deltaX = spouse.getX() - prev.getX();
+                        if (deltaX > 1) {
+                            // move spouse tree to be one unit right to the previous spouse
+                            float delta = -deltaX + 1;
+                            spouse.moveSpouseTree(delta, 0);
+//                            logger.info(String.format("Move [%d]%s %s x = %d.", spouse.getId(), spouse.getFirstName(), spouse.getLastName(), (int) delta));
+                            // if this is the first spouse of a spouse, the spouse must be moved too
+                            if (spouse.isFirstChild()) {
+                                spouse.getSpouseParent().setX(spouse.getSpouseParent().getX() + delta);
+                            }
+                        }
+                    }
+
+                }
+            }
+        } else if (p.getGeneration() != null && p.getGeneration() < generation) {
             // generation not found yet
             Iterator<Person> di = p.getChildrenList().descendingIterator();
             while (di.hasNext()) {
                 Person c = di.next();
-                compactParents(c, generation, includeGeneration);
+                compactSpouses(c, generation, includingGeneration);
             }
         }
-
     }
 
 //    /**

@@ -1,5 +1,9 @@
 package de.bushnaq.abdalla.family.tree.util;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
 import de.bushnaq.abdalla.family.Context;
 import de.bushnaq.abdalla.family.Main;
 import de.bushnaq.abdalla.family.person.Person;
@@ -9,13 +13,16 @@ import de.bushnaq.abdalla.pdf.IsoPage;
 import de.bushnaq.abdalla.pdf.PdfDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.junit.jupiter.api.TestInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.awt.image.BufferedImage;
+import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.PrintWriter;
+import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
@@ -55,6 +62,18 @@ public class Base {
         return familyName;
     }
 
+    protected List<ExpectedResult> readResult(TestInfo testInfo) throws Exception {
+        String testClassName = testInfo.getTestClass().get().getSimpleName();
+        String testMethod = testInfo.getTestMethod().get().getName();
+        String fileName = String.format("reference/%s/%s.gson", testClassName, testMethod);
+        Type listType = new TypeToken<List<ExpectedResult>>() {
+        }.getType();
+        JsonReader reader = new JsonReader(new FileReader(fileName));
+        Gson gson = new Gson();
+        List<ExpectedResult> expectedResultList = gson.fromJson(reader, listType);
+        return expectedResultList;
+    }
+
     private void showImage(BufferedImage image, String title) {
         MyCanvas c = new MyCanvas(image);
         c.f.setTitle(title);
@@ -66,13 +85,13 @@ public class Base {
             }
     }
 
-    protected void testResult(PersonList personList, ExpectedResult[] expectedResult, IsoPage minPage) {
+    protected void testResult(PersonList personList, List<ExpectedResult> expectedResult, IsoPage minPage) {
         for (int i = 0; i < personList.size(); i++) {
             Person person = personList.get(i);
-            assertEquals(expectedResult[i].getId(), person.getId(), String.format("[%d] bad id", person.getId()));
-            assertEquals(expectedResult[i].getX(), person.getX(), String.format("[%d] bad x", person.getId()));
-            assertEquals(expectedResult[i].getY(), person.getY(), String.format("[%d] bad y", person.getId()));
-            assertEquals(expectedResult[i].getPageIndex(), person.getPageIndex(), String.format("[%d] bad pageIndex", person.getId()));
+            assertEquals(expectedResult.get(i).getId(), person.getId(), String.format("[%d] bad id", person.getId()));
+            assertEquals(expectedResult.get(i).getX(), person.getX(), String.format("[%d] bad x", person.getId()));
+            assertEquals(expectedResult.get(i).getY(), person.getY(), String.format("[%d] bad y", person.getId()));
+            assertEquals(expectedResult.get(i).getPageIndex(), person.getPageIndex(), String.format("[%d] bad pageIndex", person.getId()));
             PdfDocument pdfDocument = main.getPdfDocument();
             PDPage page = pdfDocument.getPage(person.getPageIndex());
             PDRectangle bBox = page.getBBox();
@@ -82,16 +101,16 @@ public class Base {
         assertEquals(0, main.getPageErrors().size(), "Unexpected number of errors");
     }
 
-    protected void writeResult(PersonList personList) throws Exception {
-        Files.createDirectories(Paths.get(String.format("output/%s", getFamilyName())));
-        FileWriter fileWriter = new FileWriter(String.format("output/%s/%s.csv", getFamilyName(), getFamilyName()));
-        PrintWriter printWriter = new PrintWriter(fileWriter);
-        printWriter.printf("        ExpectedResult[] expectedResult = {//\n");
-        for (Person person : personList) {
-            printWriter.printf("                new ExpectedResult( %d, %.0ff, %.0ff, %d ),//\n", person.getId(), person.getX(), person.getY(), person.getPageIndex());
+    protected void writeResult(PersonList personList, TestInfo testInfo) throws Exception {
+        String testClassName = testInfo.getTestClass().get().getSimpleName();
+        String testMethod = testInfo.getTestMethod().get().getName();
+        String fileName = String.format("output/%s/%s.gson", testClassName, testMethod);
+        Files.createDirectories(Paths.get(String.format("output/%s", testClassName)));
+        try (FileWriter fileWriter = new FileWriter(fileName)) {
+            ExpectedResults expectedResults = new ExpectedResults(personList);
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            gson.toJson(expectedResults, fileWriter);
         }
-        printWriter.printf("        };\n");
-        printWriter.close();
     }
 
 }
