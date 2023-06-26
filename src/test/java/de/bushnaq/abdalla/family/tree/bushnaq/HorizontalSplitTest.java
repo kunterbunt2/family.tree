@@ -16,6 +16,10 @@ public class HorizontalSplitTest extends Base {
         super("bushnaq");
     }
 
+    protected String buildInputFileName(TestInfo testInfo) {
+        return "reference/bushnaq/bushnaq.xlsx";
+    }
+
     @Test
     @DisplayName("bushnaq family, split bottom up on A4 pages")
     public void splitBottomUp(TestInfo testInfo) throws Exception {

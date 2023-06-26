@@ -16,10 +16,14 @@ public class HorizontalTest extends Base {
         super("bushnaq");
     }
 
+    protected String buildInputFileName(TestInfo testInfo) {
+        return "reference/bushnaq/bushnaq.xlsx";
+    }
+
     @Test
     @DisplayName("bushnaq family")
     public void generate(TestInfo testInfo) throws Exception {
-        generate(new String[]{"-input", buildInputFileName(testInfo), "-output", buildOutputFileName(testInfo), "-family_name", getFamilyName()});
+        generate(new String[]{"-input", buildInputFileName(testInfo), "-output", buildOutputFileName(testInfo), "-family_name", getFamilyName(), "-coordinates", "-grid", "-min_iso", "A4"});
     }
 
 }
