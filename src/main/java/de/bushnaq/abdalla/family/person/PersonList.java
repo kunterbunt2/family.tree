@@ -2,18 +2,14 @@ package de.bushnaq.abdalla.family.person;
 
 import de.bushnaq.abdalla.family.Context;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Set;
 
 public class PersonList extends LinkedList
         <Person> {
 
-    //    final List<Person> list = new ArrayList<>();
     Set<Person> set = new HashSet<Person>();
-
-//    public PersonList()
-//    {
-//        super(new PersonComparator());
-//    }
 
     @Override
     public boolean add(Person p) {
@@ -24,9 +20,11 @@ public class PersonList extends LinkedList
         return r1 & r2;
     }
 
-//    public Iterator<Person> descendingIterator() {
-//        return  this. descendingIterator();
-//    }
+    public void clearVisited() {
+        for (Person p : this) {
+            p.setVisited(false);
+        }
+    }
 
     public int findMaxGeneration() {//TODO cache value
         int maxGenration = -1;
@@ -38,34 +36,44 @@ public class PersonList extends LinkedList
         return maxGenration;
     }
 
-    //	public void calculateWidths(Graphics2D graphics, Font nameFont, Font livedFont) {
-//		for (Person p : this) {
-//			p.calculateWidth(graphics, nameFont, livedFont);
-//		}
-//	}
-    public List<Person> findRootFatherList(Context context) {
-        List<Person> rootFatherList = new ArrayList<>();
+    /**
+     * Find head of every subtree in the list.
+     * A subtree head is a person that was moved together with its subtree to a new page to distribute the total tree on more than one page
+     *
+     * @param context
+     * @return
+     */
+    public PersonList findTreeHeadList(Context context) {
+        PersonList treeHeadList = new PersonList();
         for (Person p : this) {
-            if (p.isRootFather(context)) {
-                rootFatherList.add(p);
+            if (p.isTreeRoot(context) || p.isPaginationClone()) {
+                treeHeadList.add(p);
             }
         }
-        return rootFatherList;
+        return treeHeadList;
     }
 
-//    public Person get(int index) {
-//        return list.get(index);
-//    }
-
-//    public Person last() {
-//        return get(size()-1);
-//    }
-
-    public void printPersonList(Context context) {
+    /**
+     * Find root of every tree in the list. A tree root is the first father/mother of a family.
+     *
+     * @param context
+     * @return
+     */
+    public PersonList findTreeRootList(Context context) {
+        PersonList treeRootList = new PersonList();
         for (Person p : this) {
-            p.print(context);
+            if (p.isTreeRoot(context)) {
+                treeRootList.add(p);
+            }
         }
+        return treeRootList;
     }
+
+//    public void printPersonList(Context context) {
+//        for (Person p : this) {
+//            p.print(context);
+//        }
+//    }
 
     public void reset() {
         for (Person p : this) {

@@ -27,7 +27,7 @@ public abstract class Tree {
     protected final Context context;
     final Logger logger = LoggerFactory.getLogger(this.getClass());
     final PersonList personList;
-    PersonList visitedList = new PersonList();
+    PersonList visitedList = new PersonList();// TODO use visited field in person instead
     private int firstPageIndex;
 
     public Tree(Context context, PersonList personList) {
@@ -39,7 +39,7 @@ public abstract class Tree {
 
     private void analyzeTree() {
         char familyLetter = 'A';
-        List<Person> rottFatherList = personList.findRootFatherList(context);
+        List<Person> rottFatherList = personList.findTreeRootList(context);
         for (Person rootFather : rottFatherList) {
             rootFather.setFirstFather(true);
             rootFather.setGeneration(0);
@@ -49,7 +49,7 @@ public abstract class Tree {
         }
     }
 
-    float calculatePageHeight(Context context, int pageIndex) {
+    float calculatePageHeight(int pageIndex) {
         float minY = Integer.MAX_VALUE;
         float maxY = Integer.MIN_VALUE;
         for (Person p : personList) {
@@ -109,30 +109,21 @@ public abstract class Tree {
         }
     }
 
-    private void cutAndCreatePage(Context context, PdfDocument pdfDocument, Person person, int pageMaxGeneration) throws Exception {
-        IsoPage minPageSize = context.getParameterOptions().getTargetPaperSize();
-        IsoPage page;
-        page = findIsoPage(context, pdfDocument, pageMaxGeneration, person);// run successful treeHead again
-        if (page.compareTo(minPageSize) < 0)
-            page = minPageSize;
-        // we decided the page size and generation
-        logger.info(String.format("*-decided parent=%d pageIndex=%d pageSize=%s maxGeneration=G%d", person.getId(), person.getPageIndex(), page.getName(), pageMaxGeneration));
-        visitedList.addAll(person.getDescendantList());// all our children do not need to be distributed anymore
-        if (person.getTreeHead() != null) {
-            cutPerson(person);
-            visitedList.add(person.findPaginationClone());
-            person.setPageIndex(null);
-            person.setVisible(false);
-        } else {
-            visitedList.add(person);
+    private void createPages(Context context, PdfDocument pdfDocument) throws IOException {
+        PersonList treeHeadList = personList.findTreeHeadList(context);
+        for (Person person : treeHeadList) {
+            Rect rect = person.getTreeRect();
+            IsoPage page = pdfDocument.findBestFittingPageSize(context, rect);
+            IsoPage minPageSize = context.getParameterOptions().getTargetPaperSize();
+            if (page.compareTo(minPageSize) < 0) {
+                page = minPageSize;
+            }
+            float pageWidth = page.getRect().getWidth();
+            float pageHeight = page.getRect().getHeight();
+            pdfDocument.createPage(person.getPageIndex(), pageWidth, pageHeight, person.getFirstName() + context.getParameterOptions().getOutputDecorator());
+            drawPageSizeWatermark(pdfDocument, person.getPageIndex());
+            drawPageAreaWatermark(pdfDocument, person.getPageIndex(), person.getTreeRect());
         }
-        float pageWidth = page.getRect().getWidth();
-        float pageHeight = page.getRect().getHeight();
-        Person person1 = personList.get(personList.size() - 1);
-        pdfDocument.createPage(pdfDocument.lastPageIndex, pageWidth, pageHeight, person.getFirstName() + context.getParameterOptions().getOutputDecorator());
-        drawPageSizeWatermark(pdfDocument, pdfDocument.lastPageIndex);
-        drawPageAreaWatermark(pdfDocument, pdfDocument.lastPageIndex, person.getTreeRect());
-        pdfDocument.lastPageIndex++;
     }
 
     /**
@@ -162,6 +153,32 @@ public abstract class Tree {
         }
     }
 
+    private void cutSubtree(Context context, PdfDocument pdfDocument, Person person, int pageMaxGeneration) throws Exception {
+        // TODO can we reuse this code and similar code in createPages?
+        IsoPage minPageSize = context.getParameterOptions().getTargetPaperSize();
+        IsoPage page = findIsoPage(context, pdfDocument, pageMaxGeneration, person);// run successful treeHead again
+        if (page.compareTo(minPageSize) < 0)
+            page = minPageSize;
+        // we decided the page size and generation
+        logger.info(String.format("*-decided parent=%d pageIndex=%d pageSize=%s maxGeneration=G%d", person.getId(), person.getPageIndex(), page.getName(), pageMaxGeneration));
+        visitedList.addAll(person.getDescendantList());// all our children do not need to be distributed anymore
+        if (person.getTreeHead() != null) {
+            cutPerson(person);
+            visitedList.add(person.findPaginationClone());
+            person.setPageIndex(null);
+            person.setVisible(false);
+        } else {
+            visitedList.add(person);
+        }
+//        float pageWidth = page.getRect().getWidth();
+//        float pageHeight = page.getRect().getHeight();
+//        Person person1 = personList.get(personList.size() - 1);
+//        pdfDocument.createPage(pdfDocument.lastPageIndex, pageWidth, pageHeight, person.getFirstName() + context.getParameterOptions().getOutputDecorator());
+//        drawPageSizeWatermark(pdfDocument, pdfDocument.lastPageIndex);
+//        drawPageAreaWatermark(pdfDocument, pdfDocument.lastPageIndex, person.getTreeRect());
+        pdfDocument.lastPageIndex++;
+    }
+
     private void cutTree(Context context, PdfDocument pdfDocument, Person person, int includingGeneration) {
         logger.info(String.format("cutting tree for parent=%d genration <= G%d", person.getId(), includingGeneration));
         cutTree(context, person, includingGeneration);
@@ -186,21 +203,17 @@ public abstract class Tree {
     }
 
     private void distributeTreeBottomUpOnPages(Context context, PdfDocument pdfDocument) throws Exception {
-        List<Person> rootFatherList = personList.findRootFatherList(context);
+        List<Person> rootFatherList = personList.findTreeRootList(context);
         for (Person rootFather : rootFatherList) {
             resetPageIndex(rootFather);
         }
 
         visitedList.clear();
-//        char familyLetter = 'A';
         boolean changed;
         do {
             changed = false;
             List<Person> lastGenerationList = findLastGeneration(context);
             for (Person lastGeneration : lastGenerationList) {
-//                lastGeneration.setFamilyLetter(String.valueOf(familyLetter));
-//                familyLetter += 1;
-                //int treeMaxGeneration = findMaxGeneration(rootFather);
                 if (!visitedList.contains(lastGeneration))// ignore if already distributed onto a page
                 {
                     logger.info(String.format(">-starting with child=%d pageIndex=%d G%d", lastGeneration.getId(), pdfDocument.lastPageIndex, lastGeneration.getGeneration()));
@@ -209,7 +222,7 @@ public abstract class Tree {
                         //we found no person that we could cut and no page big enough, we are forced to cut where we are
                         logger.warn(String.format("was unable to find correct page size for child=%d G%d, using bigger paper size.", lastGeneration.getId(), pdfDocument.lastPageIndex, lastGeneration.getGeneration()));
                         int pageMaxGeneration = personList.findMaxGeneration();
-                        cutAndCreatePage(context, pdfDocument, lastGeneration, pageMaxGeneration);
+                        cutSubtree(context, pdfDocument, lastGeneration, pageMaxGeneration);
                     }
                     changed = true;
                     break;
@@ -217,6 +230,8 @@ public abstract class Tree {
             }
         }
         while (changed);
+        orderSubtrees(pdfDocument);
+        createPages(context, pdfDocument);
     }
 
     private boolean distributeTreeBottomUpOnPages(Context context, PdfDocument pdfDocument, Person person) throws Exception {
@@ -246,14 +261,14 @@ public abstract class Tree {
             } else {
                 if (person.getTreeHead() != null)
                     resetPageIndex(person.getTreeHead());// the actual head will stay on the page of its parents, we will only take over its clone
-                cutAndCreatePage(context, pdfDocument, person, pageMaxGeneration);
+                cutSubtree(context, pdfDocument, person, pageMaxGeneration);
             }
         }
         return true;
     }
 
     private void distributeTreeTopDownOnPages(Context context, PdfDocument pdfDocument) throws Exception {
-        List<Person> rootFatherList = personList.findRootFatherList(context);
+        List<Person> rootFatherList = personList.findTreeRootList(context);
         if (rootFatherList.size() == 0)
             throw new Exception("Did not find root father");
         char familyLetter = 'A';
@@ -295,9 +310,10 @@ public abstract class Tree {
         logger.info(String.format("*-decided parent=%d pageIndex=%d pageSize=%s maxGeneration=G%d", person.getId(), person.getPageIndex(), page.getName(), pageMaxGeneration));
 
         cutTree(context, pdfDocument, person, pageMaxGeneration);// cut tree at that generation
-        for (Person child : person.getDescendantList(pageMaxGeneration)) {
-            logger.info(String.format("child%d=%d G%d", child.childIndex, child.getId(), child.getGeneration()));
-        }
+//        for (Person child : person.getDescendantList(pageMaxGeneration)) {
+//            logger.info(String.format("child%d=%d G%d", child.childIndex, child.getId(), child.getGeneration()));
+//        }
+        // TODO reuse cutSubtree
         float pageWidth = page.getRect().getWidth();
         float pageHeight = page.getRect().getHeight();
         pdfDocument.createPage(pdfDocument.lastPageIndex, pageWidth, pageHeight, person.getFirstName() + context.getParameterOptions().getOutputDecorator());
@@ -323,10 +339,6 @@ public abstract class Tree {
                 distributeTreeTopDownOnPages(context, pdfDocument);
             }
         }
-//        if (context.getParameterOptions().isDistributeOnPages())
-//            distributeTreeTopDownOnPages(context, pdfDocument);
-//        else
-//            createPages(context, pdfDocument);
         if (context.getParameterOptions().isShowGrid())
             drawGrid(pdfDocument);
         for (int pageIndex = firstPageIndex; pageIndex <= pdfDocument.lastPageIndex; pageIndex++) {
@@ -341,7 +353,7 @@ public abstract class Tree {
         PdfDocument pdfDocument = new PdfDocument("debug.pdf");
         createFonts(context, pdfDocument);
         float pageWidth = calculatePageWidth(pageIndex);
-        float pageHeight = calculatePageHeight(context, pageIndex);
+        float pageHeight = calculatePageHeight(pageIndex);
         pdfDocument.createPage(pageIndex, pageWidth, pageHeight, person.getFirstName() + context.getParameterOptions().getOutputDecorator());
         drawPageSizeWatermark(pdfDocument, pageIndex);
         drawPageAreaWatermark(pdfDocument, pageIndex, person.getTreeRect());
@@ -376,28 +388,6 @@ public abstract class Tree {
         }
     }
 
-    //public void drawErrors(PdfDocument pdfDocument, int pageIndex) {
-//		try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
-//			PDPage page = pdfDocument.getPage(pageIndex);
-//			p.setNonStrokingColor(Color.red);
-//			p.setFont(pdfNameFont);
-//
-//			float y = page.getMediaBox().getHeight();
-//			for (PageError pageError : errors) {
-//				if (pageError.getPageIndex() != null && (pageError.getPageIndex() == pageIndex)) {
-//					p.beginText();
-//					p.newLineAtOffset(2, y);
-//					String errorMessage;
-//					errorMessage = String.format("%s", pageError.getError());
-//					p.showText(errorMessage);
-//					logger.error(errorMessage);
-//					p.endText();
-//					y -= p.getStringHeight();
-//				}
-//			}
-//		}
-    //}
-
     private void drawPageAreaWatermark(PdfDocument pdfDocument, int pageIndex, Rect rect) throws IOException {
         try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
             PDPage page = pdfDocument.getPage(pageIndex);
@@ -429,6 +419,28 @@ public abstract class Tree {
             p.endText();
         }
     }
+
+    //public void drawErrors(PdfDocument pdfDocument, int pageIndex) {
+//		try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
+//			PDPage page = pdfDocument.getPage(pageIndex);
+//			p.setNonStrokingColor(Color.red);
+//			p.setFont(pdfNameFont);
+//
+//			float y = page.getMediaBox().getHeight();
+//			for (PageError pageError : errors) {
+//				if (pageError.getPageIndex() != null && (pageError.getPageIndex() == pageIndex)) {
+//					p.beginText();
+//					p.newLineAtOffset(2, y);
+//					String errorMessage;
+//					errorMessage = String.format("%s", pageError.getError());
+//					p.showText(errorMessage);
+//					logger.error(errorMessage);
+//					p.endText();
+//					y -= p.getStringHeight();
+//				}
+//			}
+//		}
+    //}
 
     private IsoPage findIsoPage(Context context, PdfDocument pdfDocument, int pageMaxGeneration, Person treeHead) throws Exception {
         IsoPage page;
@@ -484,7 +496,6 @@ public abstract class Tree {
         return maxGenration;
     }
 
-
     public void generate(Context context, PdfDocument pdfDocument, String familyName) throws Exception {
         logger.info(String.format("Generating %s tree ...", context.getParameterOptions().getOutputDecorator()));
         createFonts(context, pdfDocument);
@@ -531,8 +542,21 @@ public abstract class Tree {
         return errors;
     }
 
+    private void orderSubtrees(PdfDocument pdfDocument) throws Exception {
+        // let's order the pages according to the natural order of the tree from top-down
+        personList.clearVisited();
+        PersonList treeHeadList = personList.findTreeHeadList(context);
+        int newPageIndex = 0;
+        for (Person person : treeHeadList) {
+            if (!person.isVisited()) {
+                rearrangePage(person.getPageIndex(), newPageIndex);
+                newPageIndex++;
+            }
+        }
+    }
+
     private void position(Context context, PdfDocument pdfDocument) {
-        List<Person> rootFatherList = personList.findRootFatherList(context);
+        List<Person> rootFatherList = personList.findTreeRootList(context);
         firstPageIndex = pdfDocument.lastPageIndex;
         char familyLetter = 'A';
         for (Person rootFather : rootFatherList) {
@@ -547,6 +571,22 @@ public abstract class Tree {
     }
 
     abstract float position(Context context, Person person, int includingGeneration);
+
+    /**
+     * move every person located on the page with sourcePageIndex to the new targetPageIndex
+     * moved person will be marked as visited to prevent mixing up new and old pages that have same value
+     *
+     * @param sourcePageIndex
+     * @param targetPageIndex
+     */
+    private void rearrangePage(Integer sourcePageIndex, int targetPageIndex) {
+        for (Person person : personList) {
+            if (!person.isVisited() && person.getPageIndex() == sourcePageIndex) {
+                person.setPageIndex(targetPageIndex);
+                person.setVisited(true);
+            }
+        }
+    }
 
     private void resetPageIndex(Person person) {
         person.setPageIndex(null);

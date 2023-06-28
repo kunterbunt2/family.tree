@@ -50,6 +50,7 @@ public abstract class Person extends BasicFamilyMember {
     private Person prevSibling;
     private PersonList spouseList;
     private String familyLetter;// one letter to distinguish different families that have the same last name
+    private boolean visited;
 
     public Person(PersonList personList, Integer id) {
         super(id);
@@ -345,13 +346,13 @@ public abstract class Person extends BasicFamilyMember {
     }
 
     public PersonList getDescendantList() {
-        PersonList decendantList = new PersonList();
+        PersonList descendantList = new PersonList();
         for (Person person : getChildrenList()) {
-            decendantList.add(person);
-            decendantList.addAll(person.getDescendantList());
+            descendantList.add(person);
+            descendantList.addAll(person.getDescendantList());
         }
 
-        return decendantList;
+        return descendantList;
     }
 
     protected String getDiedString() {
@@ -421,8 +422,6 @@ public abstract class Person extends BasicFamilyMember {
         return prevSibling;
     }
 
-//	public abstract String getSexCharacter();
-
     public PersonList getSpouseList() {
         if (spouseList == null) {
             spouseList = new PersonList();
@@ -444,6 +443,8 @@ public abstract class Person extends BasicFamilyMember {
             ps = getMother();
         return ps;
     }
+
+//	public abstract String getSexCharacter();
 
     /**
      * return the parent that heads this little tree
@@ -545,7 +546,7 @@ public abstract class Person extends BasicFamilyMember {
         }
         // not children with spouse that has parents
         for (Person spouse : getSpouseList()) {
-            if (spouse.getFather() != null || spouse.getMother() != null || spouse.isRootFather(context)) {
+            if (spouse.getFather() != null || spouse.getMother() != null || spouse.isTreeRoot(context)) {
                 return false;
             }
         }
@@ -554,22 +555,6 @@ public abstract class Person extends BasicFamilyMember {
 
     public boolean isPaginationClone() {
         return false;
-    }
-
-    /**
-     * definition of root father = is male, has no parents, is a member of the family, has children with a spouse that has no parents
-     *
-     * @return
-     */
-    public boolean isRootFather(Context context) {
-        if (isFemale() || (getFather() != null) || (getMother() != null) || !isMember(context))
-            return false;
-        for (Person spouse : getSpouseList()) {
-            if (spouse.getFather() != null || spouse.getMother() != null)
-                return false;
-        }
-
-        return context.getParameterOptions().getFamilyName() != null && getLastName().toLowerCase().contains(context.getParameterOptions().getFamilyName().toLowerCase());
     }
 
     /**
@@ -589,8 +574,51 @@ public abstract class Person extends BasicFamilyMember {
         return attribute.spouseOfLastChild;
     }
 
+    /**
+     * definition of root father = is male, has no parents, is a member of the family, has children with a spouse that has no parents
+     *
+     * @return
+     */
+    public boolean isTreeRoot(Context context) {
+        if (isFemale() || (getFather() != null) || (getMother() != null) || !isMember(context)) {
+            // cannot be a female
+            // cannot have a father
+            // cannot have a mother
+            // must be member of the family
+            return false;
+        }
+        if (isClone()) {
+            // cannot be a pagination clone or spouse clone.
+            return false;
+        }
+        if (!hasChildren()) {
+            // must have children to be root of tree
+            return false;
+        }
+        for (Person spouse : getSpouseList()) {
+            if (spouse.getFather() != null || spouse.getMother() != null) {
+                // spouse must nto have father or mother
+                return false;
+            }
+        }
+        if (context.getParameterOptions().getFamilyName() == null) {
+            // family name cannot be empty
+            return false;
+        }
+        if (!getLastName().toLowerCase().contains(context.getParameterOptions().getFamilyName().toLowerCase())) {
+            // family name must match tree family name
+            return false;
+        }
+
+        return true;
+    }
+
     public boolean isVisible() {
         return attribute.visible;
+    }
+
+    public boolean isVisited() {
+        return visited;
     }
 
     public void moveSpouseTree(float x, float y) {
@@ -700,6 +728,10 @@ public abstract class Person extends BasicFamilyMember {
 
     public void setVisible(boolean child) {
         this.attribute.visible = child;
+    }
+
+    public void setVisited(boolean visited) {
+        this.visited = visited;
     }
 
     public void setX(float x) {
