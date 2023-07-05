@@ -23,13 +23,30 @@ public class HorizontalSplitTest extends Base {
     @Test
     @DisplayName("bushnaq family, split bottom up on A4 pages")
     public void splitBottomUp(TestInfo testInfo) throws Exception {
-        generate(new String[]{"-input", buildInputFileName(testInfo), "-output", buildOutputFileName(testInfo), "-family_name", getFamilyName(), "-coordinates", "-grid", "-max_iso", "A4", "-split", "BOTTOM_UP"});
+        generate(new String[]{//
+                "-input", buildInputFileName(testInfo),//
+                "-output", buildOutputFileName(testInfo),//
+                "-family_name", getFamilyName(),//
+                //"-coordinates",//
+                //"-grid",//
+                "-min_iso", "A6",//
+                "-max_iso", "A4",//
+                "-split", "BOTTOM_UP"//
+        });
     }
 
     @Test
     @DisplayName("bushnaq family, split top down on A4 pages")
     public void splitTopDown(TestInfo testInfo) throws Exception {
-        generate(new String[]{"-input", buildInputFileName(testInfo), "-output", buildOutputFileName(testInfo), "-family_name", getFamilyName(), "-coordinates", "-grid", "-max_iso", "A4", "-split", "TOP_DOWN"});
+        generate(new String[]{
+                "-input", buildInputFileName(testInfo)//
+                , "-output", buildOutputFileName(testInfo)//
+                , "-family_name", getFamilyName()//
+                //, "-coordinates"//
+                //, "-grid"//
+                , "-max_iso", "A4"//
+                , "-split", "TOP_DOWN"//
+        });
     }
 
 }

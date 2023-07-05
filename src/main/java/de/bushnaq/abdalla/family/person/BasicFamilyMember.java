@@ -16,6 +16,8 @@ public class BasicFamilyMember implements Comparable<BasicFamilyMember> {
     private String lastName;
     private String lastNameOriginalLanguage;
     private Person mother;
+    private String familyLetter;// one letter to distinguish different families that have the same last name
+
 
     public BasicFamilyMember(BasicFamilyMember member) {
         this.id = member.id;
@@ -27,12 +29,14 @@ public class BasicFamilyMember implements Comparable<BasicFamilyMember> {
         this.setDied(member.died);
         this.setFather(member.father);
         this.setMother(member.mother);
+        this.familyLetter = member.familyLetter;
+
     }
 
-    public BasicFamilyMember(Integer id) {
+    public BasicFamilyMember(Integer id, String familyLetter) {
         this.id = id;
+        this.familyLetter = familyLetter;
     }
-
 
     @Override
     public int compareTo(BasicFamilyMember o) {
@@ -45,6 +49,10 @@ public class BasicFamilyMember implements Comparable<BasicFamilyMember> {
 
     public FlexibleDate getDied() {
         return died;
+    }
+
+    public String getFamilyLetter() {
+        return familyLetter;
     }
 
     public Person getFather() {
@@ -83,6 +91,10 @@ public class BasicFamilyMember implements Comparable<BasicFamilyMember> {
         this.died = died;
     }
 
+    public void setFamilyLetter(String familyLetter) {
+        this.familyLetter = familyLetter;
+    }
+
     public void setFather(Person father) {
         this.father = father;
     }
@@ -115,5 +127,6 @@ public class BasicFamilyMember implements Comparable<BasicFamilyMember> {
     public String toString(Context context) {
         return toString();
     }
+
 
 }

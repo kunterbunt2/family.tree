@@ -22,28 +22,29 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 public class TreeExcelReader extends BasicExcelReader {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final PersonList personList = new PersonList();
     private final Map<Integer, Person> rowIndexToPerson = new HashMap<>();
+    private final Pattern pattern = Pattern.compile("\\d+");
 
     private void createPeronList(Workbook workbook) throws Exception {
         Sheet sheet = workbook.getSheetAt(0);
         Iterator<Row> iterator = sheet.iterator();
         while (iterator.hasNext()) {
             Row row = iterator.next();
-            if (row.getRowNum() != 0) {
-                if (row.getCell(0) != null) {
-                    Integer id = row.getRowNum() + 1;
-                    String sex = row.getCell(getColumnHeaderList().getExcelColumnIndex(ColumnHeaderList.SEX_COLUMN)).getStringCellValue();
-                    if (sex.equalsIgnoreCase("Male")) {
-                        rowIndexToPerson.put(row.getRowNum() + 1, Person.createMale(personList, id));
-                    } else if (sex.equalsIgnoreCase("female")) {
-                        rowIndexToPerson.put(row.getRowNum() + 1, Person.createFemale(personList, id));
-                    } else
-                        throw new Exception(String.format("Unknown sex %s", sex));
-                }
+            if (row.getRowNum() != 0 && row.getFirstCellNum() > -1) {
+                Integer id = (int) row.getCell(getColumnHeaderList().getExcelColumnIndex(ColumnHeaderList.ID_COLUMN)).getNumericCellValue();
+                String familyLetter = row.getCell(getColumnHeaderList().getExcelColumnIndex(ColumnHeaderList.FAMILY_LETTER_COLUMN)).getStringCellValue();
+                String sex = row.getCell(getColumnHeaderList().getExcelColumnIndex(ColumnHeaderList.SEX_COLUMN)).getStringCellValue();
+                if (sex.equalsIgnoreCase("Male")) {
+                    rowIndexToPerson.put(row.getRowNum() + 1, Person.createMale(personList, id, familyLetter));
+                } else if (sex.equalsIgnoreCase("Female")) {
+                    rowIndexToPerson.put(row.getRowNum() + 1, Person.createFemale(personList, id, familyLetter));
+                } else
+                    throw new Exception(String.format("Unknown sex %s", sex));
             }
         }
     }
@@ -75,7 +76,7 @@ public class TreeExcelReader extends BasicExcelReader {
         if (p == null || p.isFemale()) {
             return p;
         } else {
-            throw new Exception(String.format("Expected reference to female person at %s", ExcelUtil.cellReference(cell)));
+            throw new Exception(String.format("Expected reference to Female person at %s", ExcelUtil.cellReference(cell)));
         }
 
     }
@@ -168,6 +169,13 @@ public class TreeExcelReader extends BasicExcelReader {
         return personList;
     }
 
+    public boolean isNumeric(String strNum) {
+        if (strNum == null) {
+            return false;
+        }
+        return pattern.matcher(strNum).matches();
+    }
+
 //	public PersonList readPersonList(String fileName) throws Exception {
 //		readExcel(fileName);
 //		return personList;
@@ -189,7 +197,7 @@ public class TreeExcelReader extends BasicExcelReader {
         {
             Cell cell = row.getCell(getColumnHeaderList().getExcelColumnIndex(ColumnHeaderList.LAST_NAME_COLUMN));
             person.setLastName(getLastName(workbook, cell));
-            if (person.getLastName().isEmpty())
+            if (person.getLastName() == null || person.getLastName().isEmpty())
                 logger.warn(String.format("[%3d] '%s' has no family name.", person.getId(), person.getFirstName()));
         }
         {

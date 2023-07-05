@@ -7,7 +7,6 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.PDPageContentStream.AppendMode;
 import org.apache.pdfbox.pdmodel.common.PDMetadata;
 import org.apache.pdfbox.pdmodel.common.PDPageLabelRange;
 import org.apache.pdfbox.pdmodel.common.PDPageLabels;
@@ -63,12 +62,12 @@ public class PdfDocument implements Closeable {
         endDocument();
     }
 
-    public void closeOperation(int pageIndex) throws IOException {
-        pageContentStreamMap.get(pageIndex).close();
-        PDPage page = pageMap.get(pageIndex);
-        PDPageContentStream contentStream = new PDPageContentStream(document, page, AppendMode.APPEND, true, true);
-        pageContentStreamMap.put(pageIndex, contentStream);
-    }
+//    public void closeOperation(int pageIndex) throws IOException {
+//        pageContentStreamMap.get(pageIndex).close();
+//        PDPage page = pageMap.get(pageIndex);
+//        PDPageContentStream contentStream = new PDPageContentStream(document, page, AppendMode.APPEND, true, true);
+//        pageContentStreamMap.put(pageIndex, contentStream);
+//    }
 
     public void createFont(String fontLabel, String fontName, float fontSize) throws IOException {
         PDFont pdFont = loadFont(fontName);

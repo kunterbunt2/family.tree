@@ -1,6 +1,7 @@
-package de.bushnaq.abdalla.family.tree.bushnaq;
+package de.bushnaq.abdalla.family.tree.reference;
 
 import de.bushnaq.abdalla.family.Application;
+import de.bushnaq.abdalla.family.person.PersonList;
 import de.bushnaq.abdalla.family.tree.util.Base;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,27 +11,29 @@ import org.springframework.test.context.ContextConfiguration;
 
 @SpringBootTest
 @ContextConfiguration(classes = Application.class)
-public class HorizontalTest extends Base {
+//@TestPropertySource
+public class ETest extends Base {
 
-    public HorizontalTest() {
+    public ETest() {
         super("bushnaq");
     }
 
-    protected String buildInputFileName(TestInfo testInfo) {
-        return "reference/bushnaq/bushnaq.xlsx";
-    }
 
     @Test
-    @DisplayName("bushnaq family")
+    @DisplayName("complex test case including 2 wives, compact should not overlap person")
     public void generate(TestInfo testInfo) throws Exception {
-        generate(new String[]{
+        PersonList personList = generate(new String[]{//
                 "-input", buildInputFileName(testInfo)//
                 , "-output", buildOutputFileName(testInfo)//
                 , "-family_name", getFamilyName()//
-                //, "-coordinates"//
-                //, "-grid"//
+                , "-coordinates"//
+//                , "-grid"//
                 , "-min_iso", "A4"//
         });
+//        writeResult(personList, testInfo);
+//        List<ExpectedResult> expectedResultList = readResult(testInfo);
+//        testResult(personList, expectedResultList, new IsoPage(PDRectangle.A4, "A4"));
     }
+
 
 }

@@ -38,8 +38,8 @@ public class DrawablePerson extends Person {
         this.spouseBorderColor = new Color(backgroundColor.getRGB());
     }
 
-    public DrawablePerson(PersonList personList, Integer id, Color backgroundColor) {
-        super(personList, id);
+    public DrawablePerson(PersonList personList, Integer id, String familyLetter, Color backgroundColor) {
+        super(personList, id, familyLetter);
         this.backgroundColor = backgroundColor;
         this.spouseBorderColor = new Color(backgroundColor.getRGB());
     }
@@ -276,7 +276,7 @@ public class DrawablePerson extends Person {
                     p.setFont(pdfDocument.getFont(NAME_FONT));
                 }
                 {
-                    String text = String.valueOf(getId());
+                    String text = getFamilyLetter() + getId();
                     float x2 = x1 + getImageWidth(context) + getBorder(context) + getMargin(context);
                     float y2 = y1 + getHeight(context) - getBorder(context);
                     drawTextMetric(p, x2, y2, text, context);
@@ -310,23 +310,25 @@ public class DrawablePerson extends Person {
                 }
             }
         }
-//        if (context.getParameterOptions().isCoordinates()) {
-//            // Coordinates
-//            try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
-//                p.setNonStrokingColor(Color.darkGray);
-//                p.setFont(pdfDocument.getFont(DATE_FONT));
-//                {
-//                    String text = String.format("%d,%d", (int) getX(), (int) getY());
+        if (context.getParameterOptions().isCoordinates()) {
+            // Coordinates
+            try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
+                p.setNonStrokingColor(Color.blue);
+                p.setFont(pdfDocument.getFont(NAME_FONT));
+                {
+                    String text = String.format("%d,%d", (int) getX(), (int) getY());
 //                    float x2 = x1 + getImageWidth(context) + getWidth(context) - p.getStringWidth(text) - getMargin(context) - getBorder(context);
 //                    float y2 = y1 + getHeight(context) - getBorder(context) - p.getStringHeight();
-//                    drawTextMetric(p, x2, y2, text, context);
-//                    p.beginText();
-//                    p.newLineAtOffset(x2, y2);
-//                    p.showText(text);
-//                    p.endText();
-//                }
-//            }
-//        }
+                    float x2 = x1 + getImageWidth(context) + getWidth(context) - p.getStringWidth("GX") - p.getStringWidth(text) - getMargin(context) - getBorder(context);
+                    float y2 = y1 + getHeight(context) - getBorder(context);
+                    drawTextMetric(p, x2, y2, text, context);
+                    p.beginText();
+                    p.newLineAtOffset(x2, y2);
+                    p.showText(text);
+                    p.endText();
+                }
+            }
+        }
         {
             // born
             if (!context.getParameterOptions().isCompact()) {

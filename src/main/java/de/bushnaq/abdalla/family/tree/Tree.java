@@ -38,14 +38,14 @@ public abstract class Tree {
     }
 
     private void analyzeTree() {
-        char familyLetter = 'A';
+//        char familyLetter = 'A';
         List<Person> rottFatherList = personList.findTreeRootList(context);
         for (Person rootFather : rottFatherList) {
             rootFather.setFirstFather(true);
             rootFather.setGeneration(0);
-            rootFather.setFamilyLetter(String.valueOf(familyLetter));
+//            rootFather.setFamilyLetter(String.valueOf(familyLetter));
             rootFather.analyzeTree(context);
-            familyLetter += 1;
+//            familyLetter += 1;
         }
     }
 
@@ -114,7 +114,7 @@ public abstract class Tree {
         for (Person person : treeHeadList) {
             Rect rect = person.getTreeRect();
             IsoPage page = pdfDocument.findBestFittingPageSize(context, rect);
-            IsoPage minPageSize = context.getParameterOptions().getTargetPaperSize();
+            IsoPage minPageSize = context.getParameterOptions().getMinPaperSize();
             if (page.compareTo(minPageSize) < 0) {
                 page = minPageSize;
             }
@@ -122,6 +122,7 @@ public abstract class Tree {
             float pageHeight = page.getRect().getHeight();
             pdfDocument.createPage(person.getPageIndex(), pageWidth, pageHeight, person.getFirstName() + context.getParameterOptions().getOutputDecorator());
             drawPageSizeWatermark(pdfDocument, person.getPageIndex());
+            drawPageNumber(pdfDocument, person.getPageIndex());
             drawPageAreaWatermark(pdfDocument, person.getPageIndex(), person.getTreeRect());
         }
     }
@@ -170,12 +171,13 @@ public abstract class Tree {
         } else {
             visitedList.add(person);
         }
-//        float pageWidth = page.getRect().getWidth();
-//        float pageHeight = page.getRect().getHeight();
-//        Person person1 = personList.get(personList.size() - 1);
-//        pdfDocument.createPage(pdfDocument.lastPageIndex, pageWidth, pageHeight, person.getFirstName() + context.getParameterOptions().getOutputDecorator());
-//        drawPageSizeWatermark(pdfDocument, pdfDocument.lastPageIndex);
-//        drawPageAreaWatermark(pdfDocument, pdfDocument.lastPageIndex, person.getTreeRect());
+        {
+//            float pageWidth = page.getRect().getWidth();
+//            float pageHeight = page.getRect().getHeight();
+//            pdfDocument.createPage(pdfDocument.lastPageIndex, pageWidth, pageHeight, person.getFirstName() + context.getParameterOptions().getOutputDecorator());
+//            drawPageSizeWatermark(pdfDocument, pdfDocument.lastPageIndex);
+//            drawPageAreaWatermark(pdfDocument, pdfDocument.lastPageIndex, person.getTreeRect());
+        }
         pdfDocument.lastPageIndex++;
     }
 
@@ -271,10 +273,7 @@ public abstract class Tree {
         List<Person> rootFatherList = personList.findTreeRootList(context);
         if (rootFatherList.size() == 0)
             throw new Exception("Did not find root father");
-        char familyLetter = 'A';
         for (Person rootFather : rootFatherList) {
-            rootFather.setFamilyLetter(String.valueOf(familyLetter));
-            familyLetter += 1;
             int treeMaxGeneration = findMaxgeneration(rootFather);
             distributeTreeTopDownOnPages(context, pdfDocument, rootFather, treeMaxGeneration);
         }
@@ -288,13 +287,6 @@ public abstract class Tree {
         IsoPage targetPageSize = new IsoPage(new PDRectangle(9999, 9999), ">A0");
         if (context.getParameterOptions().isDistributeOnPages())
             targetPageSize = context.getParameterOptions().getTargetPaperSize();
-//        int wPortrait = (int) ((targetPageSize.getRect().getWidth() - DrawablePerson.getPageMargin(context) * 2) / DrawablePerson.getPersonWidth(context));
-//        int hPortrait = (int) ((targetPageSize.getRect().getHeight() - DrawablePerson.getPageMargin(context) * 2) / DrawablePerson.getPersonHeight(context));
-//        int wLandscape = (int) ((targetPageSize.getRect().getHeight() - DrawablePerson.getPageMargin(context) * 2) / DrawablePerson.getPersonWidth(context));
-//        int hLandscape = (int) ((targetPageSize.getRect().getWidth() - DrawablePerson.getPageMargin(context) * 2) / DrawablePerson.getPersonHeight(context));
-//        logger.info(String.format("%s portrait can fit: %d x %d person.", targetPageSize.getName(), wPortrait, hPortrait));
-//        logger.info(String.format("%s landscape can fit: %d x %d person.", targetPageSize.getName(), wLandscape, hLandscape));
-
         do {
             //TODO consider using findIsoPage
             page = findIsoPage(context, pdfDocument, pageMaxGeneration, person);// run successful treeHead again
@@ -371,16 +363,34 @@ public abstract class Tree {
                 float h = Person.getPersonHeight(context);
                 float w = Person.getPersonWidth(context);
 
-                for (int y = 0; y < page.getBBox().getHeight() / h + 1; y++) {
-                    p.drawRect(getPageMargin(context) + 0, getPageMargin(context) - Person.getYSpace(context) / 2 + y * h, page.getBBox().getWidth(), 1);
-                    for (int x = 0; x < page.getBBox().getWidth() / w + 1; x++) {
-                        p.drawRect(getPageMargin(context) - Person.getXSpace(context) / 2 + x * w, getPageMargin(context) + 0, 1, page.getBBox().getHeight());
-                        p.setFont(pdfDocument.getFont(DATE_FONT));
-                        p.setNonStrokingColor(Color.black);
-                        p.beginText();
-                        p.newLineAtOffset(getPageMargin(context) + x * w, getPageMargin(context) - Person.getYSpace(context) / 2 + y * h + Person.getPersonHeight(context));
-                        p.showText(String.format("%d,%d", x, y));
-                        p.endText();
+                int maxY = (int) ((page.getBBox().getHeight() - getPageMargin(context) * 2) / h) + 1;
+                for (int y = 0; y < maxY; y++) {
+                    // horizontal line
+                    {
+                        float x1 = getPageMargin(context) - Person.getXSpace(context) / 2;
+                        float x2 = getPageMargin(context) - Person.getXSpace(context) / 2 + ((int) ((page.getBBox().getWidth() - getPageMargin(context) * 2) / w)) * w;
+                        float y1 = getPageMargin(context) - Person.getYSpace(context) / 2 + y * h;
+                        float y2 = y1;
+                        p.drawLine(x1, y1, x2, y2);
+                    }
+                    int maxX = (int) ((page.getBBox().getWidth() - getPageMargin(context) * 2) / w) + 1;
+                    for (int x = 0; x < maxX; x++) {
+                        // vertical line
+                        {
+                            float x1 = getPageMargin(context) - Person.getXSpace(context) / 2 + x * w;
+                            float y1 = getPageMargin(context) - Person.getYSpace(context) / 2;
+                            float x2 = x1;
+                            float y2 = getPageMargin(context) - Person.getYSpace(context) / 2 + ((int) ((page.getBBox().getHeight() - getPageMargin(context) * 2) / h)) * h;
+                            p.drawLine(x1, y1, x2, y2);
+                        }
+//                        if (x < maxX - 1 && y < maxY - 1) {
+//                            p.setFont(pdfDocument.getFont(DATE_FONT));
+//                            p.setNonStrokingColor(Color.black);
+//                            p.beginText();
+//                            p.newLineAtOffset(getPageMargin(context) + x * w, getPageMargin(context) - Person.getYSpace(context) / 2 + y * h + Person.getPersonHeight(context));
+//                            p.showText(String.format("%d,%d", x, y));
+//                            p.endText();
+//                        }
                     }
                 }
                 p.stroke();
@@ -402,6 +412,20 @@ public abstract class Tree {
             String text = String.format("%d X %d = %d", w, h, area);
             p.beginText();
             p.newLineAtOffset(page.getBBox().getWidth() - p.getStringWidth(text), h1 + h2);
+            p.showText(text);
+            p.endText();
+        }
+    }
+
+    private void drawPageNumber(PdfDocument pdfDocument, Integer pageIndex) throws IOException {
+        try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
+            PDPage page = pdfDocument.getPage(pageIndex);
+            p.setNonStrokingColor(Color.black);
+            p.setFont(pdfDocument.getFont(NAME_FONT));
+            float h1 = p.getStringHeight();
+            String text = String.format("%d", pageIndex + 1);
+            p.beginText();
+            p.newLineAtOffset(page.getBBox().getWidth() - 10, page.getBBox().getHeight() - h1);
             p.showText(text);
             p.endText();
         }
@@ -543,7 +567,7 @@ public abstract class Tree {
     }
 
     private void orderSubtrees(PdfDocument pdfDocument) throws Exception {
-        // let's order the pages according to the natural order of the tree from top-down
+        // let's order the pages according to the natural order of the tree from top-down and left to right
         personList.clearVisited();
         PersonList treeHeadList = personList.findTreeHeadList(context);
         int newPageIndex = 0;
@@ -558,11 +582,8 @@ public abstract class Tree {
     private void position(Context context, PdfDocument pdfDocument) {
         List<Person> rootFatherList = personList.findTreeRootList(context);
         firstPageIndex = pdfDocument.lastPageIndex;
-        char familyLetter = 'A';
         for (Person rootFather : rootFatherList) {
             rootFather.setPageIndex(pdfDocument.lastPageIndex++);
-            rootFather.setFamilyLetter(String.valueOf(familyLetter));
-            familyLetter += 1;
             rootFather.setX(0);
             rootFather.setY(0);
             position(context, rootFather, 1000);
@@ -639,7 +660,7 @@ public abstract class Tree {
             }
         }
         for (Person p : personList) {
-            if (p.isVisible() && p.getGeneration() != null && p.getGeneration() <= includingGeneration)
+            if (p.isVisible() /*&& p.getGeneration() != null && p.getGeneration() <= includingGeneration*/)
                 p.validate(context);
         }
         for (Person p : personList) {

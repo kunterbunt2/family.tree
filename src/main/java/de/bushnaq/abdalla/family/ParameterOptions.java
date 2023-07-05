@@ -18,6 +18,7 @@ public class ParameterOptions {
     private static final String CLI_OPTION_H = "h";
     private static final String CLI_OPTION_INPUT = "input";
     private static final String CLI_OPTION_OUTPUT = "output";
+    //    private static final String CLI_OPTION_FILTER = "filter";
     private static final String CLI_OPTION_OUTPUT_FILE_DECORATIONS = "output_decorations";
     private static final String CLI_OPTION_V = "v";
     private static final String CLI_OPTION_SPLIT = "split";
@@ -50,6 +51,12 @@ public class ParameterOptions {
     private boolean v = true;                                        // vertical tree mode
     private boolean distributeOnPages = true;// distribute trees that do not fit on targetPaperSize
     private SplitMode distributeOnPagesMode = SplitMode.TOP_DOWN;
+
+//    public String getFilter() {
+//        return filter;
+//    }
+
+//    private String filter;
 
     public SplitMode getDistributeOnPagesMode() {
         return distributeOnPagesMode;
@@ -161,6 +168,7 @@ public class ParameterOptions {
         Options options = new Options();
         options.addOption(Option.builder(CLI_OPTION_INPUT).hasArg().desc("Input excel file name. This parameter is not optional.").build());
         options.addOption(Option.builder(CLI_OPTION_OUTPUT).hasArg().desc("Output pdf file name. This parameter is optional. Default is input file name.").build());
+//        options.addOption(Option.builder(CLI_OPTION_FILTER).hasArg().desc("Filter input file to a specific root. This parameter is optional.").build());
         options.addOption(Option.builder(CLI_OPTION_FAMILY_NAME).hasArg().desc("Family name used to pic root of family. This parameter is optional.").optionalArg(true).build());
         options.addOption(Option.builder(CLI_OPTION_OUTPUT_FILE_DECORATIONS).hasArg().desc("Output file name decorations. This parameter is optional.").optionalArg(true).build());
         options.addOption(Option.builder(CLI_OPTION_H).desc("Generate horizontal tree. This parameter is optional. Default is false.").optionalArg(true).build());
@@ -192,6 +200,11 @@ public class ParameterOptions {
         } else {
             output = input;
         }
+//        if (line.hasOption(CLI_OPTION_FILTER)) {
+//            filter = line.getOptionValue(CLI_OPTION_FILTER);
+//        } else {
+//            filter = null;
+//        }
 
         if (line.hasOption(CLI_OPTION_OUTPUT_FILE_DECORATIONS)) {
             outputDecorator = line.getOptionValue(CLI_OPTION_OUTPUT_FILE_DECORATIONS);

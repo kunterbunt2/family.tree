@@ -38,10 +38,10 @@ public abstract class Person extends BasicFamilyMember {
     public Integer nextPersonY = -1;
     public Integer pageIndex;                                // index of the pdf page this person is located at
     public Integer spouseIndex;
-    public Person minx = null;
-    public Person maxx = null;
-    public Person miny = null;
-    public Person maxy = null;
+    //    public Person minx = null;
+//    public Person maxx = null;
+//    public Person miny = null;
+//    public Person maxy = null;
     private float x = 0;
     private float y = 0;
     private PersonList childrenList;
@@ -49,18 +49,16 @@ public abstract class Person extends BasicFamilyMember {
     private Person nextSibling;
     private Person prevSibling;
     private PersonList spouseList;
-    private String familyLetter;// one letter to distinguish different families that have the same last name
     private boolean visited;
-
-    public Person(PersonList personList, Integer id) {
-        super(id);
+    public Person(PersonList personList, Integer id, String familyLetter) {
+        super(id, familyLetter);
         this.personList = personList;
     }
 
     public Person(PersonList personList, Person person) {
         super(person);
+        this.attribute.sex = person.attribute.sex;
         this.pageIndex = person.pageIndex;
-        this.familyLetter = person.familyLetter;
         this.personList = personList;
         person.errors = errors;
     }
@@ -77,14 +75,14 @@ public abstract class Person extends BasicFamilyMember {
         }
     }
 
-    public static Person createFemale(PersonList personList, Integer id) {
-        Person female = new DrawablePerson(personList, id, new Color(0xff, 0x62, 0xb0, 32));
+    public static Person createFemale(PersonList personList, Integer id, String familyLetter) {
+        Person female = new DrawablePerson(personList, id, familyLetter, new Color(0xff, 0x62, 0xb0, 32));
         female.setFemale();
         return female;
     }
 
-    public static Person createMale(PersonList personList, Integer id) {
-        Person female = new DrawablePerson(personList, id, new Color(0x2d, 0xb1, 0xff, 32));
+    public static Person createMale(PersonList personList, Integer id, String familyLetter) {
+        Person female = new DrawablePerson(personList, id, familyLetter, new Color(0x2d, 0xb1, 0xff, 32));
         female.setMale();
         return female;
     }
@@ -208,7 +206,7 @@ public abstract class Person extends BasicFamilyMember {
                 if (child.equals(childrenList.getLast())) {
                     child.setLastChild(true);
                 }
-                child.setFamilyLetter(getFamilyLetter());
+//                child.setFamilyLetter(getFamilyLetter());
                 child.analyzeTree(context);
             }
             resetSpouseList();
@@ -362,10 +360,6 @@ public abstract class Person extends BasicFamilyMember {
         return "";
     }
 
-    public String getFamilyLetter() {
-        return familyLetter;
-    }
-
     public String getFirstNameAsString(Context context) {
         String name = getFirstName();
         if (context.getParameterOptions().isOriginalLanguage()) {
@@ -422,13 +416,17 @@ public abstract class Person extends BasicFamilyMember {
         return prevSibling;
     }
 
+    public String getSex() {
+        return attribute.sex.name();
+    }
+
     public PersonList getSpouseList() {
         if (spouseList == null) {
             spouseList = new PersonList();
             for (Person p : personList) {
-                if (p.getFather() != null && p.getFather().equals(this))
+                if (p.getFather() != null && p.getFather().equals(this) && p.getMother() != null)
                     spouseList.add(p.getMother());
-                if (p.getMother() != null && p.getMother().equals(this))
+                if (p.getMother() != null && p.getMother().equals(this) && p.getFather() != null)
                     spouseList.add(p.getFather());
             }
         }
@@ -442,6 +440,21 @@ public abstract class Person extends BasicFamilyMember {
         else if (getMother().isSpouse())
             ps = getMother();
         return ps;
+    }
+
+    public PersonList getSubTree() {
+        PersonList subTreeList = new PersonList();
+        if (!isSpouse()) {
+            for (Person spouse : getSpouseList()) {
+                subTreeList.add(spouse);
+            }
+        }
+        for (Person child : getChildrenList()) {
+            subTreeList.add(child);
+            subTreeList.addAll(child.getSubTree());
+        }
+
+        return subTreeList;
     }
 
 //	public abstract String getSexCharacter();
@@ -509,7 +522,7 @@ public abstract class Person extends BasicFamilyMember {
     }
 
     public boolean isFemale() {
-        return attribute.sex == Sex.female;
+        return attribute.sex == Sex.Female;
     }
 
     public boolean isFirstChild() {
@@ -535,7 +548,7 @@ public abstract class Person extends BasicFamilyMember {
     }
 
     public boolean isMale() {
-        return attribute.sex == Sex.male;
+        return attribute.sex == Sex.Male;
     }
 
     public boolean isMember(Context context) {
@@ -546,7 +559,12 @@ public abstract class Person extends BasicFamilyMember {
         }
         // not children with spouse that has parents
         for (Person spouse : getSpouseList()) {
+            if (spouse.isPaginationClone())
+                return false;// pagination clones must have parents
             if (spouse.getFather() != null || spouse.getMother() != null || spouse.isTreeRoot(context)) {
+                // spouse cannot have father
+                // spouse cannot have a mother
+                // spouse cannot be tree root
                 return false;
             }
         }
@@ -581,7 +599,7 @@ public abstract class Person extends BasicFamilyMember {
      */
     public boolean isTreeRoot(Context context) {
         if (isFemale() || (getFather() != null) || (getMother() != null) || !isMember(context)) {
-            // cannot be a female
+            // cannot be a Female
             // cannot have a father
             // cannot have a mother
             // must be member of the family
@@ -597,7 +615,8 @@ public abstract class Person extends BasicFamilyMember {
         }
         for (Person spouse : getSpouseList()) {
             if (spouse.getFather() != null || spouse.getMother() != null) {
-                // spouse must nto have father or mother
+                // spouse must not have father or mother
+                // special case for #TODO find member name
                 return false;
             }
         }
@@ -678,16 +697,13 @@ public abstract class Person extends BasicFamilyMember {
         spouseList = null;
     }
 
-    private void resetSpouseList() {
+    public void resetSpouseList() {
         spouseList = null;// lets the list be populated again, as some might have been replaced by clones
     }
 
-    public void setFamilyLetter(String familyLetter) {
-        this.familyLetter = familyLetter;
-    }
 
     public void setFemale() {
-        attribute.sex = Sex.female;
+        attribute.sex = Sex.Female;
     }
 
     public void setFirstChild(boolean firstChild) {
@@ -711,7 +727,7 @@ public abstract class Person extends BasicFamilyMember {
     }
 
     public void setMale() {
-        attribute.sex = Sex.male;
+        attribute.sex = Sex.Male;
     }
 
     public void setPageIndex(Integer pageIndex) {
@@ -744,26 +760,46 @@ public abstract class Person extends BasicFamilyMember {
 
     public String toString() {
         if (isClone())
-            return String.format("[%d] %.0f %.0f clone", getId(), x, y);
+            return String.format("[%d] %.0f %.0f %d clone", getId(), x, y, getPageIndex());
         else
-            return String.format("[%d] %.0f %.0f", getId(), x, y);
+            return String.format("[%d] %.0f %.0f %d", getId(), x, y, getPageIndex());
     }
 
     public void validate(Context context) throws Exception {
-        if (isVisible() && getPageIndex() == null) {
-            throw new Exception(String.format("[%d] %s is visible but pageIndex == null.", getId(), getClass().getName()));
-        }
-        if (!isMember(context) && getLastName() != null && getLastName().toLowerCase().contains(context.getParameterOptions().getFamilyName().toLowerCase())) {
-            errors.add(String.format(ErrorMessages.ERROR_005_PERSON_UNKNOWN_ORIGINS, context.getParameterOptions().getFamilyName()));
-        }
-        if (getLastName() == null || getLastName().isEmpty()) {
-            errors.add(ErrorMessages.ERROR_004_PERSON_MISSING_LAST_NAME);
-        }
-        if (getFirstName() == null || getFirstName().isEmpty()) {
-            errors.add(ErrorMessages.ERROR_003_PERSON_MISSING_FIRST_NAME);
-        }
-        if (getPageIndex() == null) {
-            errors.add(ErrorMessages.ERROR_002_PAGE_INDEX_NULL);
+        if (errors.isEmpty()) {
+            if (isVisible() && getPageIndex() == null) {
+                throw new Exception(String.format("[%d] %s is visible but pageIndex == null.", getId(), getClass().getName()));
+            }
+            if (!isMember(context) && getLastName() != null && getLastName().toLowerCase().contains(context.getParameterOptions().getFamilyName().toLowerCase())) {
+                errors.add(String.format(ErrorMessages.ERROR_005_PERSON_UNKNOWN_ORIGINS, context.getParameterOptions().getFamilyName()));
+            }
+            if (getLastName() == null || getLastName().isEmpty()) {
+                errors.add(ErrorMessages.ERROR_004_PERSON_MISSING_LAST_NAME);
+            }
+            if (getFirstName() == null || getFirstName().isEmpty()) {
+                errors.add(ErrorMessages.ERROR_003_PERSON_MISSING_FIRST_NAME);
+            }
+            if (getPageIndex() == null) {
+                errors.add(ErrorMessages.ERROR_002_PAGE_INDEX_NULL);
+            }
+            if (context.getParameterOptions().getFamilyName() != null && getLastName().toLowerCase().contains(context.getParameterOptions().getFamilyName().toLowerCase())) {
+                Person spouseClone = findSpouseClone();
+                if (spouseClone == null && !isClone()) {
+                    for (Person spouse : getSpouseList()) {
+                        if (spouse.getFather() != null || spouse.getMother() != null || spouse.isTreeRoot(context)) {
+                            // spouse cannot have father
+                            // spouse cannot have a mother
+                            // spouse cannot be tree root
+                            // special case for #6 Abd al Asis Bushnaq
+                            errors.add("Family member missing father and mother.");
+                        }
+
+                        if (spouse.getFather() != null || spouse.getMother() != null) {
+                            // spouse must not have father or mother
+                        }
+                    }
+                }
+            }
         }
     }
 }

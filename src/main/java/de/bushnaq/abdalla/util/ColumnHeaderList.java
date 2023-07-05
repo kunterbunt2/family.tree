@@ -11,6 +11,7 @@ public class ColumnHeaderList {
     public static final String COMMENT_COLUMN = "Comment";
     public static final String COMMENT_COLUMN_ORIGINAL_LANGUAGE = "Comment (OL)";
     public static final String DIED_COLUMN = "Died";
+    public static final String FAMILY_LETTER_COLUMN = "Family Letter";
     public static final String FATHER_COLUMN = "Father";
     public static final String FIRST_NAME_COLUMN = "First Name";
     public static final String FIRST_NAME_COLUMN_ORIGINAL_LANGUAGE = "First Name (OL)";
@@ -24,18 +25,19 @@ public class ColumnHeaderList {
     private final Map<String, ColumnHeader> nameMap = new HashMap<>();
 
     public ColumnHeaderList() {
-        put(ID_COLUMN, CellType.FORMULA, false);
-        put(SEX_COLUMN, CellType.STRING, false);
-        put(FIRST_NAME_COLUMN, CellType.STRING, false);
-        put(FIRST_NAME_COLUMN_ORIGINAL_LANGUAGE, CellType.STRING, false);
-        put(LAST_NAME_COLUMN, CellType.STRING, false);
-        put(LAST_NAME_COLUMN_ORIGINAL_LANGUAGE, CellType.STRING, false);
-        put(BORN_COLUMN, CellType.NUMERIC, false);
-        put(DIED_COLUMN, CellType.NUMERIC, false);
-        put(FATHER_COLUMN, CellType.FORMULA, false);
-        put(MOTHER_COLUMN, CellType.FORMULA, false);
-        put(COMMENT_COLUMN, CellType.STRING, false);
-        put(COMMENT_COLUMN_ORIGINAL_LANGUAGE, CellType.STRING, false);
+        put(ID_COLUMN, CellType.FORMULA, false, 0);
+        put(SEX_COLUMN, CellType.STRING, false, 1);
+        put(FIRST_NAME_COLUMN, CellType.STRING, false, 2);
+        put(FIRST_NAME_COLUMN_ORIGINAL_LANGUAGE, CellType.STRING, false, 3);
+        put(FAMILY_LETTER_COLUMN, CellType.STRING, false, 4);
+        put(LAST_NAME_COLUMN, CellType.STRING, false, 5);
+        put(LAST_NAME_COLUMN_ORIGINAL_LANGUAGE, CellType.STRING, false, 6);
+        put(BORN_COLUMN, CellType.NUMERIC, false, 7);
+        put(DIED_COLUMN, CellType.NUMERIC, false, 8);
+        put(FATHER_COLUMN, CellType.FORMULA, false, 9);
+        put(MOTHER_COLUMN, CellType.FORMULA, false, 10);
+        put(COMMENT_COLUMN, CellType.STRING, false, 11);
+        put(COMMENT_COLUMN_ORIGINAL_LANGUAGE, CellType.STRING, false, 12);
     }
 
     public ColumnHeader get(int columnIndex) {
@@ -61,6 +63,11 @@ public class ColumnHeaderList {
 
     private void put(String columnName, CellType cellType, boolean optional) {
         nameMap.put(columnName, new ColumnHeader(columnName, cellType, optional));
+    }
+
+    private void put(String columnName, CellType cellType, boolean optional, int index) {
+        nameMap.put(columnName, new ColumnHeader(columnName, cellType, optional, index));
+        indexMap.put(index, nameMap.get(columnName));
     }
 
     public void register(ExcelErrorHandler geh, Row row, int columnIndex, String columnName) {

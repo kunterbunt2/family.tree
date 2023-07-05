@@ -14,4 +14,11 @@ public class ColumnHeader {
         this.optional = optional;
     }
 
+    public ColumnHeader(String name, CellType type, boolean optional, int index) {
+        this.name = name;
+        this.type = type;
+        this.optional = optional;
+        this.index = index;
+    }
+
 }

@@ -130,4 +130,11 @@ assigned a family letter starting with A to distinguish the families from each o
 
 # Issues
 
+order of findSubtreeHead is nto the nartural order
+add cover page
+add page numbers
+remove coordinates from grid and enhance in person
+show pages in full tree with links
+mention [6] Abdel Aziz Bushnaq in validate
+
 PdfBox PDExtendedGraphicsState.setLineWidth has no impact on setLineDashPattern

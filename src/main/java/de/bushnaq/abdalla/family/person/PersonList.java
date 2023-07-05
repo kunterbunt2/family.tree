@@ -36,6 +36,14 @@ public class PersonList extends LinkedList
         return maxGenration;
     }
 
+    public Person findPersonById(int filter) {
+        for (Person person : this) {
+            if (person.getId() == filter)
+                return person;
+        }
+        return null;
+    }
+
     /**
      * Find head of every subtree in the list.
      * A subtree head is a person that was moved together with its subtree to a new page to distribute the total tree on more than one page
@@ -45,10 +53,31 @@ public class PersonList extends LinkedList
      */
     public PersonList findTreeHeadList(Context context) {
         PersonList treeHeadList = new PersonList();
-        for (Person p : this) {
-            if (p.isTreeRoot(context) || p.isPaginationClone()) {
-                treeHeadList.add(p);
-            }
+        for (Person person : findTreeRootList(context)) {
+            treeHeadList.addAll(findTreeHeadList(context, person));
+        }
+
+//        for (Person p : this) {
+//            if (p.isTreeRoot(context) || p.isPaginationClone()) {
+//                treeHeadList.add(p);
+//            }
+//        }
+        return treeHeadList;
+    }
+
+    public PersonList findTreeHeadList(Context context, Person person) {
+        PersonList treeHeadList = new PersonList();
+        Person p = person;
+        Person paginationClone = person.findPaginationClone();
+        if (paginationClone != null) {
+            p = paginationClone;
+        } else {
+        }
+        if (p.isTreeRoot(context) || p.isPaginationClone()) {
+            treeHeadList.add(p);
+        }
+        for (Person child : p.getChildrenList()) {
+            treeHeadList.addAll(findTreeHeadList(context, child));
         }
         return treeHeadList;
     }

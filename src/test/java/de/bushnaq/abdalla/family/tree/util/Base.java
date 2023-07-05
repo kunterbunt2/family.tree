@@ -11,19 +11,28 @@ import de.bushnaq.abdalla.family.person.PersonList;
 import de.bushnaq.abdalla.family.tree.ui.MyCanvas;
 import de.bushnaq.abdalla.pdf.IsoPage;
 import de.bushnaq.abdalla.pdf.PdfDocument;
+import de.bushnaq.abdalla.util.ColumnHeader;
+import de.bushnaq.abdalla.util.ColumnHeaderList;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.TestInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.awt.image.BufferedImage;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
@@ -34,10 +43,13 @@ public class Base {
         System.setProperty("java.awt.headless", "false");
     }
 
+    final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final ColumnHeaderList columnHeaderList = new ColumnHeaderList();
     @Autowired
     protected Context context;
     @Autowired
     protected Main main;
+    Map<Person, Integer> personToIndexMap = new HashMap<>();
     private String familyName = null;
 
     public Base(String familyName) {
@@ -45,6 +57,23 @@ public class Base {
     }
 
     public Base() {
+    }
+
+    private static void removeDeadReferences(PersonList personList) {
+        for (Person person : personList) {
+            if (person.getFather() != null) {
+                if (personList.findPersonById(person.getFather().getId()) == null) {
+                    person.setFather(null);
+                }
+            }
+            if (person.getMother() != null) {
+                if (personList.findPersonById(person.getMother().getId()) == null) {
+                    person.setMother(null);
+                }
+            }
+            person.resetSpouseList();
+            person.resetChildrenList();
+        }
     }
 
     protected String buildInputFileName(TestInfo testInfo) {
@@ -58,6 +87,32 @@ public class Base {
         String testMethod = testInfo.getTestMethod().get().getName();
         Files.createDirectories(Paths.get(String.format("output/%s", testClassName)));
         return String.format("output/%s/%s.pdf", testClassName, testMethod);
+    }
+
+    void filterSubtree(PersonList personList, int filter) throws IOException {
+        personList.clearVisited();
+        Person root = personList.findPersonById(filter);
+        root.setGeneration(1);
+        root.analyzeTree(context);
+//        root.setFather(null);
+//        root.setMother(null);
+        PersonList subTreeList = root.getSubTree();
+        subTreeList.add(root);
+        for (Person person : subTreeList) {
+            person.setVisited(true);
+        }
+
+        int i = 0;
+        do {
+            Person current = personList.get(i);
+            if (!current.isVisited()) {
+                personList.remove(current);
+            } else {
+                i++;
+            }
+        }
+        while (i < personList.size());
+        removeDeadReferences(personList);
     }
 
     public PersonList generate(String[] args) throws Exception {
@@ -87,6 +142,30 @@ public class Base {
         return expectedResultList;
     }
 
+    void removeSubTree(PersonList personList, int filter) throws IOException {
+        personList.clearVisited();
+        Person root = personList.findPersonById(filter);
+        root.setGeneration(1);
+        root.analyzeTree(context);
+        PersonList subTreeList = root.getSubTree();
+        subTreeList.add(root);
+        for (Person person : subTreeList) {
+            person.setVisited(true);
+        }
+
+        int i = 0;
+        do {
+            Person current = personList.get(i);
+            if (current.isVisited()) {
+                personList.remove(current);
+            } else {
+                i++;
+            }
+        }
+        while (i < personList.size());
+        removeDeadReferences(personList);
+    }
+
     private void showImage(BufferedImage image, String title) {
         MyCanvas c = new MyCanvas(image);
         c.f.setTitle(title);
@@ -114,6 +193,101 @@ public class Base {
         assertEquals(0, main.getPageErrors().size(), "Unexpected number of errors");
     }
 
+    void writeExcel(String fileName, PersonList personList) throws IOException {
+        try (Workbook workbook = new XSSFWorkbook()) {
+            int rowIndex = 0;
+            Sheet sheet = workbook.createSheet("tree");
+            Row header = sheet.createRow(rowIndex++);
+            for (int i = 0; i < columnHeaderList.size(); i++) {
+                ColumnHeader columnHeader = columnHeaderList.get(i);
+                Cell headerCell = header.createCell(i);
+                headerCell.setCellValue(columnHeader.name);
+            }
+
+
+            for (Person person : personList) {
+                personToIndexMap.put(person, rowIndex);
+                Row row = sheet.createRow(rowIndex++);
+                int columnIndex = 0;
+                {
+                    Cell cell = row.createCell(columnIndex++);
+                    cell.setCellValue(person.getId());
+                }
+                {
+                    Cell cell = row.createCell(columnIndex++);
+                    cell.setCellValue(person.getSex());
+                }
+                {
+                    Cell cell = row.createCell(columnIndex++);
+                    cell.setCellValue(person.getFirstName());
+                }
+                {
+                    Cell cell = row.createCell(columnIndex++);
+//                    cell.setCellValue(person.getFirstNameOriginalLanguage());
+                }
+                {
+                    Cell cell = row.createCell(columnIndex++);
+                    cell.setCellValue(person.getFamilyLetter());
+                }
+                {
+                    Cell cell = row.createCell(columnIndex++);
+                    cell.setCellValue(person.getLastName());
+                }
+                {
+                    Cell cell = row.createCell(columnIndex++);
+//                    cell.setCellValue(person.getLastNameOriginalLanguage());
+                }
+                {
+                    Cell cell = row.createCell(columnIndex++);
+//                    if (person.getBorn() != null)
+//                        cell.setCellValue(person.getBorn().getDate());
+                }
+                {
+                    Cell cell = row.createCell(columnIndex++);
+//                    if (person.getDied() != null)
+//                        cell.setCellValue(person.getDied().getDate());
+                }
+                if (person.getFather() != null) {
+                    Cell cell = row.createCell(columnIndex);
+//                    cell.setCellValue(person.getFather());
+                }
+                columnIndex++;
+                if (person.getMother() != null) {
+                    Cell cell = row.createCell(columnIndex);
+//                    cell.setCellValue(person.getMother());
+                }
+                columnIndex++;
+                {
+                    Cell cell = row.createCell(columnIndex++);
+                }
+                {
+                    Cell cell = row.createCell(columnIndex++);
+                }
+            }
+            FormulaEvaluator formulaEvaluator = workbook.getCreationHelper().createFormulaEvaluator();
+//            formulaEvaluator.evaluateAll();
+            workbook.setForceFormulaRecalculation(true);
+            for (Person person : personList) {
+                int r = personToIndexMap.get(person);
+                Row row = sheet.getRow(r);
+                if (person.getFather() != null) {
+                    Cell cell = row.getCell(9);
+                    Integer index = personToIndexMap.get(person.getFather());
+                    cell.setCellFormula(String.format("$C$%d", index + 1));
+                    formulaEvaluator.evaluate(cell);
+                }
+                if (person.getMother() != null) {
+                    Cell cell = row.getCell(10);
+                    Integer index = personToIndexMap.get(person.getMother());
+                    cell.setCellFormula(String.format("$C$%d", index + 1));
+                    formulaEvaluator.evaluate(cell);
+                }
+            }
+            FileOutputStream outputStream = new FileOutputStream(fileName);
+            workbook.write(outputStream);
+        }
+    }
+
     protected void writeResult(PersonList personList, TestInfo testInfo) throws Exception {
         String testClassName = testInfo.getTestClass().get().getSimpleName();
         String testMethod = testInfo.getTestMethod().get().getName();
@@ -125,5 +299,4 @@ public class Base {
             gson.toJson(expectedResults, fileWriter);
         }
     }
-
 }

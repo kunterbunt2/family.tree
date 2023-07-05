@@ -1,7 +1,7 @@
 package de.bushnaq.abdalla.family.person;
 
 /**
- * Used to represent a female person in the tree beside her sexual partner.<br>
+ * Used to represent a Female person in the tree beside her sexual partner.<br>
  * All clones are marked with * as such in the tree.<br>
  * The original person is still displayed as sibling of her parents.
  *
