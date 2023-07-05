@@ -50,6 +50,7 @@ public abstract class Person extends BasicFamilyMember {
     private Person prevSibling;
     private PersonList spouseList;
     private boolean visited;
+
     public Person(PersonList personList, Integer id, String familyLetter) {
         super(id, familyLetter);
         this.personList = personList;

@@ -66,8 +66,8 @@ public class Main {
 //            createTree(personList).generate(context, pdfDocument, FileUtil.removeExtension(inputFileName) + generateOutputDecoration());
 //        }
 
-        createTree(personList).generate(context, pdfDocument, FileUtil.removeExtension(inputFileName) + generateOutputDecoration());
-        pageErrors = createTree(personList).generateErrorPage(pdfDocument);
+        pageErrors = createTree(personList).generate(context, pdfDocument, FileUtil.removeExtension(inputFileName) + generateOutputDecoration());
+//        pageErrors = createTree(personList).generateErrorPage(pdfDocument);
         pdfDocument.endDocument();
         return personList;
     }

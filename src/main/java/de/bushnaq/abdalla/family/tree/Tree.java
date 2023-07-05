@@ -331,6 +331,7 @@ public abstract class Tree {
                 distributeTreeTopDownOnPages(context, pdfDocument);
             }
         }
+        validate(context);
         if (context.getParameterOptions().isShowGrid())
             drawGrid(pdfDocument);
         for (int pageIndex = firstPageIndex; pageIndex <= pdfDocument.lastPageIndex; pageIndex++) {
@@ -474,7 +475,7 @@ public abstract class Tree {
         treeHead.setY(0);
         position(context, treeHead, pageMaxGeneration);
         compact(context, pdfDocument, treeHead, pageMaxGeneration);
-        validate(context, pageMaxGeneration);
+//        validate(context, pageMaxGeneration);
         Rect treeRect = treeHead.getTreeRect(pageMaxGeneration);
         //if (person.getId() == 38)
         //drawDebugTree(context, person, pdfDocument.lastPageIndex);
@@ -520,28 +521,31 @@ public abstract class Tree {
         return maxGenration;
     }
 
-    public void generate(Context context, PdfDocument pdfDocument, String familyName) throws Exception {
+    public List<PageError> generate(Context context, PdfDocument pdfDocument, String familyName) throws Exception {
         logger.info(String.format("Generating %s tree ...", context.getParameterOptions().getOutputDecorator()));
         createFonts(context, pdfDocument);
         analyzeTree();
         draw(context, pdfDocument);
+        generateErrorPage(pdfDocument);
+        return errors;
     }
 
     public List<PageError> generateErrorPage(PdfDocument pdfDocument) throws Exception {
-        boolean createErrorPage = false;
-        for (int i = errors.size(); i-- > 0; ) {
-            PageError error = errors.get(i);
-            if (error.getPageIndex() == null) {
-                createErrorPage = true;
-            }
-        }
+        boolean createErrorPage = errors.size() != 0;
+
+//        for (int i = errors.size(); i-- > 0; ) {
+//            PageError error = errors.get(i);
+//            if (error.getPageIndex() == null) {
+//                createErrorPage = true;
+//            }
+//        }
         if (createErrorPage) {
             logger.info("Generating Error page ...");
             createFonts(context, pdfDocument);
-            analyzeTree();
-            position(context, pdfDocument);
-            //compact(context, pdfDocument);
-            validate(context);
+//            analyzeTree();
+//            position(context, pdfDocument);
+//            compact(context, pdfDocument);
+//            validate(context);
             pdfDocument.createPage(PDRectangle.A4, "Errors");
             try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pdfDocument.lastPageIndex)) {
                 p.setNonStrokingColor(Color.red);
@@ -550,7 +554,8 @@ public abstract class Tree {
                 float y = p.getStringHeight();
                 for (int i = errors.size(); i-- > 0; ) {
                     PageError error = errors.get(i);
-                    if (error.getPageIndex() == null) {
+//                    if (error.getPageIndex() == null)
+                    {
                         p.beginText();
                         p.newLineAtOffset(2, y);
                         String errorMessage;
@@ -626,35 +631,35 @@ public abstract class Tree {
         }
     }
 
-    private void validate(Context context) throws Exception {
-        for (Person p1 : personList) {
-            for (Person p2 : personList) {
-                if (!p1.equals(p2)) {
-                    if (p1.isVisible() && p2.isVisible() && p1.getPageIndex() == p2.getPageIndex() && p1.getX() == p2.getX() && p1.getY() == p2.getY()) {
-                        errors.add(new PageError(p1.getPageIndex(), String.format(ErrorMessages.ERROR_006_OVERLAPPING, p1.getId(), p1.getPageIndex(), p1.getFirstName(), p1.getLastName(), p2.getId(), p2.getPageIndex(),
-                                p2.getFirstName(), p2.getLastName())));
-                    }
-                }
-            }
-        }
-        for (Person p : personList) {
-            p.validate(context);
-        }
-        for (Person p : personList) {
-            if (!p.isVisible())
-                errors.add(new PageError(p.getPageIndex(), String.format(ErrorMessages.ERROR_001_PERSON_IS_NOT_VISIBLE, p.getId(), p.getPageIndex(), p.getFirstName(), p.getLastName())));
-        }
-    }
+//    private void validate(Context context) throws Exception {
+//        for (Person p1 : personList) {
+//            for (Person p2 : personList) {
+//                if (!p1.equals(p2)) {
+//                    if (p1.isVisible() && p2.isVisible() && p1.getPageIndex() == p2.getPageIndex() && p1.getX() == p2.getX() && p1.getY() == p2.getY()) {
+//                        errors.add(new PageError(p1.getPageIndex(), String.format(ErrorMessages.ERROR_006_OVERLAPPING, p1.getId(), p1.getPageIndex(), p1.getFirstName(), p1.getLastName(), p2.getId(), p2.getPageIndex(),
+//                                p2.getFirstName(), p2.getLastName())));
+//                    }
+//                }
+//            }
+//        }
+//        for (Person p : personList) {
+//            p.validate(context);
+//        }
+//        for (Person p : personList) {
+//            if (!p.isVisible())
+//                errors.add(new PageError(p.getPageIndex(), String.format(ErrorMessages.ERROR_001_PERSON_IS_NOT_VISIBLE, p.getId(), p.getPageIndex(), p.getFirstName(), p.getLastName())));
+//        }
+//    }
 
-    private void validate(Context context, int includingGeneration) throws Exception {
+    private void validate(Context context/*, int includingGeneration*/) throws Exception {
         // find overlapping person
         for (Person p1 : personList) {
             for (Person p2 : personList) {
                 if (!p1.equals(p2)) {
                     if (p1.isVisible() && p2.isVisible() && Objects.equals(p1.getPageIndex(), p2.getPageIndex()) && p1.getX() == p2.getX() && p1.getY() == p2.getY()) {
-                        if ((p1.getGeneration() == null || p1.getGeneration() <= includingGeneration) && (p2.getGeneration() == null || p2.getGeneration() <= includingGeneration))
-                            errors.add(new PageError(p1.getPageIndex(), String.format(ErrorMessages.ERROR_006_OVERLAPPING, p1.getId(), p1.getPageIndex(), p1.getFirstName(), p1.getLastName(), p2.getId(),
-                                    p2.getPageIndex(), p2.getFirstName(), p2.getLastName())));
+//                        if ((p1.getGeneration() == null || p1.getGeneration() <= includingGeneration) && (p2.getGeneration() == null || p2.getGeneration() <= includingGeneration))
+                        errors.add(new PageError(p1.getPageIndex(), String.format(ErrorMessages.ERROR_006_OVERLAPPING, p1.getId(), p1.getPageIndex(), p1.getFirstName(), p1.getLastName(), p2.getId(),
+                                p2.getPageIndex(), p2.getFirstName(), p2.getLastName())));
                     }
                 }
             }
@@ -664,9 +669,9 @@ public abstract class Tree {
                 p.validate(context);
         }
         for (Person p : personList) {
-            if (p.getGeneration() != null && p.getGeneration() <= includingGeneration)
-                if (!p.isVisible())
-                    errors.add(new PageError(p.getPageIndex(), String.format(ErrorMessages.ERROR_001_PERSON_IS_NOT_VISIBLE, p.getId(), p.getPageIndex(), p.getFirstName(), p.getLastName())));
+//            if (p.getGeneration() != null && p.getGeneration() <= includingGeneration)
+            if (!p.isVisible())
+                errors.add(new PageError(p.getPageIndex(), String.format(ErrorMessages.ERROR_001_PERSON_IS_NOT_VISIBLE, p.getId(), p.getPageIndex(), p.getFirstName(), p.getLastName())));
         }
     }
 
