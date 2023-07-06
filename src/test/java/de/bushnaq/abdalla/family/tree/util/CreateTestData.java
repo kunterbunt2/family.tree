@@ -50,16 +50,15 @@ public class CreateTestData extends Base {
 
         PersonList personList = main.importPersonList(inputFileName);
 
-        filterSubtree(personList, 147);
-//        removeSubTree(personList,148);
-        removeSubTree(personList, 149);
-        removeSubTree(personList, 156);
-        removeSubTree(personList, 162);
-        removeSubTree(personList, 171);
+        filterSubtree(personList, 148);// Ali Bushnaq (Rizvanbeg)
+        removeSubTree(personList, 150);// Muhammad Bushnaq (Rizvanbeg) (child of Amina Duzdar)
+        removeSubTree(personList, 157);// La'iqa Bushnaq (Rizvanbeg) (child of Amina Duzdar)
+        removeSubTree(personList, 163);// Nawzat Bushnaq (Rizvanbeg) (child of Amina Duzdar)
+        removeSubTree(personList, 172);// Sadiq Bushnaq (Rizvanbeg) (child of Amina Duzdar)
 
-        removeSubTree(personList, 177);
-        removeSubTree(personList, 187);
-        removeSubTree(personList, 192);
+        removeSubTree(personList, 178);// Sami Bushnaq (Rizvanbeg) (child of Amina Bushnaq (Hadzajic))
+        removeSubTree(personList, 188);// Said Bushnaq (Rizvanbeg) (child of Amina Bushnaq (Hadzajic))
+        removeSubTree(personList, 193);// Sa'adat Bushnaq (Rizvanbeg) (child of Amina Bushnaq (Hadzajic))
         logger.info(String.format("Left %d person in tree.", personList.size()));
         writeExcel(outputFileName, personList);
     }

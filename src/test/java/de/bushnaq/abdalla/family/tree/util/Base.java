@@ -94,8 +94,6 @@ public class Base {
         Person root = personList.findPersonById(filter);
         root.setGeneration(1);
         root.analyzeTree(context);
-//        root.setFather(null);
-//        root.setMother(null);
         PersonList subTreeList = root.getSubTree();
         subTreeList.add(root);
         for (Person person : subTreeList) {
