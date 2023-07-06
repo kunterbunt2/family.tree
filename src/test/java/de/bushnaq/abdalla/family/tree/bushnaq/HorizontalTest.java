@@ -29,6 +29,7 @@ public class HorizontalTest extends Base {
                 , "-family_name", getFamilyName()//
                 //, "-coordinates"//
                 //, "-grid"//
+                , "-cover_page"//
                 , "-min_iso", "A4"//
         });
     }

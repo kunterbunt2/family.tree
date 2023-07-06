@@ -3,15 +3,10 @@ package de.bushnaq.abdalla.family.person;
 import de.bushnaq.abdalla.family.Context;
 import de.bushnaq.abdalla.pdf.CloseableGraphicsState;
 import de.bushnaq.abdalla.pdf.PdfDocument;
-import org.apache.pdfbox.cos.COSArray;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDFontDescriptor;
-import org.apache.pdfbox.pdmodel.interactive.action.PDActionGoTo;
-import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotationLink;
-import org.apache.pdfbox.pdmodel.interactive.documentnavigation.destination.PDPageDestination;
-import org.apache.pdfbox.pdmodel.interactive.documentnavigation.destination.PDPageFitWidthDestination;
 
 import java.awt.*;
 import java.io.File;
@@ -532,20 +527,12 @@ public class DrawablePerson extends Person {
                 //add link
                 PDPage sourcePage = pdfDocument.getPage(getPageIndex());
                 PDPage targetPage = pdfDocument.getPage(clone.getPageIndex());
-                PDAnnotationLink link = new PDAnnotationLink();
-                link.setBorderStyle(null);
-                link.setBorder(new COSArray());
-                PDPageDestination destination = new PDPageFitWidthDestination();
-                PDActionGoTo action = new PDActionGoTo();
-                destination.setPage(targetPage);
-                action.setDestination(destination);
-                link.setAction(action);
-                link.setPage(sourcePage);
-                link.setRectangle(new PDRectangle(annotationX - labelSize / 2, sourcePage.getBBox().getHeight() - annotationY + labelSize / 2 - labelSize, labelSize, labelSize));
-                sourcePage.getAnnotations().add(link);
+                PDRectangle rectangle = new PDRectangle(annotationX - labelSize / 2, sourcePage.getBBox().getHeight() - annotationY + labelSize / 2 - labelSize, labelSize, labelSize);
+                pdfDocument.createPageLink(sourcePage, targetPage, rectangle);
             }
         }
     }
+
 
     private void drawLabelAbove(Context context, PdfDocument pdfDocument, float x1, float y1, DrawablePerson person, Person clone) throws IOException {
         float annotationSize = 16f;

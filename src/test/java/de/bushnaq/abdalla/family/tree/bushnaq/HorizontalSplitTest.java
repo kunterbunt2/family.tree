@@ -29,6 +29,7 @@ public class HorizontalSplitTest extends Base {
                 "-family_name", getFamilyName(),//
                 //"-coordinates",//
                 //"-grid",//
+                "-cover_page",//
                 "-min_iso", "A6",//
                 "-max_iso", "A4",//
                 "-split", "BOTTOM_UP"//
@@ -44,6 +45,7 @@ public class HorizontalSplitTest extends Base {
                 , "-family_name", getFamilyName()//
                 //, "-coordinates"//
                 //, "-grid"//
+                , "-cover_page"//
                 , "-max_iso", "A4"//
                 , "-split", "TOP_DOWN"//
         });

@@ -3,6 +3,7 @@ package de.bushnaq.abdalla.pdf;
 import de.bushnaq.abdalla.family.Context;
 import de.bushnaq.abdalla.family.person.DrawablePerson;
 import de.bushnaq.abdalla.family.person.Rect;
+import org.apache.pdfbox.cos.COSArray;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -15,6 +16,10 @@ import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.apache.pdfbox.pdmodel.graphics.color.PDOutputIntent;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
+import org.apache.pdfbox.pdmodel.interactive.action.PDActionGoTo;
+import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotationLink;
+import org.apache.pdfbox.pdmodel.interactive.documentnavigation.destination.PDPageDestination;
+import org.apache.pdfbox.pdmodel.interactive.documentnavigation.destination.PDPageFitWidthDestination;
 import org.apache.xmpbox.XMPMetadata;
 import org.apache.xmpbox.schema.DublinCoreSchema;
 import org.apache.xmpbox.schema.PDFAIdentificationSchema;
@@ -62,18 +67,18 @@ public class PdfDocument implements Closeable {
         endDocument();
     }
 
+    public void createFont(String fontLabel, String fontName, float fontSize) throws IOException {
+        PDFont pdFont = loadFont(fontName);
+        PdfFont pdfFont = new PdfFont(pdFont, fontSize / getFontSize(pdFont));
+        fontMap.put(fontLabel, pdfFont);
+    }
+
 //    public void closeOperation(int pageIndex) throws IOException {
 //        pageContentStreamMap.get(pageIndex).close();
 //        PDPage page = pageMap.get(pageIndex);
 //        PDPageContentStream contentStream = new PDPageContentStream(document, page, AppendMode.APPEND, true, true);
 //        pageContentStreamMap.put(pageIndex, contentStream);
 //    }
-
-    public void createFont(String fontLabel, String fontName, float fontSize) throws IOException {
-        PDFont pdFont = loadFont(fontName);
-        PdfFont pdfFont = new PdfFont(pdFont, fontSize / getFontSize(pdFont));
-        fontMap.put(fontLabel, pdfFont);
-    }
 
     private void createMetaData() throws TransformerException, IOException {
         XMPMetadata xmp = XMPMetadata.createXMPMetadata();
@@ -123,6 +128,20 @@ public class PdfDocument implements Closeable {
         pageLabels.setLabelItem(pageIndex, pageLabelRange1);
         document.getDocumentCatalog().setPageLabels(pageLabels);
 
+    }
+
+    public void createPageLink(PDPage sourcePage, PDPage targetPage, PDRectangle rectangle) throws IOException {
+        PDAnnotationLink link = new PDAnnotationLink();
+        link.setBorderStyle(null);
+        link.setBorder(new COSArray());
+        PDPageDestination destination = new PDPageFitWidthDestination();
+        PDActionGoTo action = new PDActionGoTo();
+        destination.setPage(targetPage);
+        action.setDestination(destination);
+        link.setAction(action);
+        link.setPage(sourcePage);
+        link.setRectangle(rectangle);
+        sourcePage.getAnnotations().add(link);
     }
 
     public void endDocument() throws IOException {

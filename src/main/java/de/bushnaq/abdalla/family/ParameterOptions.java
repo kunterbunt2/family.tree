@@ -25,6 +25,7 @@ public class ParameterOptions {
     private static final String CLI_OPTION_MAX_ISO = "max_iso";
     private static final String CLI_OPTION_MIN_ISO = "min_iso";
     private static final String CLI_OPTION_GRID = "grid";
+    private static final String CLI_OPTION_COVER_PAGE = "cover_page";
 
     private final boolean colorTrees = false;
     private final boolean drawTextMetric = false;
@@ -51,16 +52,17 @@ public class ParameterOptions {
     private boolean v = true;                                        // vertical tree mode
     private boolean distributeOnPages = true;// distribute trees that do not fit on targetPaperSize
     private SplitMode distributeOnPagesMode = SplitMode.TOP_DOWN;
+    private boolean coverPage;
+
+    public SplitMode getDistributeOnPagesMode() {
+        return distributeOnPagesMode;
+    }
 
 //    public String getFilter() {
 //        return filter;
 //    }
 
 //    private String filter;
-
-    public SplitMode getDistributeOnPagesMode() {
-        return distributeOnPagesMode;
-    }
 
     public String getFamilyName() {
         return familyName;
@@ -112,6 +114,10 @@ public class ParameterOptions {
 
     public boolean isCoordinates() {
         return coordinates;
+    }
+
+    public boolean isCoverPage() {
+        return coverPage;
     }
 
     public boolean isDistributeOnPages() {
@@ -179,6 +185,7 @@ public class ParameterOptions {
         options.addOption(Option.builder(CLI_OPTION_COMPACT).desc("Generate compact tree. This parameter is optional. Default is false.").optionalArg(true).build());
         options.addOption(Option.builder(CLI_OPTION_COORDINATES).desc("Generate coordinates. This parameter is optional. Default is false.").optionalArg(true).build());
         options.addOption(Option.builder(CLI_OPTION_GRID).desc("Generate a grid. This parameter is optional. Default is false.").optionalArg(true).build());
+        options.addOption(Option.builder(CLI_OPTION_COVER_PAGE).desc("Generate a cover page. This parameter is optional. Default is false.").optionalArg(true).build());
         options.addOption(Option.builder(CLI_OPTION_SPLIT).hasArg().desc("Splits trees, that do not fit onto max_iso page sizes onto several pages. Parameter must be one of : top-down, bottom-up.This parameter is optional. Default is false.").optionalArg(true).build());
         options.addOption(Option.builder(CLI_OPTION_MIN_ISO).hasArg().desc("Minimum iso page size allowed. Any page will be at least this size. This parameter is optional. Default is A6.").optionalArg(true).build());
         options.addOption(Option.builder(CLI_OPTION_MAX_ISO).hasArg().desc("Maximum iso page size allowed. Any tree that does not fit will be split ont o several pages. Ignored if split option is nto specified. This parameter is optional. Default is A4.").optionalArg(true).build());
@@ -241,6 +248,13 @@ public class ParameterOptions {
             logger.info("grid disabled.");
         }
 
+        if (line.hasOption(CLI_OPTION_COVER_PAGE)) {
+            coverPage = true;
+            logger.info("cover page enabled.");
+        } else {
+            coverPage = false;
+            logger.info("cover page disabled.");
+        }
         if (line.hasOption(CLI_OPTION_V)) {
             v = true;
             h = false;
