@@ -1,6 +1,5 @@
 package de.bushnaq.abdalla.family.person;
 
-import de.bushnaq.abdalla.family.Context;
 import de.bushnaq.abdalla.util.FlexibleDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -123,10 +122,5 @@ public class BasicFamilyMember implements Comparable<BasicFamilyMember> {
     public void setMother(Person mother) {
         this.mother = mother;
     }
-
-    public String toString(Context context) {
-        return toString();
-    }
-
 
 }

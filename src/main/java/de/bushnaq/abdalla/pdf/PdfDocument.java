@@ -112,7 +112,7 @@ public class PdfDocument implements Closeable {
         pageContentStreamMap.put(pageIndex, contentStream);
     }
 
-    public void createPage(PDRectangle mediaBox, String label) throws IOException {
+    public int createPage(PDRectangle mediaBox, String label) throws IOException {
         PDPage page = new PDPage(mediaBox);
         lastPageIndex = pageMap.keySet().size();
         pageMap.put(lastPageIndex, page);
@@ -120,6 +120,7 @@ public class PdfDocument implements Closeable {
         createPageLabel(lastPageIndex, (lastPageIndex + 1) + " - " + label);
         PDPageContentStream contentStream = new PDPageContentStream(document, page);
         pageContentStreamMap.put(lastPageIndex, contentStream);
+        return lastPageIndex;
     }
 
     private void createPageLabel(int pageIndex, String label) {

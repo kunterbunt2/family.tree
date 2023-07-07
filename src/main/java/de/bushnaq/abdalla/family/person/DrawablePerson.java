@@ -681,10 +681,10 @@ public class DrawablePerson extends Person {
         return FAT_LINE_STROKE_WIDTH * context.getParameterOptions().getZoom();
     }
 
-    @Override
-    public String toString(Context context) {
-        return String.format("[%d] %s (%s) x=%d y=%d", getId(), getName(context), getLivedString(), getX(), getY());
-    }
+//    @Override
+//    public String toString(Context context) {
+//        return String.format("[%d] %s (%s) x=%d y=%d", getId(), getName(context), getLivedString(), getX(), getY());
+//    }
 
     private float xIndexToCoordinate(Context context, float x) {
         return getPageMargin(context) + x * getPersonWidth(context);

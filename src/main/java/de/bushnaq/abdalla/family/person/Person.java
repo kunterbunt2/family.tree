@@ -680,7 +680,7 @@ public abstract class Person extends BasicFamilyMember {
     }
 
     public void print(Context context) {
-        System.out.println(toString(context));
+        System.out.println(toString());
     }
 
     public void reset() {
@@ -761,9 +761,14 @@ public abstract class Person extends BasicFamilyMember {
 
     public String toString() {
         if (isClone())
-            return String.format("[%d] %.0f %.0f %d clone", getId(), x, y, getPageIndex());
+            if (getPageIndex() != null)
+                return String.format("[%d][%s %s]{%.0f.%.0f} page=%d clone", getId(), getFirstName(), getLastName(), x, y, getPageIndex());
+            else
+                return String.format("[%d][%s %s]{%.0f.%.0f} clone", getId(), getFirstName(), getLastName(), x, y);
+        else if (getPageIndex() != null)
+            return String.format("[%d][%s %s]{%.0f.%.0f} page:%d", getId(), getFirstName(), getLastName(), x, y, getPageIndex());
         else
-            return String.format("[%d] %.0f %.0f %d", getId(), x, y, getPageIndex());
+            return String.format("[%d][%s %s]{%.0f.%.0f}", getId(), getFirstName(), getLastName(), x, y);
     }
 
     public void validate(Context context) throws Exception {
@@ -772,16 +777,16 @@ public abstract class Person extends BasicFamilyMember {
                 throw new Exception(String.format("[%d] %s is visible but pageIndex == null.", getId(), getClass().getName()));
             }
             if (!isMember(context) && getLastName() != null && getLastName().toLowerCase().contains(context.getParameterOptions().getFamilyName().toLowerCase())) {
-                errors.add(String.format(ErrorMessages.ERROR_005_PERSON_UNKNOWN_ORIGINS, context.getParameterOptions().getFamilyName()));
+                errors.add(String.format(ErrorMessages.ERROR_005_PERSON_UNKNOWN_ORIGINS, this, context.getParameterOptions().getFamilyName()));
             }
             if (getLastName() == null || getLastName().isEmpty()) {
-                errors.add(ErrorMessages.ERROR_004_PERSON_MISSING_LAST_NAME);
+                errors.add(String.format(ErrorMessages.ERROR_004_PERSON_MISSING_LAST_NAME, this));
             }
             if (getFirstName() == null || getFirstName().isEmpty()) {
-                errors.add(ErrorMessages.ERROR_003_PERSON_MISSING_FIRST_NAME);
+                errors.add(String.format(ErrorMessages.ERROR_003_PERSON_MISSING_FIRST_NAME, this));
             }
             if (getPageIndex() == null) {
-                errors.add(ErrorMessages.ERROR_002_PAGE_INDEX_NULL);
+                errors.add(String.format(ErrorMessages.ERROR_002_PAGE_INDEX_NULL, this));
             }
             if (context.getParameterOptions().getFamilyName() != null && getLastName().toLowerCase().contains(context.getParameterOptions().getFamilyName().toLowerCase())) {
                 Person spouseClone = findSpouseClone();

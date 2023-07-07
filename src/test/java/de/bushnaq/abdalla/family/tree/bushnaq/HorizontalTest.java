@@ -21,8 +21,8 @@ public class HorizontalTest extends Base {
     }
 
     @Test
-    @DisplayName("bushnaq family")
-    public void generate(TestInfo testInfo) throws Exception {
+    @DisplayName("full bushnaq family tree")
+    public void fullBushnaqTree(TestInfo testInfo) throws Exception {
         generate(new String[]{
                 "-input", buildInputFileName(testInfo)//
                 , "-output", buildOutputFileName(testInfo)//
