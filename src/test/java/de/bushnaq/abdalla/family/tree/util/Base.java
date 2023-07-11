@@ -30,6 +30,9 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -86,7 +89,7 @@ public class Base {
         String testClassName = testInfo.getTestClass().get().getSimpleName();
         String testMethod = testInfo.getTestMethod().get().getName();
         Files.createDirectories(Paths.get(String.format("output/%s", testClassName)));
-        return String.format("output/%s/%s.pdf", testClassName, testMethod);
+        return String.format("output/%s/%s-%s.pdf", testClassName, testMethod, getFootertext());
     }
 
     void filterSubtree(PersonList personList, int filter) throws IOException {
@@ -126,6 +129,13 @@ public class Base {
 
     public String getFamilyName() {
         return familyName;
+    }
+
+    private String getFootertext() {
+        DateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd");
+        //get current date time with Date()
+        String date = dateFormat.format(new Date());
+        return String.format("%s", date);
     }
 
     protected List<ExpectedResult> readResult(TestInfo testInfo) throws Exception {
@@ -272,13 +282,13 @@ public class Base {
                     Cell cell = row.getCell(9);
                     Integer index = personToIndexMap.get(person.getFather());
                     cell.setCellFormula(String.format("$C$%d", index + 1));
-                    formulaEvaluator.evaluate(cell);
+                    formulaEvaluator.evaluateFormulaCell(cell);
                 }
                 if (person.getMother() != null) {
                     Cell cell = row.getCell(10);
                     Integer index = personToIndexMap.get(person.getMother());
                     cell.setCellFormula(String.format("$C$%d", index + 1));
-                    formulaEvaluator.evaluate(cell);
+                    formulaEvaluator.evaluateFormulaCell(cell);
                 }
             }
             FileOutputStream outputStream = new FileOutputStream(fileName);

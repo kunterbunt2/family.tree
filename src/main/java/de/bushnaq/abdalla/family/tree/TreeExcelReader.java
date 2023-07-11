@@ -35,7 +35,7 @@ public class TreeExcelReader extends BasicExcelReader {
         Iterator<Row> iterator = sheet.iterator();
         while (iterator.hasNext()) {
             Row row = iterator.next();
-            if (row.getRowNum() != 0 && row.getFirstCellNum() > -1) {
+            if (row.getRowNum() != 0 && row.getFirstCellNum() > -1 && row.getCell(0) != null) {
                 Integer id = (int) row.getCell(getColumnHeaderList().getExcelColumnIndex(ColumnHeaderList.ID_COLUMN)).getNumericCellValue();
                 String familyLetter = row.getCell(getColumnHeaderList().getExcelColumnIndex(ColumnHeaderList.FAMILY_LETTER_COLUMN)).getStringCellValue();
                 String sex = row.getCell(getColumnHeaderList().getExcelColumnIndex(ColumnHeaderList.SEX_COLUMN)).getStringCellValue();
@@ -133,32 +133,35 @@ public class TreeExcelReader extends BasicExcelReader {
 
     Integer getReference(Workbook workbook, Cell cell) throws Exception {
         if (cell != null) {
-            if (cell.getCellType() == CellType.FORMULA) {
-                if (!cell.getCellFormula().isEmpty()) {
-                    final EvaluationWorkbook evalWorkbook = XSSFEvaluationWorkbook.create((XSSFWorkbook) workbook);
-                    final EvaluationSheet evalSheet = evalWorkbook.getSheet(0);
-                    final EvaluationCell evelCell = evalSheet.getCell(cell.getRowIndex(), cell.getColumnIndex());
-                    final Ptg[] formulaTokens = evalWorkbook.getFormulaTokens(evelCell);
-                    String cellFormula = cell.getCellFormula();
-                    if (formulaTokens.length == 1 && formulaTokens[0] instanceof RefPtg) {
-                        // this is a reference to a cell on the same sheet
-                        // String cellFormula = cell.getCellFormula();
-                        CellReference cellReference = new CellReference(cellFormula);
-                        CellType cachedFormulaResultTypeEnum = cell.getCachedFormulaResultType();
-                        switch (cachedFormulaResultTypeEnum) {
-                            case STRING: {
-                                return cellReference.getRow() + 1;
+            cell.getStringCellValue();
+            if (!cell.getStringCellValue().isEmpty()) {
+                if (cell.getCellType() == CellType.FORMULA) {
+                    if (!cell.getCellFormula().isEmpty()) {
+                        final EvaluationWorkbook evalWorkbook = XSSFEvaluationWorkbook.create((XSSFWorkbook) workbook);
+                        final EvaluationSheet evalSheet = evalWorkbook.getSheet(0);
+                        final EvaluationCell evalCell = evalSheet.getCell(cell.getRowIndex(), cell.getColumnIndex());
+                        final Ptg[] formulaTokens = evalWorkbook.getFormulaTokens(evalCell);
+                        String cellFormula = cell.getCellFormula();
+                        if (formulaTokens.length == 1 && formulaTokens[0] instanceof RefPtg) {
+                            // this is a reference to a cell on the same sheet
+                            // String cellFormula = cell.getCellFormula();
+                            CellReference cellReference = new CellReference(cellFormula);
+                            CellType cachedFormulaResultTypeEnum = cell.getCachedFormulaResultType();
+                            switch (cachedFormulaResultTypeEnum) {
+                                case STRING: {
+                                    return cellReference.getRow() + 1;
+                                }
+                                case NUMERIC: {
+                                    return cellReference.getRow() + 1;
+                                }
+                                default:
+                                    throw new Exception(String.format("Unexpected cell type %s", cachedFormulaResultTypeEnum.name()));
                             }
-                            case NUMERIC: {
-                                return cellReference.getRow() + 1;
-                            }
-                            default:
-                                throw new Exception(String.format("Unexpected cell type %s", cachedFormulaResultTypeEnum.name()));
                         }
                     }
+                } else {
+                    throw new Exception(String.format("Expected a reference at cell %s", ExcelUtil.cellReference(cell)));
                 }
-            } else {
-                throw new Exception(String.format("Expected a reference at cell %s", ExcelUtil.cellReference(cell)));
             }
         }
         return null;

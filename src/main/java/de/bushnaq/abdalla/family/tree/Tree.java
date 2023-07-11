@@ -14,8 +14,11 @@ import org.slf4j.LoggerFactory;
 import java.awt.*;
 import java.io.IOException;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.*;
+import java.util.Objects;
 
 import static de.bushnaq.abdalla.family.person.DrawablePerson.*;
 
@@ -646,10 +649,9 @@ public abstract class Tree {
     }
 
     private String getFootertext() {
-//        Locale locale = new Locale("fr", "FR");
-        DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.DEFAULT, Locale.getDefault());
+        DateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd");
+        //get current date time with Date()
         String date = dateFormat.format(new Date());
-//        System.out.print(date);
         return String.format("Generated %s by family.tree. See https://github.com/kunterbunt2/family.tree", date);
     }
 
