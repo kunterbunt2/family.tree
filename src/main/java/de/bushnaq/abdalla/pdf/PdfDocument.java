@@ -141,6 +141,8 @@ public class PdfDocument implements Closeable {
         action.setDestination(destination);
         link.setAction(action);
         link.setPage(sourcePage);
+        rectangle.setLowerLeftY(sourcePage.getBBox().getHeight() - rectangle.getLowerLeftY());
+        rectangle.setUpperRightY(sourcePage.getBBox().getHeight() - rectangle.getUpperRightY());
         link.setRectangle(rectangle);
         sourcePage.getAnnotations().add(link);
     }

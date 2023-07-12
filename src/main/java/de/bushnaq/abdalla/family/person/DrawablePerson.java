@@ -240,25 +240,38 @@ public class DrawablePerson extends Person {
             }
         }
 
-        if (!context.getParameterOptions().isCompact()) {
-            // clone
-            try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
-                p.setNonStrokingColor(textColor);
-                if (context.getParameterOptions().isCompact()) {
-                    p.setFont(pdfDocument.getFont(DATE_FONT));
-                } else {
-                    p.setFont(pdfDocument.getFont(NAME_FONT));
+        {
+            Person spouseClone = this.findSpouseClone();
+            if (!context.getParameterOptions().isCompact()) {
+                if (this.isSpouseClone() || spouseClone != null) {
+                    // clone
+                    try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
+                        p.setNonStrokingColor(textColor);
+                        if (context.getParameterOptions().isCompact()) {
+                            p.setFont(pdfDocument.getFont(DATE_FONT));
+                        } else {
+                            p.setFont(pdfDocument.getFont(NAME_FONT));
+                        }
+                        String text = "*";
+                        if (spouseClone != null)
+                            text = "O";
+                        float x2 = x1 + getImageWidth(context) + getWidth(context) - p.getStringWidth(text) - getBorder(context) - getMargin(context);
+                        float y2 = y1 + getBorder(context) + p.getStringHeight();
+                        drawTextMetric(p, x2, y2, text, context);
+                        p.beginText();
+                        p.newLineAtOffset(x2, y2);
+                        p.showText(text);
+                        p.endText();
+                    }
                 }
-                if (this.isSpouseClone()) {
-                    String text = "*";
-                    float x2 = x1 + getImageWidth(context) + getWidth(context) - p.getStringWidth(text) - getBorder(context) - getMargin(context);
-                    float y2 = y1 + getBorder(context) + p.getStringHeight();
-                    drawTextMetric(p, x2, y2, text, context);
-                    p.beginText();
-                    p.newLineAtOffset(x2, y2);
-                    p.showText(text);
-                    p.endText();
-                }
+            }
+            if (spouseClone != null) {
+                //there exists a clone of us somewhere
+                //add link
+                PDPage sourcePage = pdfDocument.getPage(getPageIndex());
+                PDPage targetPage = pdfDocument.getPage(spouseClone.getPageIndex());
+                PDRectangle rectangle = new PDRectangle(x1 + getImageWidth(context), y1, getWidth(context), getHeight(context));
+                pdfDocument.createPageLink(sourcePage, targetPage, rectangle);
             }
         }
         {
@@ -527,7 +540,7 @@ public class DrawablePerson extends Person {
                 //add link
                 PDPage sourcePage = pdfDocument.getPage(getPageIndex());
                 PDPage targetPage = pdfDocument.getPage(clone.getPageIndex());
-                PDRectangle rectangle = new PDRectangle(annotationX - labelSize / 2, sourcePage.getBBox().getHeight() - annotationY + labelSize / 2 - labelSize, labelSize, labelSize);
+                PDRectangle rectangle = new PDRectangle(annotationX - labelSize / 2, annotationY + labelSize / 2 - labelSize, labelSize, labelSize);
                 pdfDocument.createPageLink(sourcePage, targetPage, rectangle);
             }
         }
@@ -680,11 +693,6 @@ public class DrawablePerson extends Person {
     protected float getSpecialBorderWidth(Context context) {
         return FAT_LINE_STROKE_WIDTH * context.getParameterOptions().getZoom();
     }
-
-//    @Override
-//    public String toString(Context context) {
-//        return String.format("[%d] %s (%s) x=%d y=%d", getId(), getName(context), getLivedString(), getX(), getY());
-//    }
 
     private float xIndexToCoordinate(Context context, float x) {
         return getPageMargin(context) + x * getPersonWidth(context);

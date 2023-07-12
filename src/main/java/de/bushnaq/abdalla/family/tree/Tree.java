@@ -71,9 +71,9 @@ public abstract class Tree {
             float x = x3 + p.getStringWidth(pageNumberText);
             float width = x - x1;
 //                            PDPage sourcePage = pdfDocument.getPage(pageIndex);
-            PDRectangle rectangle = new PDRectangle(x1, page.getBBox().getHeight() - y, width, p.getStringHeight());
+            PDRectangle rectangle = new PDRectangle(x1, y - p.getStringHeight(), width, p.getStringHeight());
             pdfDocument.createPageLink(page, targetPage, rectangle);
-//                        p.setNonStrokingColor(Color.red);
+//                        p.setStrokingColor(Color.red);
 //                        p.drawRect(x1,y-p.getStringHeight(), width, p.getStringHeight());
 //                        p.stroke();
         }
