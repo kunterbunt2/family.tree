@@ -23,10 +23,10 @@ import java.util.Objects;
 import static de.bushnaq.abdalla.family.person.DrawablePerson.*;
 
 public abstract class Tree {
-    public static final int COVER_PAGE_INDEX = 0;
-    public static final String ERROR_PAGE_NAME = "Errors";
+    private static final int COVER_PAGE_INDEX = 0;
+    private static final String ERROR_PAGE_NAME = "Errors";
     private static final Color GRID_COLOR = new Color(0x2d, 0xb1, 0xff, 32);
-    public final List<PageError> errors = new ArrayList<>();
+    private final List<PageError> errors = new ArrayList<>();
     protected final Context context;
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
     protected final PersonList personList;
@@ -80,11 +80,13 @@ public abstract class Tree {
     }
 
     private void analyzeTree() {
-        List<Person> rottFatherList = personList.findTreeRootList(context);
-        for (Person rootFather : rottFatherList) {
+        List<Person> rootFatherList = personList.findTreeRootList(context);
+        logger.info(String.format("Found %d root fathers.",rootFatherList.size()));
+        for (Person rootFather : rootFatherList) {
             rootFather.setFirstFather(true);
             rootFather.setGeneration(0);
             rootFather.analyzeTree(context);
+            logger.info(String.format("%s",rootFather));
         }
     }
 

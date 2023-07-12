@@ -157,7 +157,7 @@ public abstract class Person extends BasicFamilyMember {
         PersonList spouseList = getSpouseList();
         int spouseIndex = 0;
         for (Person spouse : spouseList) {
-            if (spouse.isMember(context)) {
+            if (spouse.isFamilyMember(context)) {
                 // both parents are member of the family
                 // ignore any clone that we already have converted
                 if (!context.getParameterOptions().isFollowFemales() && isMale() && !(spouse.isSpouseClone())) {
@@ -552,23 +552,37 @@ public abstract class Person extends BasicFamilyMember {
         return attribute.sex == Sex.Male;
     }
 
-    public boolean isMember(Context context) {
+    /**
+     * is member of one of the family trees
+     * @param context
+     * @return
+     */
+    public boolean isFamilyMember(Context context) {
         if ((getFather() != null) || (getMother() != null) || this.isSpouseClone() || this.isPaginationClone()) {
             // has a known father or mother
             // has a child with a member and had to be cloned
             return true;
         }
-        // not children with spouse that has parents
-        for (Person spouse : getSpouseList()) {
-            if (spouse.isPaginationClone())
-                return false;// pagination clones must have parents
-            if (spouse.getFather() != null || spouse.getMother() != null || spouse.isTreeRoot(context)) {
-                // spouse cannot have father
-                // spouse cannot have a mother
-                // spouse cannot be tree root
-                return false;
-            }
+        if (context.getParameterOptions().getFamilyName() == null) {
+            // family name cannot be empty
+            return false;
         }
+        if (!getLastName().toLowerCase().contains(context.getParameterOptions().getFamilyName().toLowerCase())) {
+            // family name must match tree family name
+            return false;
+        }
+
+        // not children with spouse that has parents
+//        for (Person spouse : getSpouseList()) {
+//            if (spouse.isPaginationClone())
+//                return false;// pagination clones must have parents
+//            if (spouse.getFather() != null || spouse.getMother() != null || spouse.isTreeRoot(context)) {
+//                // spouse cannot have father
+//                // spouse cannot have a mother
+//                // spouse cannot be tree root
+//                return false;
+//            }
+//        }
         return true;
     }
 
@@ -599,7 +613,7 @@ public abstract class Person extends BasicFamilyMember {
      * @return
      */
     public boolean isTreeRoot(Context context) {
-        if (isFemale() || (getFather() != null) || (getMother() != null) || !isMember(context)) {
+        if (isFemale() || (getFather() != null) || (getMother() != null) || !isFamilyMember(context)) {
             // cannot be a Female
             // cannot have a father
             // cannot have a mother
@@ -614,13 +628,13 @@ public abstract class Person extends BasicFamilyMember {
             // must have children to be root of tree
             return false;
         }
-        for (Person spouse : getSpouseList()) {
-            if (spouse.getFather() != null || spouse.getMother() != null) {
-                // spouse must not have father or mother
-                // special case for #TODO find member name
-                return false;
-            }
-        }
+//        for (Person spouse : getSpouseList()) {
+//            if (spouse.getFather() != null || spouse.getMother() != null) {
+//                // spouse must not have father or mother
+//                // special case for #TODO find member name
+//                return false;
+//            }
+//        }
         if (context.getParameterOptions().getFamilyName() == null) {
             // family name cannot be empty
             return false;
@@ -776,7 +790,7 @@ public abstract class Person extends BasicFamilyMember {
             if (isVisible() && getPageIndex() == null) {
                 throw new Exception(String.format("[%d] %s is visible but pageIndex == null.", getId(), getClass().getName()));
             }
-            if (!isMember(context) && getLastName() != null && getLastName().toLowerCase().contains(context.getParameterOptions().getFamilyName().toLowerCase())) {
+            if (!isFamilyMember(context) && getLastName() != null && getLastName().toLowerCase().contains(context.getParameterOptions().getFamilyName().toLowerCase())) {
                 errors.add(String.format(ErrorMessages.ERROR_005_PERSON_UNKNOWN_ORIGINS, this, context.getParameterOptions().getFamilyName()));
             }
             if (getLastName() == null || getLastName().isEmpty()) {

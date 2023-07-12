@@ -126,7 +126,7 @@ public class DrawablePerson extends Person {
                 p.fillRect(x1 + getImageWidth(context), y1, getWidth(context), getHeight(context));
                 p.fill();
             }
-            if (isSpouse() && !isMember(context)) {
+            if (isSpouse() && !isFamilyMember(context)) {
                 // clone border
                 try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
                     p.setStrokingColor(borderColor);
@@ -466,7 +466,7 @@ public class DrawablePerson extends Person {
         }
 
         // vertical sexual relation connector from person to his/her spouse
-        if (hasChildren() && isMember(context) && !isSpouse() && !context.getParameterOptions().isExcludeSpouse()) {
+        if (hasChildren() && isFamilyMember(context) && !isSpouse() && !context.getParameterOptions().isExcludeSpouse()) {
             try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
                 p.setStrokingColor(connectorColor);
                 p.setLineDashPattern(new float[]{1}, 0);
@@ -493,7 +493,7 @@ public class DrawablePerson extends Person {
             }
         }
         // parent connector to children
-        if (hasChildren() && isMember(context) && context.getParameterOptions().isExcludeSpouse()) {
+        if (hasChildren() && isFamilyMember(context) && context.getParameterOptions().isExcludeSpouse()) {
             try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
                 p.setStrokingColor(connectorColor);
                 p.setLineWidth(getConnectorWidth(context));
@@ -645,7 +645,7 @@ public class DrawablePerson extends Person {
         }
 
         // sexual relation connector from person to his/her spouse
-        if (hasChildren() && isMember(context) && !isSpouse() && !context.getParameterOptions().isExcludeSpouse()) {
+        if (hasChildren() && isFamilyMember(context) && !isSpouse() && !context.getParameterOptions().isExcludeSpouse()) {
             try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
                 p.setStrokingColor(connectorColor);
                 p.setLineDashPattern(new float[]{3}, 0);
@@ -663,7 +663,7 @@ public class DrawablePerson extends Person {
         }
 
         // spouse connector to children
-        if (hasChildren() && isMember(context) && context.getParameterOptions().isExcludeSpouse()) {
+        if (hasChildren() && isFamilyMember(context) && context.getParameterOptions().isExcludeSpouse()) {
             try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
                 p.setStrokingColor(connectorColor);
                 p.setLineWidth(getConnectorWidth(context));
