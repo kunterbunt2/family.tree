@@ -265,13 +265,39 @@ public class DrawablePerson extends Person {
                     }
                 }
             }
-            if (spouseClone != null) {
+            if (spouseClone != null || isSpouseClone()) {
                 //there exists a clone of us somewhere
                 //add link
-                PDPage sourcePage = pdfDocument.getPage(getPageIndex());
-                PDPage targetPage = pdfDocument.getPage(spouseClone.getPageIndex());
-                PDRectangle rectangle = new PDRectangle(x1 + getImageWidth(context), y1, getWidth(context), getHeight(context));
-                pdfDocument.createPageLink(sourcePage, targetPage, rectangle);
+                float x2;
+                float y2;
+                float w;
+                float h;
+                try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
+                    String text = "O";
+                    w = p.getStringWidth(text);
+                    h = p.getStringHeight();
+                    x2 = x1 + getImageWidth(context) + getWidth(context) - w - getBorder(context) - getMargin(context);
+                    y2 = y1 + getBorder(context);
+//                    p.drawRect(x2,y2,w,h);
+                }
+                PDRectangle rectangle = new PDRectangle(x2, y2, w, h);
+                PDPage sourcePage;
+                PDPage targetPage;
+                if (spouseClone != null) {
+                    // original link to spouse clone
+                    if (spouseClone.getPageIndex() != null) {
+                        sourcePage = pdfDocument.getPage(getPageIndex());
+                        targetPage = pdfDocument.getPage(spouseClone.getPageIndex());
+                        pdfDocument.createPageLink(sourcePage, targetPage, rectangle);
+                    }
+                } else {
+                    // spouse clone link to original
+                    if (getOriginal().getPageIndex() != null) {
+                        sourcePage = pdfDocument.getPage(getPageIndex());
+                        targetPage = pdfDocument.getPage(getOriginal().getPageIndex());
+                        pdfDocument.createPageLink(sourcePage, targetPage, rectangle);
+                    }
+                }
             }
         }
         {

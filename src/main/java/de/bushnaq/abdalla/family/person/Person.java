@@ -522,38 +522,9 @@ public abstract class Person extends BasicFamilyMember {
         return this.isSpouseClone() || this.isPaginationClone();
     }
 
-    public boolean isFemale() {
-        return attribute.sex == Sex.Female;
-    }
-
-    public boolean isFirstChild() {
-        return attribute.firstChild;
-    }
-
-    boolean isFirstNameOl(Context context) {
-        if (context.getParameterOptions().isOriginalLanguage()) {
-            return getFirstNameOriginalLanguage() != null;
-        }
-        return false;
-    }
-
-    public boolean isLastChild() {
-        return attribute.lastChild;
-    }
-
-    boolean isLastNameOl(Context context) {
-        if (context.getParameterOptions().isOriginalLanguage()) {
-            return getLastNameOriginalLanguage() != null;
-        }
-        return false;
-    }
-
-    public boolean isMale() {
-        return attribute.sex == Sex.Male;
-    }
-
     /**
      * is member of one of the family trees
+     *
      * @param context
      * @return
      */
@@ -584,6 +555,36 @@ public abstract class Person extends BasicFamilyMember {
 //            }
 //        }
         return true;
+    }
+
+    public boolean isFemale() {
+        return attribute.sex == Sex.Female;
+    }
+
+    public boolean isFirstChild() {
+        return attribute.firstChild;
+    }
+
+    boolean isFirstNameOl(Context context) {
+        if (context.getParameterOptions().isOriginalLanguage()) {
+            return getFirstNameOriginalLanguage() != null;
+        }
+        return false;
+    }
+
+    public boolean isLastChild() {
+        return attribute.lastChild;
+    }
+
+    boolean isLastNameOl(Context context) {
+        if (context.getParameterOptions().isOriginalLanguage()) {
+            return getLastNameOriginalLanguage() != null;
+        }
+        return false;
+    }
+
+    public boolean isMale() {
+        return attribute.sex == Sex.Male;
     }
 
     public boolean isPaginationClone() {
