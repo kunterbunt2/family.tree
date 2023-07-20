@@ -142,14 +142,14 @@ PdfBox PDExtendedGraphicsState.setLineWidth has no impact on setLineDashPattern
 2. (done) add feedback from Sana Adnan Bushnaq
 3. (done) add feedback from Wafaa Bushnaq (Lakcic)
 4. (done) add feedback from Nabil al Sharif
-5. send questions to [192] Ali Bushnaq (abushnaq@rwa.com) ask him about his family tree
-6. send questions to [230] Samia Abu Sitta (sas183@yahoo.com) send to both
+5. (undeliverable) send questions to [192] Ali Bushnaq (abushnaq@wrdcw.ae) ask him about his family tree
+6. (undeliverable) send questions to [230] Samia Abu Sitta (sas183@yahoo.com) send to both
 7. send questions to [237] Reem Abu Sitta (ras168@yahoo.com) send to both
 8. send questions to [97] Farihan (farihan@comcast.net)
-9. send questions to [241] As'ad Bushnaq (fabushnaq@comcast.net) send to both
-10. send questions to [12] Wafaa Bushnaq (fufuchik@yahoo.com)
+9. (undeliverable) send questions to [241] As'ad Bushnaq (fabushnaq@comcast.net) send to both
+10. (undeliverable) send questions to [12] Wafaa Bushnaq (fofoshik@yahoo.com)
 11. send questions to Nadia Bushnaq <bushnaqnadia@hotmail.com>, Samir Bushnaq <bushnaqs@emirates.net.ae>, Samia
     Bourani <sbbouari@hotmail.com>
-12. add Mustafa Murad (picture in facebook) sent via email
-13. send questions to children of Samia Bushnaq 
+12. send questions to children of Samia Bushnaq
+13. add Mustafa Murad (picture in facebook) sent via email
 

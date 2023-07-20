@@ -14,6 +14,7 @@ import java.io.IOException;
 
 public class DrawablePerson extends Person {
     public static final String BIG_WATERMARK_FONT = "BIG_WATERMARK_FONT";
+    public static final String CHAPTER_FONT = "CHAPTER_FONT";
     public static final String DATE_FONT = "DATE_FONT";
     public static final String NAME_FONT = "NAME_FONT";
     public static final String NAME_OL_FONT = "NAME_OL_FONT";
@@ -200,10 +201,11 @@ public class DrawablePerson extends Person {
                 if (text.contains("?"))
                     p.setNonStrokingColor(Color.red);
                 drawTextMetric(p, x2, y2, text, context);
-                p.beginText();
-                p.newLineAtOffset(x2, y2);
-                p.showText(text);
-                p.endText();
+//                p.beginText();
+//                p.newLineAtOffset(x2, y2);
+//                p.showText(text);
+//                p.endText();
+                p.drawText(x2, y2, text);
             }
         }
         // last name
@@ -233,10 +235,11 @@ public class DrawablePerson extends Person {
                 if (text.contains("?"))
                     p.setNonStrokingColor(Color.red);
                 drawTextMetric(p, x2, y2, text, context);
-                p.beginText();
-                p.newLineAtOffset(x2, y2);
-                p.showText(text);
-                p.endText();
+//                p.beginText();
+//                p.newLineAtOffset(x2, y2);
+//                p.showText(text);
+//                p.endText();
+                p.drawText(x2, y2, text);
             }
         }
 
@@ -258,10 +261,11 @@ public class DrawablePerson extends Person {
                         float x2 = x1 + getImageWidth(context) + getWidth(context) - p.getStringWidth(text) - getBorder(context) - getMargin(context);
                         float y2 = y1 + getBorder(context) + p.getStringHeight();
                         drawTextMetric(p, x2, y2, text, context);
-                        p.beginText();
-                        p.newLineAtOffset(x2, y2);
-                        p.showText(text);
-                        p.endText();
+//                        p.beginText();
+//                        p.newLineAtOffset(x2, y2);
+//                        p.showText(text);
+//                        p.endText();
+                        p.drawText(x2, y2, text);
                     }
                 }
             }
@@ -314,10 +318,11 @@ public class DrawablePerson extends Person {
                     float x2 = x1 + getImageWidth(context) + getBorder(context) + getMargin(context);
                     float y2 = y1 + getHeight(context) - getBorder(context);
                     drawTextMetric(p, x2, y2, text, context);
-                    p.beginText();
-                    p.newLineAtOffset(x2, y2);
-                    p.showText(text);
-                    p.endText();
+//                    p.beginText();
+//                    p.newLineAtOffset(x2, y2);
+//                    p.showText(text);
+//                    p.endText();
+                    p.drawText(x2, y2, text);
                 }
             }
         }
@@ -337,10 +342,11 @@ public class DrawablePerson extends Person {
                     float x2 = x1 + getImageWidth(context) + getWidth(context) - p.getStringWidth(text) - getMargin(context) - getBorder(context);
                     float y2 = y1 + getHeight(context) - getBorder(context);
                     drawTextMetric(p, x2, y2, text, context);
-                    p.beginText();
-                    p.newLineAtOffset(x2, y2);
-                    p.showText(text);
-                    p.endText();
+//                    p.beginText();
+//                    p.newLineAtOffset(x2, y2);
+//                    p.showText(text);
+//                    p.endText();
+                    p.drawText(x2, y2, text);
                 }
             }
         }
@@ -356,10 +362,11 @@ public class DrawablePerson extends Person {
                     float x2 = x1 + getImageWidth(context) + getWidth(context) - p.getStringWidth("GX") - p.getStringWidth(text) - getMargin(context) - getBorder(context);
                     float y2 = y1 + getHeight(context) - getBorder(context);
                     drawTextMetric(p, x2, y2, text, context);
-                    p.beginText();
-                    p.newLineAtOffset(x2, y2);
-                    p.showText(text);
-                    p.endText();
+//                    p.beginText();
+//                    p.newLineAtOffset(x2, y2);
+//                    p.showText(text);
+//                    p.endText();
+                    p.drawText(x2, y2, text);
                 }
             }
         }
@@ -375,10 +382,11 @@ public class DrawablePerson extends Person {
                     float x2 = x1 + getImageWidth(context) + (getWidth(context)) / 2 - w / 2;
                     float y2 = y1 + getHeight(context) - h - getBorder(context);
                     drawTextMetric(p, x2, y2, text, context);
-                    p.beginText();
-                    p.newLineAtOffset(x2, y2);
-                    p.showText(text);
-                    p.endText();
+//                    p.beginText();
+//                    p.newLineAtOffset(x2, y2);
+//                    p.showText(text);
+//                    p.endText();
+                    p.drawText(x2, y2, text);
                 }
             }
         }
@@ -392,10 +400,11 @@ public class DrawablePerson extends Person {
                 float x2 = x1 + getImageWidth(context) + (getWidth(context)) / 2 - w / 2;
                 float y2 = y1 + getHeight(context) - getBorder(context);
                 drawTextMetric(p, x2, y2, text, context);
-                p.beginText();
-                p.newLineAtOffset(x2, y2);
-                p.showText(text);
-                p.endText();
+//                p.beginText();
+//                p.newLineAtOffset(x2, y2);
+//                p.showText(text);
+//                p.endText();
+                p.drawText(x2, y2, text);
             }
         }
 
@@ -416,10 +425,11 @@ public class DrawablePerson extends Person {
                         float x2 = x1;
                         float y2 = y1 + getHeight(context) + h;
                         drawTextMetric(p, x2, y2, text, context);
-                        p.beginText();
-                        p.newLineAtOffset(x2, y2);
-                        p.showText(text);
-                        p.endText();
+//                        p.beginText();
+//                        p.newLineAtOffset(x2, y2);
+//                        p.showText(text);
+//                        p.endText();
+                        p.drawText(x2, y2, text);
                     }
                 }
             }
@@ -557,10 +567,11 @@ public class DrawablePerson extends Person {
                 //add text
                 p.setNonStrokingColor(Color.white);
                 drawTextMetric(p, textX, textY, text, context);
-                p.beginText();
-                p.newLineAtOffset(textX, textY);
-                p.showText(text);
-                p.endText();
+//                p.beginText();
+//                p.newLineAtOffset(textX, textY);
+//                p.showText(text);
+//                p.endText();
+                p.drawText(textX, textY, text);
             }
             {
                 //add link

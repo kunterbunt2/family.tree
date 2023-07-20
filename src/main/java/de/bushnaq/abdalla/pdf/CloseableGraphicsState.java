@@ -37,7 +37,7 @@ public class CloseableGraphicsState implements Closeable {
         pageHeight = pageBBox.getHeight();
     }
 
-    public void beginText() throws IOException {
+    private void beginText() throws IOException {
         contentStream.beginText();
     }
 
@@ -110,7 +110,17 @@ public class CloseableGraphicsState implements Closeable {
         contentStream.addRect(x + lineWidth / 2, pageHeight - y - height + lineWidth / 2, width - lineWidth, (height - lineWidth));
     }
 
-    public void endText() throws IOException {
+    public void drawText(float tx, float ty, String text) throws IOException {
+        beginText();
+        float descent = getFont().getFontDescriptor().getDescent() / 1000 * getFontSize();
+        contentStream.newLineAtOffset(tx, pageHeight - ty - descent);
+        contentStream.setGraphicsStateParameters(graphicsState);
+        contentStream.showText(text);
+        endText();
+
+    }
+
+    private void endText() throws IOException {
         contentStream.endText();
         graphicsState = new PDExtendedGraphicsState();
     }
@@ -169,13 +179,13 @@ public class CloseableGraphicsState implements Closeable {
         return getFont().getStringWidth(string) / 1000 * getFontSize();
     }
 
+//    public void newLineAtOffset(float tx, float ty) throws IOException {
+//        float descent = getFont().getFontDescriptor().getDescent() / 1000 * getFontSize();
+//        contentStream.newLineAtOffset(tx, pageHeight - ty - descent);
+//    }
+
     public Color getStrokingColor() {
         return strokingColor;
-    }
-
-    public void newLineAtOffset(float tx, float ty) throws IOException {
-        float descent = getFont().getFontDescriptor().getDescent() / 1000 * getFontSize();
-        contentStream.newLineAtOffset(tx, pageHeight - ty - descent);
     }
 
     public void setFont(PdfFont font) throws IOException {
@@ -216,15 +226,15 @@ public class CloseableGraphicsState implements Closeable {
         graphicsState.setStrokingAlphaConstant(strokingColor.getAlpha() / 255.0f);
     }
 
+//    public void showText(String text) throws IOException {
+//        contentStream.setGraphicsStateParameters(graphicsState);
+//        contentStream.showText(text);
+//    }
+
     public void setStrokingColor(Color strokingColor, float alpha) throws IOException {
         this.strokingColor = strokingColor;
         contentStream.setStrokingColor(strokingColor);
         graphicsState.setStrokingAlphaConstant(alpha);
-    }
-
-    public void showText(String text) throws IOException {
-        contentStream.setGraphicsStateParameters(graphicsState);
-        contentStream.showText(text);
     }
 
     public void stroke() throws IOException {

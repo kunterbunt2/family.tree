@@ -43,11 +43,12 @@ class PdfBoxTest extends Base {
             PdfFont font = new PdfFont(pdfDocument.loadFont("NotoSans-Regular.ttf"), 12);
             p.setFont(font);
             float stringHeight = p.getStringHeight();
-            p.beginText();
             p.setNonStrokingColor(color);
-            p.newLineAtOffset(x, y + stringHeight);
-            p.showText(string);
-            p.endText();
+//            p.beginText();
+//            p.newLineAtOffset(x, y + stringHeight);
+//            p.showText(string);
+//            p.endText();
+            p.drawText(x, y + stringHeight, string);
         }
     }
 
@@ -75,11 +76,12 @@ class PdfBoxTest extends Base {
                 p.fillRect(x, baseline, stringWidth, descent);
                 p.fill();
 
-                p.beginText();
                 p.setNonStrokingColor(color);
-                p.newLineAtOffset(x, y + capHeight + descent);
-                p.showText(string);
-                p.endText();
+//                p.beginText();
+//                p.newLineAtOffset(x, y + capHeight + descent);
+//                p.showText(string);
+//                p.endText();
+                p.drawText(x, y + capHeight + descent, string);
             }
 
         }

@@ -24,16 +24,16 @@ import static de.bushnaq.abdalla.family.person.DrawablePerson.*;
 
 public abstract class Tree {
     private static final int COVER_PAGE_INDEX = 0;
-    private static final String ERROR_PAGE_NAME = "Errors";
+    private static final String REPORT_PAGE_NAME = "Report";
     private static final Color GRID_COLOR = new Color(0x2d, 0xb1, 0xff, 32);
     protected final Context context;
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
     protected final PersonList personList;
     private final List<PageError> errors = new ArrayList<>();
-    Date now = new Date();
+    //    private final Date now = new Date();
     //    PersonList visitedList = new PersonList();// TODO use visited field in person instead
     private int firstTreePageIndex = 0;
-    private int errorPageIndex;
+    private int reportPageIndex;
 
     public Tree(Context context, PersonList personList) {
         this.context = context;
@@ -47,25 +47,28 @@ public abstract class Tree {
         float x1 = page.getBBox().getWidth() / 2 - w2 / 2 - 16;
         float x3 = page.getBBox().getWidth() / 2 + w2 / 2;
         {
-            p.beginText();
-            p.newLineAtOffset(x1, y);
-            p.showText(bulletText);
-            p.endText();
+//            p.beginText();
+//            p.newLineAtOffset(x1, y);
+//            p.showText(bulletText);
+//            p.endText();
+            p.drawText(x1, y, bulletText);
         }
         {
             float x2 = page.getBBox().getWidth() / 2 - w2 / 2;
             if (indent)
                 x2 += 10;
-            p.beginText();
-            p.newLineAtOffset(x2, y);
-            p.showText(nameText);
-            p.endText();
+//            p.beginText();
+//            p.newLineAtOffset(x2, y);
+//            p.showText(nameText);
+//            p.endText();
+            p.drawText(x2, y, nameText);
         }
         {
-            p.beginText();
-            p.newLineAtOffset(x3, y);
-            p.showText(pageNumberText);
-            p.endText();
+//            p.beginText();
+//            p.newLineAtOffset(x3, y);
+//            p.showText(pageNumberText);
+//            p.endText();
+            p.drawText(x3, y, pageNumberText);
         }
         {
             float x = x3 + p.getStringWidth(pageNumberText);
@@ -132,13 +135,6 @@ public abstract class Tree {
         }
     }
 
-    private void createErrorPage(Context context, PdfDocument pdfDocument) throws IOException {
-        boolean createErrorPage = errors.size() != 0;
-        if (createErrorPage) {
-            errorPageIndex = pdfDocument.createPage(PDRectangle.A4, ERROR_PAGE_NAME);
-        }
-    }
-
     private void createFonts(Context context, PdfDocument pdfDocument) throws IOException {
         if (context.getParameterOptions().isCompact())
             pdfDocument.createFont(DATE_FONT, "NotoSans-Regular.ttf", (Person.getHeight(context) - Person.getBorder(context) * 2) / 5);
@@ -146,6 +142,7 @@ public abstract class Tree {
             pdfDocument.createFont(DATE_FONT, "NotoSans-Regular.ttf", (Person.getHeight(context) - Person.getBorder(context) * 2 - Person.getMargin(context) * 2) / 5);
         pdfDocument.createFont(BIG_WATERMARK_FONT, "NotoSans-Bold.ttf", 128);
         pdfDocument.createFont(SMALL_WATERMARK_FONT, "NotoSans-Bold.ttf", 32);
+        pdfDocument.createFont(CHAPTER_FONT, "NotoSans-Bold.ttf", 20);
         if (context.getParameterOptions().isCompact()) {
             pdfDocument.createFont(NAME_FONT, "NotoSans-Regular.ttf", (Person.getHeight(context)) / 2);
             pdfDocument.createFont(NAME_OL_FONT, "Amiri-Regular.ttf", (Person.getHeight(context)) / 2);
@@ -173,8 +170,12 @@ public abstract class Tree {
             drawFooter(pdfDocument, person.getPageIndex(), getFootertext());
             drawPageAreaWatermark(pdfDocument, person.getPageIndex(), person.getTreeRect());
         }
-        createErrorPage(context, pdfDocument);
+        createReportPage(context, pdfDocument);
         drawCoverPage(pdfDocument, COVER_PAGE_INDEX);
+    }
+
+    private void createReportPage(Context context, PdfDocument pdfDocument) throws IOException {
+        reportPageIndex = pdfDocument.createPage(PDRectangle.A4, REPORT_PAGE_NAME);
     }
 
     /**
@@ -283,7 +284,7 @@ public abstract class Tree {
     }
 
     private boolean distributeTreeBottomUpOnPages(Context context, PdfDocument pdfDocument, Person person) throws Exception {
-        // TODO if there is no tree that we can find, the person is added to teh visitedList, that is a mistake
+        // TODO if there is no tree that we can find, the person is added to the visitedList, that is a mistake
         // Example is 5
         // we should keep retrying to fit it.
         int pageMaxGeneration = personList.findMaxGeneration();
@@ -373,7 +374,7 @@ public abstract class Tree {
         for (int pageIndex = firstTreePageIndex; pageIndex <= pdfDocument.lastPageIndex; pageIndex++) {
             draw(context, pdfDocument, pageIndex);
         }
-        drawErrorPage(pdfDocument);
+        drawReportPage(pdfDocument);
     }
 
     abstract void draw(Context context, PdfDocument pdfDocument, int pageIndex) throws IOException;
@@ -390,10 +391,11 @@ public abstract class Tree {
                     float w = p.getStringWidth(text);
                     float x = page.getBBox().getWidth() / 2 - w / 2;
                     float y = page.getBBox().getHeight() / 4;
-                    p.beginText();
-                    p.newLineAtOffset(x, y);
-                    p.showText(text);
-                    p.endText();
+//                    p.beginText();
+//                    p.newLineAtOffset(x, y);
+//                    p.showText(text);
+//                    p.endText();
+                    p.drawText(x, y, text);
                 }
                 {
                     p.setFont(pdfDocument.getFont(SMALL_WATERMARK_FONT));
@@ -402,10 +404,11 @@ public abstract class Tree {
                     float w1 = p.getStringWidth(text);
                     float x = page.getBBox().getWidth() / 2 - w1 / 2;
                     float y = page.getBBox().getHeight() / 4 + h;
-                    p.beginText();
-                    p.newLineAtOffset(x, y);
-                    p.showText(text);
-                    p.endText();
+//                    p.beginText();
+//                    p.newLineAtOffset(x, y);
+//                    p.showText(text);
+//                    p.endText();
+                    p.drawText(x, y, text);
                 }
                 {
                     p.setFont(pdfDocument.getFont(SMALL_WATERMARK_FONT));
@@ -429,7 +432,7 @@ public abstract class Tree {
                     if (errors.size() != 0) {
                         float h1 = p.getStringHeight();
                         float y = page.getBBox().getHeight() / 4 + h0 + 20 + h1 * i;
-                        drawTocRecord(pdfDocument, p, page, pdfDocument.getPage(errorPageIndex), String.format("%d", i), ERROR_PAGE_NAME, String.format("%d", errorPageIndex + 1), y, false);
+                        drawTocRecord(pdfDocument, p, page, pdfDocument.getPage(reportPageIndex), String.format("%d", i), REPORT_PAGE_NAME, String.format("%d", reportPageIndex + 1), y, false);
                     }
                 }
             }
@@ -437,31 +440,19 @@ public abstract class Tree {
         }
     }
 
-    private List<PageError> drawErrorPage(PdfDocument pdfDocument) throws Exception {
-        boolean createErrorPage = errors.size() != 0;
-
-        if (createErrorPage) {
-            logger.info("Generating Error page ...");
-            createFonts(context, pdfDocument);
-            try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, errorPageIndex)) {
-                p.setNonStrokingColor(Color.red);
-                p.setFont(pdfDocument.getFont(NAME_FONT));
-
-                float y = p.getStringHeight();
-                for (int i = errors.size(); i-- > 0; ) {
-                    PageError error = errors.get(i);
-                    p.beginText();
-                    p.newLineAtOffset(2, y);
-                    String errorMessage;
-                    errorMessage = String.format("%s", error.getError());
-                    p.showText(errorMessage);
-                    logger.error(errorMessage);
-                    p.endText();
-                    y += p.getStringHeight();
-                }
-            }
+    private void drawFooter(PdfDocument pdfDocument, Integer pageIndex, String footerText) throws IOException {
+        try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
+            PDPage page = pdfDocument.getPage(pageIndex);
+            p.setNonStrokingColor(Color.gray);
+            p.setFont(pdfDocument.getFont(NAME_FONT));
+            float h1 = p.getStringHeight();
+//            String text = String.format("%d", pageIndex + 1);
+//            p.beginText();
+//            p.newLineAtOffset(10, page.getBBox().getHeight() - h1);
+//            p.showText(footerText);
+//            p.endText();
+            p.drawText(10, page.getBBox().getHeight() - h1, footerText);
         }
-        return errors;
     }
 
 //    private void drawDebugTree(Context context, Person person, int pageIndex) throws IOException, TransformerException {
@@ -475,20 +466,6 @@ public abstract class Tree {
 //        draw(context, pdfDocument, pageIndex);
 //        pdfDocument.endDocument();
 //    }
-
-    private void drawFooter(PdfDocument pdfDocument, Integer pageIndex, String footerText) throws IOException {
-        try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, pageIndex)) {
-            PDPage page = pdfDocument.getPage(pageIndex);
-            p.setNonStrokingColor(Color.gray);
-            p.setFont(pdfDocument.getFont(NAME_FONT));
-            float h1 = p.getStringHeight();
-//            String text = String.format("%d", pageIndex + 1);
-            p.beginText();
-            p.newLineAtOffset(10, page.getBBox().getHeight() - h1);
-            p.showText(footerText);
-            p.endText();
-        }
-    }
 
     private void drawGrid(PdfDocument pdfDocument) throws IOException {
         for (int pageIndex = 0; pageIndex < pdfDocument.getNumberOfPages(); pageIndex++) {
@@ -520,15 +497,6 @@ public abstract class Tree {
                             float y2 = getPageMargin(context) - Person.getYSpace(context) / 2 + ((int) ((page.getBBox().getHeight() - getPageMargin(context) * 2) / h)) * h;
                             p.drawLine(x1, y1, x2, y2);
                         }
-//                         draw coordinates
-//                        if (x < maxX - 1 && y < maxY - 1) {
-//                            p.setFont(pdfDocument.getFont(DATE_FONT));
-//                            p.setNonStrokingColor(Color.black);
-//                            p.beginText();
-//                            p.newLineAtOffset(getPageMargin(context) + x * w, getPageMargin(context) - Person.getYSpace(context) / 2 + y * h + Person.getPersonHeight(context));
-//                            p.showText(String.format("%d,%d", x, y));
-//                            p.endText();
-//                        }
                     }
                 }
                 p.stroke();
@@ -548,10 +516,11 @@ public abstract class Tree {
             int h = (int) (rect.getY2() - rect.getY1() + 1);
             int area = w * h;
             String text = String.format("%d X %d = %d", w, h, area);
-            p.beginText();
-            p.newLineAtOffset(page.getBBox().getWidth() - p.getStringWidth(text), h1 + h2);
-            p.showText(text);
-            p.endText();
+//            p.beginText();
+//            p.newLineAtOffset(page.getBBox().getWidth() - p.getStringWidth(text), h1 + h2);
+//            p.showText(text);
+//            p.endText();
+            p.drawText(page.getBBox().getWidth() - p.getStringWidth(text), h1 + h2, text);
         }
     }
 
@@ -562,10 +531,11 @@ public abstract class Tree {
             p.setFont(pdfDocument.getFont(NAME_FONT));
             float h1 = p.getStringHeight();
             String text = String.format("%d", pageIndex + 1);
-            p.beginText();
-            p.newLineAtOffset(page.getBBox().getWidth() - 10, page.getBBox().getHeight() - h1);
-            p.showText(text);
-            p.endText();
+//            p.beginText();
+//            p.newLineAtOffset(page.getBBox().getWidth() - 10, page.getBBox().getHeight() - h1);
+//            p.showText(text);
+//            p.endText();
+            p.drawText(page.getBBox().getWidth() - 10, page.getBBox().getHeight() - h1, text);
         }
     }
 
@@ -575,11 +545,58 @@ public abstract class Tree {
             p.setNonStrokingColor(GRID_COLOR);
             p.setFont(pdfDocument.getFont(BIG_WATERMARK_FONT));
             String text = pdfDocument.getPageSizeName(pageIndex);
-            p.beginText();
-            p.newLineAtOffset(page.getBBox().getWidth() - p.getStringWidth(text), p.getStringHeight());
-            p.showText(text);
-            p.endText();
+//            p.beginText();
+//            p.newLineAtOffset(page.getBBox().getWidth() - p.getStringWidth(text), p.getStringHeight());
+//            p.showText(text);
+//            p.endText();
+            p.drawText(page.getBBox().getWidth() - p.getStringWidth(text), p.getStringHeight(), text);
         }
+    }
+
+    private List<PageError> drawReportPage(PdfDocument pdfDocument) throws Exception {
+        boolean createErrorPage = errors.size() != 0;
+
+        if (createErrorPage) {
+            logger.info("Generating Error page ...");
+            createFonts(context, pdfDocument);
+            try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, reportPageIndex)) {
+                p.setNonStrokingColor(Color.black);
+
+                float x = 10;
+                float y = 10;
+                {
+                    // report
+                    {
+                        p.setFont(pdfDocument.getFont(CHAPTER_FONT));
+                        y += p.getStringHeight();
+                        p.drawText(x, y, "Report");
+                    }
+                    p.setFont(pdfDocument.getFont(NAME_FONT));
+                    y += p.getStringHeight();
+                    p.drawText(x, y, String.format("%d families", personList.findTreeRootList(context).size()));
+                    y += p.getStringHeight();
+                    p.drawText(x, y, String.format("%d person", personList.size()));
+                }
+                {
+                    // errors
+                    {
+                        p.setFont(pdfDocument.getFont(CHAPTER_FONT));
+                        y += p.getStringHeight();
+                        p.drawText(x, y, "Errors");
+                    }
+                    p.setFont(pdfDocument.getFont(NAME_FONT));
+                    for (int i = errors.size(); i-- > 0; ) {
+                        PageError error = errors.get(i);
+                        String errorMessage;
+                        errorMessage = String.format("%s", error.getError());
+                        y += p.getStringHeight();
+                        p.drawText(x, y, errorMessage);
+                        logger.error(errorMessage);
+                    }
+                }
+            }
+        }
+        return errors;
     }
 
     private IsoPage findIsoPage(Context context, PdfDocument pdfDocument, int pageMaxGeneration, Person treeHead) throws Exception {
@@ -669,18 +686,6 @@ public abstract class Tree {
             }
         }
     }
-
-//    private void position(Context context, PdfDocument pdfDocument) {
-//        List<Person> rootFatherList = personList.findTreeRootList(context);
-//        firstPageIndex = pdfDocument.lastPageIndex;
-//        for (Person rootFather : rootFatherList) {
-//            rootFather.setPageIndex(pdfDocument.lastPageIndex++);
-//            rootFather.setX(0);
-//            rootFather.setY(0);
-//            position(context, rootFather, 1000);
-//        }
-//        pdfDocument.lastPageIndex--;
-//    }
 
     abstract float position(Context context, Person person, int includingGeneration);
 
