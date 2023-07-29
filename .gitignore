@@ -36,3 +36,4 @@ reference/d/*.pdf
 .classpath
 
 temp.txt
+/.idea

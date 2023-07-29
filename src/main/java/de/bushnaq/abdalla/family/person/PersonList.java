@@ -98,11 +98,35 @@ public class PersonList extends LinkedList
         return treeRootList;
     }
 
+    public int getMaxPageIndex() {
+        int maxPageIndex = -1;
+        for (Person p : this) {
+            if (p.getPageIndex() != null)
+                maxPageIndex = Math.max(maxPageIndex, p.getPageIndex());
+        }
+        return maxPageIndex;
+    }
+
 //    public void printPersonList(Context context) {
 //        for (Person p : this) {
 //            p.print(context);
 //        }
 //    }
+
+    public Rect getTreeRect(int pageIndex) {
+        Rect rect = null;
+
+        for (Person p : this) {
+            if (p.getPageIndex() != null && p.getPageIndex() == pageIndex) {
+                if (rect == null)
+                    rect = new Rect(p.getX(), p.getY(), p.getX(), p.getY());
+                else
+                    rect.expandToInclude(new Rect(p.getX(), p.getY(), p.getX(), p.getY()));
+            }
+        }
+
+        return rect;
+    }
 
     public void reset() {
         for (Person p : this) {

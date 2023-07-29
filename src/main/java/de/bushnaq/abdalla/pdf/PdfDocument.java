@@ -25,6 +25,8 @@ import org.apache.xmpbox.schema.DublinCoreSchema;
 import org.apache.xmpbox.schema.PDFAIdentificationSchema;
 import org.apache.xmpbox.type.BadFieldValueException;
 import org.apache.xmpbox.xml.XmpSerializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.transform.TransformerException;
 import java.io.ByteArrayOutputStream;
@@ -35,15 +37,23 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PdfDocument implements Closeable {
+    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
     final Map<String, PDImageXObject> imageMap = new HashMap<>();
     final IsoPage[] isoPageList = {                    //
-            new IsoPage(PDRectangle.A6, "A6"),                                        //
-            new IsoPage(PDRectangle.A5, "A5"),                                        //
-            new IsoPage(PDRectangle.A4, "A4"),                                        //
-            new IsoPage(PDRectangle.A3, "A3"),                                        //
-            new IsoPage(PDRectangle.A2, "A2"),                                        //
-            new IsoPage(PDRectangle.A1, "A1"),                                        //
-            new IsoPage(PDRectangle.A0, "A0")};
+            new IsoPage(IsoRectangle.A6, "A6"),                                        //
+            new IsoPage(IsoRectangle.A6_LANDSCAPE, "A6 landscape"),                                        //
+            new IsoPage(IsoRectangle.A5, "A5"),                                        //
+            new IsoPage(IsoRectangle.A5_LANDSCAPE, "A5 landscape"),                                        //
+            new IsoPage(IsoRectangle.A4, "A4"),                                        //
+            new IsoPage(IsoRectangle.A4_LANDSCAPE, "A4 landscape"),                                        //
+            new IsoPage(IsoRectangle.A3, "A3"),                                        //
+            new IsoPage(IsoRectangle.A3_LANDSCAPE, "A3 landscape"),                                        //
+            new IsoPage(IsoRectangle.A2, "A2"),                                        //
+            new IsoPage(IsoRectangle.A2_LANDSCAPE, "A2 landscape"),                                        //
+            new IsoPage(IsoRectangle.A1, "A1"),                                        //
+            new IsoPage(IsoRectangle.A1_LANDSCAPE, "A1 landscape"),                                        //
+            new IsoPage(IsoRectangle.A0, "A0"),
+            new IsoPage(IsoRectangle.A0_LANDSCAPE, "A0 landscape")};
     final Map<Integer, PDPageContentStream> pageContentStreamMap = new HashMap<>();
     final Map<Integer, PDPage> pageMap = new HashMap<>();
     private final String documentFileName;
@@ -107,17 +117,18 @@ public class PdfDocument implements Closeable {
         PDPage page = new PDPage(bestFitting);
         pageMap.put(pageIndex, page);
         document.addPage(page);
-        createPageLabel(pageIndex, (pageIndex + 1) + " - " + label);
+//        createPageLabel(pageIndex, (pageIndex + 1) + " - " + label);
         PDPageContentStream contentStream = new PDPageContentStream(document, page);
         pageContentStreamMap.put(pageIndex, contentStream);
     }
+
 
     public int createPage(PDRectangle mediaBox, String label) throws IOException {
         PDPage page = new PDPage(mediaBox);
         lastPageIndex = pageMap.keySet().size();
         pageMap.put(lastPageIndex, page);
         document.addPage(page);
-        createPageLabel(lastPageIndex, (lastPageIndex + 1) + " - " + label);
+//        createPageLabel(lastPageIndex, (lastPageIndex + 1) + " - " + label);
         PDPageContentStream contentStream = new PDPageContentStream(document, page);
         pageContentStreamMap.put(lastPageIndex, contentStream);
         return lastPageIndex;
@@ -163,20 +174,11 @@ public class PdfDocument implements Closeable {
     }
 
     public IsoPage findBestFittingPageSize(float w, float h) {
-        if (w >= h) {
-            for (int i = 0; i < isoPageList.length; i++) {
-                IsoPage pageSize = isoPageList[i];
-                if (pageSize.getRect().getWidth() >= h && pageSize.getRect().getHeight() >= w)
-                    return new IsoPage(pageSize.getRect().getHeight(), pageSize.getRect().getWidth(), pageSize.getName());
-            }
-        } else {
-            for (int i = 0; i < isoPageList.length; i++) {
-                IsoPage pageSize = isoPageList[i];
-                if (pageSize.getRect().getWidth() >= w && pageSize.getRect().getHeight() >= h)
-                    return pageSize;
-            }
+        for (int i = 0; i < isoPageList.length; i++) {
+            IsoPage pageSize = isoPageList[i];
+            if (pageSize.getRect().getWidth() >= w && pageSize.getRect().getHeight() >= h)
+                return pageSize;
         }
-
         return new IsoPage(w, h, ">A0");
     }
 
@@ -218,25 +220,29 @@ public class PdfDocument implements Closeable {
         return getPage(pageIndex).getBBox().getHeight();
     }
 
-    public String getPageSizeName(int pageIndex) throws IOException {
+    public IsoPage getPageSize(int pageIndex) {
         PDPage page = getPage(pageIndex);
         float w = page.getBBox().getWidth();
         float h = page.getBBox().getHeight();
 
         if (w >= h) {
-            for (int i = 0; i < isoPageList.length; i++) {
-                IsoPage pageSize = isoPageList[i];
+            for (IsoPage pageSize : isoPageList) {
                 if (pageSize.getRect().getWidth() >= h && pageSize.getRect().getHeight() >= w)
-                    return pageSize.getName();
+                    return pageSize;
             }
         } else {
-            for (int i = 0; i < isoPageList.length; i++) {
-                IsoPage pageSize = isoPageList[i];
+            for (IsoPage pageSize : isoPageList) {
                 if (pageSize.getRect().getWidth() >= w && pageSize.getRect().getHeight() >= h)
-                    return pageSize.getName();
+                    return pageSize;
             }
         }
+        return null;
+    }
 
+    public String getPageSizeName(int pageIndex) throws IOException {
+        IsoPage isoPage = getPageSize(pageIndex);
+        if (isoPage != null)
+            return isoPage.getName();
         return ">A0";
     }
 
