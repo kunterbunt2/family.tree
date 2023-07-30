@@ -37,6 +37,22 @@ public class HorizontalSplitTest extends Base {
     }
 
     @Test
+    @DisplayName("bushnaq family, split bottom up, Arabic, on A4 pages")
+    public void splitBottomUpBushnaqArabicTree(TestInfo testInfo) throws Exception {
+        generate(new String[]{//
+                "-input", buildInputFileName(testInfo)//
+                , "-output", buildOutputFileName(testInfo)//
+                , "-family_name", getFamilyName()//
+                //,"-coordinates"//
+                //,"-grid"//
+                , "-ol"
+                , "-cover_page"//
+                , "-min_iso", "A6"//
+                , "-max_iso", "A4"//
+                , "-split", "BOTTOM_UP"//
+        });
+    }
+    @Test
     @DisplayName("bushnaq family, split top down on A4 pages")
     public void splitTopDownBushnaqTree(TestInfo testInfo) throws Exception {
         generate(new String[]{
@@ -45,6 +61,21 @@ public class HorizontalSplitTest extends Base {
                 , "-family_name", getFamilyName()//
                 //, "-coordinates"//
                 //, "-grid"//
+                , "-cover_page"//
+                , "-max_iso", "A4"//
+                , "-split", "TOP_DOWN"//
+        });
+    }
+    @Test
+    @DisplayName("bushnaq family, split top down, Arabic, on A4 pages")
+    public void splitTopDownBushnaqAraicTree(TestInfo testInfo) throws Exception {
+        generate(new String[]{
+                "-input", buildInputFileName(testInfo)//
+                , "-output", buildOutputFileName(testInfo)//
+                , "-family_name", getFamilyName()//
+                //, "-coordinates"//
+                //, "-grid"//
+                ,"-ol"
                 , "-cover_page"//
                 , "-max_iso", "A4"//
                 , "-split", "TOP_DOWN"//

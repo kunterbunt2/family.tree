@@ -437,13 +437,21 @@ public abstract class Tree {
                     p.setFont(pdfDocument.getFont(SMALL_WATERMARK_FONT));
                     float h0 = p.getStringHeight();
                     p.setFont(pdfDocument.getFont(NAME_FONT));
+
                     PersonList treeRootList = personList.findTreeHeadList(context);
                     int i = 0;
                     for (Person person : treeRootList) {
                         PDPage targetPage = pdfDocument.getPage(person.getPageIndex());
                         p.setNonStrokingColor(Color.black);
+                        String nameText;
+                        if (person.isFirstNameOl(context) || person.isLastNameOl(context)) {
+                            p.setFont(pdfDocument.getFont(NAME_OL_FONT));
+                            nameText = String.format("%s %s", person.getLastNameAsString(context), person.getFirstNameAsString(context));
+                        } else {
+                            p.setFont(pdfDocument.getFont(NAME_FONT));
+                            nameText = String.format("%s %s", person.getFirstNameAsString(context), person.getLastNameAsString(context));
+                        }
                         String bulletText = String.format("%d", i);
-                        String nameText = String.format("%s %s", person.getFirstName(), person.getLastName());
                         String pageNumberText = String.format("%d", person.getPageIndex() + 1);
                         float h1 = p.getStringHeight();
                         float y = page.getBBox().getHeight() / 4 + h0 + 20 + h1 * i;
@@ -598,7 +606,7 @@ public abstract class Tree {
                     y += p.getStringHeight();
                     p.drawText(x, y, String.format("%d families", personList.findTreeRootList(context).size()));
                     y += p.getStringHeight();
-                    p.drawText(x, y, String.format("%d person", personList.size()));
+                    p.drawText(x, y, String.format("%d person", personList.getNumberOfIndividualPeople()));
                 }
                 {
                     // errors

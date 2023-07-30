@@ -33,5 +33,19 @@ public class HorizontalTest extends Base {
                 , "-min_iso", "A4"//
         });
     }
+    @Test
+    @DisplayName("full bushnaq family Arabic tree")
+    public void fullBushnaqArabicTree(TestInfo testInfo) throws Exception {
+        generate(new String[]{
+                "-input", buildInputFileName(testInfo)//
+                , "-output", buildOutputFileName(testInfo)//
+                , "-family_name", getFamilyName()//
+                //, "-coordinates"//
+                //, "-grid"//
+                ,"-ol"
+                , "-cover_page"//
+                , "-min_iso", "A4"//
+        });
+    }
 
 }

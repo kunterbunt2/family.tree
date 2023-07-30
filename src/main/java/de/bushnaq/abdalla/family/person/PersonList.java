@@ -26,6 +26,15 @@ public class PersonList extends LinkedList
         }
     }
 
+    public int getNumberOfIndividualPeople() {
+        int count = 0;
+        for (Person p : this) {
+            if (!p.isClone())
+                count++;
+        }
+        return count;
+    }
+
     public int findMaxGeneration() {//TODO cache value
         int maxGenration = -1;
 

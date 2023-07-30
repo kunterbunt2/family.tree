@@ -565,7 +565,7 @@ public abstract class Person extends BasicFamilyMember {
         return attribute.firstChild;
     }
 
-    boolean isFirstNameOl(Context context) {
+    public boolean isFirstNameOl(Context context) {
         if (context.getParameterOptions().isOriginalLanguage()) {
             return getFirstNameOriginalLanguage() != null;
         }
@@ -576,7 +576,7 @@ public abstract class Person extends BasicFamilyMember {
         return attribute.lastChild;
     }
 
-    boolean isLastNameOl(Context context) {
+    public boolean isLastNameOl(Context context) {
         if (context.getParameterOptions().isOriginalLanguage()) {
             return getLastNameOriginalLanguage() != null;
         }
