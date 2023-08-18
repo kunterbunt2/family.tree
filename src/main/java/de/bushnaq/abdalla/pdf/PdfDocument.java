@@ -3,6 +3,7 @@ package de.bushnaq.abdalla.pdf;
 import de.bushnaq.abdalla.family.Context;
 import de.bushnaq.abdalla.family.person.DrawablePerson;
 import de.bushnaq.abdalla.family.person.Rect;
+import org.apache.commons.io.IOUtils;
 import org.apache.pdfbox.cos.COSArray;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
@@ -201,7 +202,13 @@ public class PdfDocument implements Closeable {
     public PDImageXObject getImage(String imageFileName) throws IOException {
         PDImageXObject pdImage = imageMap.get(imageFileName);
         if (pdImage == null) {
-            pdImage = PDImageXObject.createFromFile(imageFileName, getDocument());
+            if (imageFileName.endsWith(DrawablePerson.DEFAULT_IMAGE)) {
+                byte[] bytes = IOUtils.resourceToByteArray(imageFileName);
+                pdImage = PDImageXObject.createFromByteArray(getDocument(), bytes, DrawablePerson.DEFAULT_IMAGE);
+
+            } else {
+                pdImage = PDImageXObject.createFromFile(imageFileName, getDocument());
+            }
             imageMap.put(imageFileName, pdImage);
         }
         return pdImage;

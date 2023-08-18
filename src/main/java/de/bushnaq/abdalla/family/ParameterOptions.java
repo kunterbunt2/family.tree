@@ -50,7 +50,7 @@ public class ParameterOptions {
     private boolean originalLanguage = false;                                    // use original language fields for fist name and last name
     private String outputDecorator = "";                                        // additional decorations for the output file name
     private boolean v = true;                                        // vertical tree mode
-    private boolean distributeOnPages = true;// distribute trees that do not fit on targetPaperSize
+    private boolean distributeOnPages = false;// distribute trees that do not fit on targetPaperSize
     private SplitMode distributeOnPagesMode = SplitMode.TOP_DOWN;
     private boolean coverPage;
 
@@ -216,7 +216,7 @@ public class ParameterOptions {
         if (line.hasOption(CLI_OPTION_OUTPUT_FILE_DECORATIONS)) {
             outputDecorator = line.getOptionValue(CLI_OPTION_OUTPUT_FILE_DECORATIONS);
         }
-        if (line.hasOption(CLI_OPTION_H)) {
+        if (line.hasOption(CLI_OPTION_H) || !line.hasOption(CLI_OPTION_V)) {
             h = true;
             v = false;
             logger.info("horizontal tree mode enabled.");
@@ -224,6 +224,15 @@ public class ParameterOptions {
             h = false;
             v = true;
             logger.info("horizontal tree mode disabled.");
+        }
+        if (line.hasOption(CLI_OPTION_V) && !line.hasOption(CLI_OPTION_H)) {
+            v = true;
+            h = false;
+            logger.info("vertical tree mode enabled.");
+        } else {
+            v = false;
+            h = true;
+            logger.info("vertical tree mode disabled.");
         }
         if (line.hasOption(CLI_OPTION_COMPACT)) {
             compact = true;
@@ -254,15 +263,6 @@ public class ParameterOptions {
         } else {
             coverPage = false;
             logger.info("cover page disabled.");
-        }
-        if (line.hasOption(CLI_OPTION_V)) {
-            v = true;
-            h = false;
-            logger.info("vertical tree mode enabled.");
-        } else {
-            v = false;
-            h = true;
-            logger.info("vertical tree mode disabled.");
         }
 
         if (line.hasOption(CLI_OPTION_EXCLUDE_SPOUSE)) {
@@ -329,7 +329,7 @@ public class ParameterOptions {
             logger.info(String.format("min_iso page is %s.", pageName));
         } else {
             minPaperSize = new IsoPage(PDRectangle.A6, "A6");
-            logger.info("min_iso page is A4.");
+            logger.info("min_iso page is A6.");
         }
         if (line.hasOption(CLI_OPTION_FAMILY_NAME)) {
             familyName = line.getOptionValue(CLI_OPTION_FAMILY_NAME);

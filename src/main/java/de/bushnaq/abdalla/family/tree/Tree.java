@@ -723,6 +723,13 @@ public abstract class Tree {
         return errors;
     }
 
+    private int getFirstPageIndex() {
+        if (context.getParameterOptions().isCoverPage())
+            return 1;
+        else
+            return 0;
+    }
+
     private String getFootertext() {
         DateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd");
         //get current date time with Date()
@@ -742,7 +749,7 @@ public abstract class Tree {
         personList.clearVisited();
         PersonList treeHeadList = personList.findTreeHeadList(context);
         IsoPage lastIsoPage = null;
-        int pageIndex = 1;
+        int pageIndex = getFirstPageIndex();
         int maxPageIndex = personList.getMaxPageIndex();
         for (Person person : treeHeadList) {
             Rect rect = person.getTreeRect();

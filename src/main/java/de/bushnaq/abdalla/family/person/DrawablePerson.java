@@ -16,6 +16,7 @@ public class DrawablePerson extends Person {
     public static final String BIG_WATERMARK_FONT = "BIG_WATERMARK_FONT";
     public static final String CHAPTER_FONT = "CHAPTER_FONT";
     public static final String DATE_FONT = "DATE_FONT";
+    public static final String DEFAULT_IMAGE = "default.jpg";
     public static final String NAME_FONT = "NAME_FONT";
     public static final String NAME_OL_FONT = "NAME_OL_FONT";
     public static final String SMALL_WATERMARK_FONT = "SMALL_WATERMARK_FONT";
@@ -160,7 +161,7 @@ public class DrawablePerson extends Person {
             else
                 imageFileName = String.format("%s/images/%s.%s.jpg", context.getParameterOptions().getInputFolder(), getFirstName().toLowerCase(), getLastName().toLowerCase());
             if (!new File(imageFileName).exists()) {
-                imageFileName = String.format("%s/images/default.jpg", context.getParameterOptions().getInputFolder());
+                imageFileName = "/images/" + DEFAULT_IMAGE;
             } else {
                 logger.info(String.format("Found image %s.", imageFileName));
             }

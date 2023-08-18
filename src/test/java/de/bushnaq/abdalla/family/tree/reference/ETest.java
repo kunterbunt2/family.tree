@@ -3,6 +3,7 @@ package de.bushnaq.abdalla.family.tree.reference;
 import de.bushnaq.abdalla.family.Application;
 import de.bushnaq.abdalla.family.person.PersonList;
 import de.bushnaq.abdalla.family.tree.util.Base;
+import de.bushnaq.abdalla.family.tree.util.Obfuscator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
@@ -15,7 +16,7 @@ import org.springframework.test.context.ContextConfiguration;
 public class ETest extends Base {
 
     public ETest() {
-        super("bushnaq");
+        super(new Obfuscator().obfuscateString("bushnaq"));
     }
 
 

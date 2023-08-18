@@ -16,15 +16,6 @@ import java.io.IOException;
 class PdfBoxTest extends Base {
     PdfDocument pdfDocument;
 
-//    private String createOutputFileName(TestInfo testInfo) throws IOException {
-////        String folderName = "output/pdf/";
-////        Files.createDirectories(Paths.get(folderName));
-////        return folderName + displayName + ".pdf";
-//        String testClassName = testInfo.getTestClass().get().getSimpleName();
-//        String testMethod = testInfo.getTestMethod().get().getName();
-//        return  String.format("output/%s/%s.pdf", testClassName, testMethod);
-//    }
-
     private void createText(float x, float y, Color color, String string) throws IOException {
         try (CloseableGraphicsState p = new CloseableGraphicsState(pdfDocument, 0)) {
 

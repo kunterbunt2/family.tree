@@ -21,19 +21,16 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
-/target/
-/output/
-reference/bushnaq/
-reference/a/*.pdf
-reference/b/*.pdf
-reference/c/*.pdf
-reference/d/*.pdf
+target
+output
+new material
+reference/bushnaq
+reference/hientzsch
+reference/walczak
+resources
 
 .project
-
 .settings/
-
 .classpath
-
 temp.txt
 /.idea
