@@ -14,11 +14,10 @@ public class ParameterOptions {
     private static final String CLI_OPTION_EXCLUDE_SPOUSE = "exclude_spouse";
     private static final String CLI_OPTION_FAMILY_NAME = "family_name";
     private static final String CLI_OPTION_FOLLOW_FEMALES = "follow_females";
-    private static final String CLI_OPTION_FOLLOW_OL = "ol";
+    private static final String CLI_OPTION_OL = "ol";
     private static final String CLI_OPTION_H = "h";
     private static final String CLI_OPTION_INPUT = "input";
     private static final String CLI_OPTION_OUTPUT = "output";
-    //    private static final String CLI_OPTION_FILTER = "filter";
     private static final String CLI_OPTION_OUTPUT_FILE_DECORATIONS = "output_decorations";
     private static final String CLI_OPTION_V = "v";
     private static final String CLI_OPTION_SPLIT = "split";
@@ -174,14 +173,13 @@ public class ParameterOptions {
         Options options = new Options();
         options.addOption(Option.builder(CLI_OPTION_INPUT).hasArg().desc("Input excel file name. This parameter is not optional.").build());
         options.addOption(Option.builder(CLI_OPTION_OUTPUT).hasArg().desc("Output pdf file name. This parameter is optional. Default is input file name.").build());
-//        options.addOption(Option.builder(CLI_OPTION_FILTER).hasArg().desc("Filter input file to a specific root. This parameter is optional.").build());
         options.addOption(Option.builder(CLI_OPTION_FAMILY_NAME).hasArg().desc("Family name used to pic root of family. This parameter is optional.").optionalArg(true).build());
         options.addOption(Option.builder(CLI_OPTION_OUTPUT_FILE_DECORATIONS).hasArg().desc("Output file name decorations. This parameter is optional.").optionalArg(true).build());
         options.addOption(Option.builder(CLI_OPTION_H).desc("Generate horizontal tree. This parameter is optional. Default is false.").optionalArg(true).build());
         options.addOption(Option.builder(CLI_OPTION_V).desc("Generate vertical tree. This parameter is optional. Default is true.").optionalArg(true).build());
         options.addOption(Option.builder(CLI_OPTION_EXCLUDE_SPOUSE).desc("Exclude spouses if true. This parameter is optional. Default is false.").build());
         options.addOption(Option.builder(CLI_OPTION_FOLLOW_FEMALES).desc("If children can be visualized with the father or the mother, this parameter will decide. This parameter is optional. Default is false.").build());
-        options.addOption(Option.builder(CLI_OPTION_FOLLOW_OL).desc("Use original language for first name and last name if they exist. This parameter is optional. Default is false.").build());
+        options.addOption(Option.builder(CLI_OPTION_OL).desc("Use original language for first name and last name if they exist. This parameter is optional. Default is false.").build());
         options.addOption(Option.builder(CLI_OPTION_COMPACT).desc("Generate compact tree. This parameter is optional. Default is false.").optionalArg(true).build());
         options.addOption(Option.builder(CLI_OPTION_COORDINATES).desc("Generate coordinates. This parameter is optional. Default is false.").optionalArg(true).build());
         options.addOption(Option.builder(CLI_OPTION_GRID).desc("Generate a grid. This parameter is optional. Default is false.").optionalArg(true).build());
@@ -281,7 +279,7 @@ public class ParameterOptions {
             logger.info("follow females mode disabled.");
         }
 
-        if (line.hasOption(CLI_OPTION_FOLLOW_OL)) {
+        if (line.hasOption(CLI_OPTION_OL)) {
             originalLanguage = true;
             logger.info("original language mode enabled.");
         } else {
