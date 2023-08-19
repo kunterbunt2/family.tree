@@ -44,7 +44,7 @@ public class ExcelUtil {
     }
 
     public static String cellReference(Cell cell) {
-        return columnIndexToExcelColumnName(cell.getColumnIndex()) + rowIndextoExcelRowName(cell.getRowIndex());
+        return columnIndexToExcelColumnName(cell.getColumnIndex()) + rowIndexToExcelRowName(cell.getRowIndex());
     }
 
     public static String columnIndexToExcelColumnName(int i) {
@@ -53,7 +53,7 @@ public class ExcelUtil {
         return String.valueOf(x);
     }
 
-    public static int rowIndextoExcelRowName(int rowNum) {
+    public static int rowIndexToExcelRowName(int rowNum) {
         return rowNum + 1;
     }
 

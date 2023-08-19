@@ -59,7 +59,7 @@ public class Application implements CommandLineRunner {
     public void run(String... args) throws Exception {
         if (!lazyStart) {
             logger.info(String.format("executed %s %s-%s-%s", moduleName, moduleVersion, buildTime, svnRevision));
-            // logger.info(String.format("starting family.tree %s.%s from command promt", moduleVersion, buildNumber));
+            // logger.info(String.format("starting family.tree %s.%s from command prompt", moduleVersion, buildNumber));
             if (args.length == 0) {
                 logger.info("no arguments provided, starting user interface");
                 launcher.frmFamilytree.setVisible(true);

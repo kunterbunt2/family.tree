@@ -34,7 +34,7 @@ public abstract class BasicExcelReader {
         return columnHeaderList;
     }
 
-    protected void postPorcess(String fileName, Workbook workbook) throws Exception {
+    protected void postProcess(String fileName, Workbook workbook) throws Exception {
 
     }
 
@@ -43,8 +43,8 @@ public abstract class BasicExcelReader {
         if (file.exists()) {
             try (FileInputStream excelFilestream = new FileInputStream(file)) {
                 try (Workbook workbook = new XSSFWorkbook(excelFilestream)) {
-                    readWokbook(workbook);
-                    postPorcess(fileName, workbook);
+                    readWorkbook(workbook);
+                    postProcess(fileName, workbook);
                 }
             }
         } else {
@@ -67,7 +67,7 @@ public abstract class BasicExcelReader {
         }
     }
 
-    protected void readWokbook(Workbook workbook) throws Exception {
+    protected void readWorkbook(Workbook workbook) throws Exception {
         detectExcelHeaderColumns(workbook);
         readRows(workbook);
     }

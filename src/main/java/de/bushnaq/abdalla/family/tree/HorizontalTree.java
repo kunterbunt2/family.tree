@@ -108,7 +108,7 @@ public class HorizontalTree extends Tree {
     }
 
     /**
-     * Move parents that are one generation older than specified nearer to each other ignoring all children that are younger than clipGenration
+     * Move parents that are one generation older than specified nearer to each other ignoring all children that are younger than clipGeneration
      *
      * @param p
      * @param generation

@@ -39,12 +39,12 @@ public class Base {
         System.setProperty("java.awt.headless", "false");
     }
 
-    final Logger logger = LoggerFactory.getLogger(this.getClass());
+    final protected Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     protected Context context;
     @Autowired
     protected Main main;
-    Map<Person, Integer> personToIndexMap = new HashMap<>();
+    protected Map<Person, Integer> personToIndexMap = new HashMap<>();
     private String familyName = null;
 
     public Base(String familyName) {

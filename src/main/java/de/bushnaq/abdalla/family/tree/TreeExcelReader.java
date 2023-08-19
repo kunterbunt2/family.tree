@@ -214,7 +214,7 @@ public class TreeExcelReader extends BasicExcelReader {
     }
 
     @Override
-    protected void readWokbook(Workbook workbook) throws Exception {
+    protected void readWorkbook(Workbook workbook) throws Exception {
         detectExcelHeaderColumns(workbook);
         createPeronList(workbook);
         readRows(workbook);

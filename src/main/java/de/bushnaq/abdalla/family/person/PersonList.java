@@ -27,13 +27,13 @@ public class PersonList extends LinkedList
     }
 
     public int findMaxGeneration() {//TODO cache value
-        int maxGenration = -1;
+        int maxGeneration = -1;
 
         for (Person p : this) {
             if (p.getGeneration() != null)
-                maxGenration = Math.max(maxGenration, p.getGeneration());
+                maxGeneration = Math.max(maxGeneration, p.getGeneration());
         }
-        return maxGenration;
+        return maxGeneration;
     }
 
     public Person findPersonById(int filter) {

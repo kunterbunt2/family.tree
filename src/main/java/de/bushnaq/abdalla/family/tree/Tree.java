@@ -185,7 +185,7 @@ public abstract class Tree {
                 pdfDocument.createPage(person.getPageIndex(), pageWidth, pageHeight, person.getFirstName() + " " + person.getLastName());
                 drawPageSizeWatermark(pdfDocument, person.getPageIndex());
                 drawPageNumber(pdfDocument, person.getPageIndex());
-                drawFooter(pdfDocument, person.getPageIndex(), getFootertext());
+                drawFooter(pdfDocument, person.getPageIndex(), getFooterText());
                 drawPageAreaWatermark(pdfDocument, person.getPageIndex(), person.getTreeRect());
             } else {
                 drawSeparator(context, pdfDocument, person.getPageIndex());
@@ -250,7 +250,7 @@ public abstract class Tree {
     }
 
     private void cutTreeBranches(Context context, PdfDocument pdfDocument, Person person, int includingGeneration) {
-        logger.info(String.format("cutting tree for parent=%d genration <= G%d", person.getId(), includingGeneration));
+        logger.info(String.format("cutting tree for parent=%d generation <= G%d", person.getId(), includingGeneration));
         cutTreeBranches(context, person, includingGeneration);
     }
 
@@ -344,7 +344,7 @@ public abstract class Tree {
         if (rootFatherList.size() == 0)
             throw new Exception("Did not find root father");
         for (Person rootFather : rootFatherList) {
-            int treeMaxGeneration = findMaxgeneration(rootFather);
+            int treeMaxGeneration = findMaxGeneration(rootFather);
             distributeTreeTopDownOnPages(context, pdfDocument, rootFather, treeMaxGeneration);
         }
         mergePages(context, pdfDocument);
@@ -467,7 +467,7 @@ public abstract class Tree {
                     }
                 }
             }
-            drawFooter(pdfDocument, pageIndex, getFootertext());
+            drawFooter(pdfDocument, pageIndex, getFooterText());
         }
     }
 
@@ -698,17 +698,17 @@ public abstract class Tree {
         return lastGenerationList;
     }
 
-    int findMaxgeneration(Person father) {
-        return findMaxgeneration(father, -1);
+    int findMaxGeneration(Person father) {
+        return findMaxGeneration(father, -1);
     }
 
-    int findMaxgeneration(Person father, int maxGenration) {
+    int findMaxGeneration(Person father, int maxGeneration) {
         if (father.getGeneration() != null)
-            maxGenration = Math.max(maxGenration, father.getGeneration());
+            maxGeneration = Math.max(maxGeneration, father.getGeneration());
         for (Person c : father.getChildrenList()) {
-            maxGenration = Math.max(maxGenration, findMaxgeneration(c));
+            maxGeneration = Math.max(maxGeneration, findMaxGeneration(c));
         }
-        return maxGenration;
+        return maxGeneration;
     }
 
     public List<PageError> generate(Context context, PdfDocument pdfDocument, String familyName) throws Exception {
@@ -730,7 +730,7 @@ public abstract class Tree {
             return 0;
     }
 
-    private String getFootertext() {
+    private String getFooterText() {
         DateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd");
         //get current date time with Date()
         String date = dateFormat.format(new Date());

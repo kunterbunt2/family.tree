@@ -130,7 +130,7 @@ Every record represents one person and the relations to other people within the 
 | Comment         | String         | Comments purely intended for the author of the table.                                                           |
 | Comment (OL)    | String         | Comments in original language purely intended for the author of the table.                                      |
 
-# Spechial Cases
+# Special Cases
 
 **family.tree** detects if the members of the family are actually more than one family (not same ancestors), every
 family is assigned a family letter starting with A to distinguish the families from each other.

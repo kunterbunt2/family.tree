@@ -63,7 +63,7 @@ public class ObfuscateBushnaqExcelBook extends BasicExcelReader {
     }
 
     @Override
-    protected void postPorcess(String fileName, Workbook workbook) throws Exception {
+    protected void postProcess(String fileName, Workbook workbook) throws Exception {
         FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
         evaluator.evaluateAll();
         //obfuscator.reseed();
